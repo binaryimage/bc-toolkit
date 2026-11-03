@@ -1,0 +1,184 @@
+name: Build + test BC Visualizer
+
+on:
+  push:
+    paths: ["visualizer/**", "toolkit/pc/Source/Common/**", ".github/workflows/visualizer.yml", "!visualizer/ci-results/**"]
+  workflow_dispatch:
+
+concurrency:
+  group: visualizer-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write    # releases + committing test results back to the branch
+
+jobs:
+  windows:
+    name: Windows app, MP4 export, installer
+    runs-on: windows-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read version
+        run: echo "VZ_VERSION=$(sed -n 's/^project(BCVisualizer VERSION \([0-9.]*\)).*/\1/p' visualizer/CMakeLists.txt)" >> "$GITHUB_ENV"
+
+      - name: Get JUCE 8.0.15
+        run: git clone --depth 1 --branch 8.0.15 https://github.com/juce-framework/JUCE.git JUCE
+
+      - name: Build
+        id: build
+        run: |
+          set -o pipefail
+          {
+            cmake -S visualizer -B build -A x64 -DTOOLKIT_JUCE_DIR="$GITHUB_WORKSPACE/JUCE" &&
+            cmake --build build --config Release --parallel 4 --target BCVisualizer
+          } 2>&1 | tee build.log
+
+      - name: Save the build log if the build failed
+        if: failure() && steps.build.outcome == 'failure'
+        run: |
+          mkdir -p visualizer/ci-results
+          grep -E " error |error C|error LNK|fatal error" build.log | head -n 300 > visualizer/ci-results/build-errors.txt || true
+          tail -n 300 build.log > visualizer/ci-results/build-failure.log
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f visualizer/ci-results
+          git commit -m "Visualizer build failed: log"
+          git pull --rebase origin "$GITHUB_REF_NAME" || true
+          git push origin "HEAD:$GITHUB_REF_NAME"
+
+      - name: Stage
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path stage, dist, visualizer/ci-results | Out-Null
+          Copy-Item "build/BCVisualizer_artefacts/Release/BC Visualizer.exe" stage/
+          Copy-Item "visualizer/Visualizer README.txt" stage/
+
+      - name: Gallery (every style rendered by the real app)
+        id: gallery
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $dir = "$PWD\gallery"
+          $p = Start-Process -FilePath "$PWD\stage\BC Visualizer.exe" -ArgumentList '--gallery', "`"$dir`"" -PassThru
+          if (-not $p.WaitForExit(600000)) { $p.Kill(); throw "gallery run did not finish" }
+          $n = (Get-ChildItem $dir -Filter "[0-9][0-9]-*.png").Count
+          "gallery: $n images, exit $($p.ExitCode)" | Tee-Object visualizer/ci-results/gallery.txt
+          Copy-Item "$dir\00-all-styles.png", "$dir\app.png", "$dir\styles.txt" visualizer/ci-results/
+          if ($n -lt 49) { throw "expected 48 styles + contact sheet, got $n" }
+          exit 0
+
+      - name: MP4 export tests (Media Foundation H.264 + AAC)
+        id: export
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $out = "visualizer/ci-results/export-tests.txt"
+          "" | Out-File $out
+          $ok = $true
+          $runs = @(
+            @{ name = "test-1080p30.mp4"; args = @('--seconds', '10', '--style', '0') },
+            @{ name = "test-1440p60.mp4"; args = @('--seconds', '4', '--style', '6', '--width', '2560', '--height', '1440', '--fps', '60') },
+            @{ name = "test-2160p30.mp4"; args = @('--seconds', '3', '--style', '10', '--width', '3840', '--height', '2160') },
+            @{ name = "BC-Visualizer-all-48-styles.mp4"; args = @('--seconds', '144', '--style', '-1', '--cycle', '3') },
+            @{ name = "check-640x360.mp4"; args = @('--seconds', '3', '--style', '0', '--width', '640', '--height', '360') }
+          )
+          foreach ($r in $runs) {
+            $file = "$PWD\dist\$($r.name)"
+            $a = @('--test-export', "`"$file`"") + $r.args
+            $p = Start-Process -FilePath "$PWD\stage\BC Visualizer.exe" -ArgumentList $a -PassThru
+            if (-not $p.WaitForExit(1200000)) { $p.Kill(); $ok = $false; "$($r.name): timed out" | Tee-Object -Append $out; continue }
+            $log = [IO.Path]::ChangeExtension($file, ".log")
+            $line = if (Test-Path $log) { Get-Content $log } else { "no log" }
+            "$($r.name): exit $($p.ExitCode)  $line" | Tee-Object -Append $out
+            if ($p.ExitCode -ne 0 -or -not (Test-Path $file) -or (Get-Item $file).Length -lt 20000) { $ok = $false }
+          }
+          Copy-Item dist/check-640x360.mp4 visualizer/ci-results/ -ErrorAction SilentlyContinue
+          if (-not $ok) { throw "an export failed" }
+          exit 0
+
+      - name: Build the installer
+        id: installer
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress | Out-Null }
+          & $iscc "/DStage=$PWD\stage" "/DAppVersion=$env:VZ_VERSION" "/O$PWD\dist" visualizer/installer/Visualizer.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed" }
+          exit 0
+
+      - name: Installer test (silent install, export from the installed copy, uninstall)
+        id: install
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $out = "visualizer/ci-results/installer-test.txt"
+          $setup = (Get-ChildItem dist -Filter "BC-Visualizer-Setup-*.exe").FullName
+          $p = Start-Process $setup -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/LOG=install.log' -PassThru -Wait
+          "install exit: $($p.ExitCode)" | Tee-Object $out
+          $exe = "${env:ProgramFiles}\BC Visualizer\BC Visualizer.exe"
+          if (-not (Test-Path $exe)) { throw "not installed at $exe" }
+          $file = "$PWD\installed-test.mp4"
+          $q = Start-Process $exe -ArgumentList '--test-export', "`"$file`"", '--seconds', '3' -PassThru
+          $q.WaitForExit(300000) | Out-Null
+          "installed export exit: $($q.ExitCode), size: $((Get-Item $file -ErrorAction SilentlyContinue).Length)" | Tee-Object -Append $out
+          $un = "${env:ProgramFiles}\BC Visualizer\unins000.exe"
+          Start-Process $un -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART' -Wait
+          Start-Sleep 3
+          "uninstalled: $(-not (Test-Path $exe))" | Tee-Object -Append $out
+          if ($q.ExitCode -ne 0 -or (Test-Path $exe)) { throw "installer test failed" }
+          exit 0
+
+      - name: Package
+        shell: pwsh
+        run: |
+          $zipDir = "dist/BC Visualizer $env:VZ_VERSION (portable)"
+          New-Item -ItemType Directory -Force -Path $zipDir | Out-Null
+          Copy-Item "stage/BC Visualizer.exe", "stage/Visualizer README.txt" $zipDir
+          Compress-Archive -Path "$zipDir/*" -DestinationPath "dist/BC-Visualizer-$env:VZ_VERSION-portable.zip" -Force
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: BC-Visualizer
+          path: |
+            dist/*.exe
+            dist/*.zip
+            dist/*.mp4
+            gallery/*.png
+
+      - name: Publish a release (when everything passed)
+        if: github.event_name == 'push' && steps.gallery.outcome == 'success' && steps.export.outcome == 'success' && steps.install.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="visualizer-v$VZ_VERSION"
+          SETUP=$(ls dist/BC-Visualizer-Setup*.exe)
+          ZIP="dist/BC-Visualizer-$VZ_VERSION-portable.zip"
+          REEL="dist/BC-Visualizer-all-48-styles.mp4"
+          SHEET="visualizer/ci-results/00-all-styles.png"
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release upload "$TAG" "$SETUP" "$ZIP" "$REEL" "$SHEET" --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$TAG" "$SETUP" "$ZIP" "$REEL" "$SHEET" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest=false \
+              --title "BC Visualizer $VZ_VERSION" \
+              --notes "Audio-reactive music videos for YouTube: 48 styles, title + artist + cover art, MP4 export at 1080p/1440p/4K, 30 or 60 fps. BC-Visualizer-Setup installs it; the portable zip runs without installing. BC-Visualizer-all-48-styles.mp4 shows every style for 3 seconds each."
+          fi
+
+      - name: Commit test results back to the branch
+        if: always() && steps.build.outcome == 'success'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          echo "gallery: ${{ steps.gallery.outcome }}   export: ${{ steps.export.outcome }}   installer: ${{ steps.install.outcome }}" > visualizer/ci-results/status.txt
+          git add -f visualizer/ci-results
+          if ! git diff --cached --quiet; then
+            git commit -m "Visualizer $VZ_VERSION: test results + screenshots"
+            git pull --rebase origin "$GITHUB_REF_NAME" || true
+            git push origin "HEAD:$GITHUB_REF_NAME"
+          fi
