@@ -1,6 +1,6 @@
 
-test-1080p30.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-1080p30.mp4 14559815 bytes, 15.1 s
-test-1440p60.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-1440p60.mp4 14100830 bytes, 12.0 s
-test-2160p30.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-2160p30.mp4 5675819 bytes, 10.2 s
-BC-Visualizer-all-48-styles.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-all-48-styles.mp4 159191334 bytes, 123.5 s
-check-640x360.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\check-640x360.mp4 1049452 bytes, 0.9 s
+test-1080p30.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-1080p30.mp4 14559815 bytes, 13.4 s
+test-1440p60.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-1440p60.mp4 14100830 bytes, 10.7 s
+test-2160p30.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-2160p30.mp4 5675819 bytes, 9.2 s
+BC-Visualizer-all-48-styles.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-all-48-styles.mp4 159191334 bytes, 104.3 s
+check-640x360.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\check-640x360.mp4 1049452 bytes, 0.7 s
