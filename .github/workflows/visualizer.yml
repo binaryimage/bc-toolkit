@@ -67,7 +67,7 @@ jobs:
           $dir = "$PWD\gallery"
           $p = Start-Process -FilePath "$PWD\stage\BC Visualizer.exe" -ArgumentList '--gallery', "`"$dir`"" -PassThru
           if (-not $p.WaitForExit(600000)) { $p.Kill(); throw "gallery run did not finish" }
-          $n = (Get-ChildItem $dir -Filter "[0-9][0-9]-*.png").Count
+          $n = (Get-ChildItem $dir -Filter *.png | Where-Object { $_.Name -match '^\d\d-' }).Count
           "gallery: $n images, exit $($p.ExitCode)" | Tee-Object visualizer/ci-results/gallery.txt
           Copy-Item "$dir\00-all-styles.png", "$dir\app.png", "$dir\styles.txt" visualizer/ci-results/
           if ($n -lt 49) { throw "expected 48 styles + contact sheet, got $n" }
