@@ -3,3 +3,8 @@
 12:40:10  apps running: 2
 12:40:11  taking screenshot
 12:40:15  saved D:\a\bc-toolkit\bc-toolkit\toolkit\pc\ci-results\shots\16-split-host.png
+13:10:04  started: --test --stay --screenshot "D:\a\bc-toolkit\bc-toolkit\toolkit\pc\ci-results\shots\16-split-host.png"
+13:10:04  apps running: 0
+13:10:08  apps running: 2
+13:10:08  taking screenshot
+13:10:14  saved D:\a\bc-toolkit\bc-toolkit\toolkit\pc\ci-results\shots\16-split-host.png
