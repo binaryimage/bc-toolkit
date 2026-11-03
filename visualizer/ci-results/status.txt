@@ -1,1 +1,1 @@
-gallery: failure   export: success   installer: success
+gallery: success   export: success   installer: success
