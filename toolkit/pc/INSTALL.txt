@@ -1,0 +1,27 @@
+BC Toolkit for PC
+==========================
+
+Run BC-Toolkit-Setup.exe. It installs
+  - BC Toolkit (the app)
+  - BC Link (the Ableton VST3) into C:\Program Files\Common Files\VST3
+BC Split (lets Ableton, Toolkit and Rocksmith use the Model 12 at the same time) is a separate
+installer: BC-Split-Setup.exe. Install either or both.
+Windows may say a setup is from an unknown publisher: More info > Run anyway.
+Uninstall from Windows Settings > Apps like anything else.
+
+BC Split (after running BC-Split-Setup.exe)
+  In Ableton: Preferences > Audio > Driver Type ASIO > Audio Device "BC Split".
+  In Toolkit: Settings > ASIO > "BC Split".
+  In Rocksmith: in RS_ASIO.ini set  Driver=BC Split  for output and input.
+  Split opens the real interface itself (it picks the TASCAM driver; change it in the Split window from the
+  Start menu). Keep every app at the same sample rate (48 kHz). Close apps before reinstalling.
+
+BC Link
+  In Ableton: Options > Preferences > Plug-Ins, make sure "Use VST3 Plug-in System Folders" is on, and Rescan.
+  Drop "BC Link" at the end of any track you want Toolkit to hear. It passes audio through untouched.
+
+First run
+  Settings: pick your audio interface (or BC Split) and switch on the inputs your synths use.
+  Meters: double-click each strip's name and call it what's plugged in.
+
+Everything is explained in "Toolkit Tutorial.md" and on the Tutorial page inside the app.

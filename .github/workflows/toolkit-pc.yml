@@ -1,0 +1,242 @@
+name: Build + test Toolkit (PC)
+
+on:
+  push:
+    paths: ["toolkit/pc/**", ".github/workflows/toolkit-pc.yml", "!toolkit/pc/ci-results/**"]
+  workflow_dispatch:
+
+concurrency:
+  group: toolkit-pc-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write    # releases + committing test results back to the branch
+
+jobs:
+  windows:
+    name: Windows app, VST3, Split driver, installer
+    runs-on: windows-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read version
+        run: |
+          echo "TK_VERSION=$(sed -n 's/^project(BinaryimageToolkit VERSION \([0-9.]*\)).*/\1/p' toolkit/pc/CMakeLists.txt)" >> "$GITHUB_ENV"
+          echo "SPLIT_VERSION=$(sed -n 's/^project(BinaryimageSplit VERSION \([0-9.]*\) .*/\1/p' toolkit/pc/split/CMakeLists.txt)" >> "$GITHUB_ENV"
+
+      - name: Get JUCE 8.0.15
+        run: git clone --depth 1 --branch 8.0.15 https://github.com/juce-framework/JUCE.git JUCE
+
+      - name: Configure
+        run: |
+          cmake -S toolkit/pc -B build -A x64 -DTOOLKIT_JUCE_DIR="$GITHUB_WORKSPACE/JUCE" -DTOOLKIT_BUILD_TESTS=ON
+          ASIO="$GITHUB_WORKSPACE/JUCE/modules/juce_audio_devices/native/asio"
+          cmake -S toolkit/pc/split -B build-split64 -A x64 -DSPLIT_ASIO_DIR="$ASIO"
+          cmake -S toolkit/pc/split -B build-split32 -A Win32 -DSPLIT_ASIO_DIR="$ASIO"
+
+      - name: Build
+        id: build
+        run: |
+          set -o pipefail
+          {
+            cmake --build build-split64 --config Release --parallel 4 &&
+            cmake --build build-split32 --config Release --parallel 4 &&
+            cmake --build build --config Release --parallel 4 --target BinaryimageToolkit SplitHost ToolkitLink_VST3 ToolkitTests
+          } 2>&1 | tee build.log
+
+      - name: Save the build log if the build failed
+        if: failure() && steps.build.outcome == 'failure'
+        run: |
+          mkdir -p toolkit/pc/ci-results
+          grep -E " error |error C|error LNK|fatal error" build.log | head -n 300 > toolkit/pc/ci-results/build-errors.txt || true
+          tail -n 300 build.log > toolkit/pc/ci-results/build-failure.log
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f toolkit/pc/ci-results
+          git commit -m "Toolkit PC build failed: log"
+          git pull --rebase origin "$GITHUB_REF_NAME" || true
+          git push origin "HEAD:$GITHUB_REF_NAME"
+
+      - name: Stage the files
+        shell: pwsh
+        run: |
+          $s = "stage"
+          New-Item -ItemType Directory -Force -Path "$s/Split", toolkit/pc/ci-results | Out-Null
+          Copy-Item (Get-ChildItem -Recurse build/BinaryimageToolkit_artefacts/Release -Filter *.exe | Select-Object -First 1).FullName "$s/"
+          Copy-Item (Get-ChildItem -Recurse build/SplitHost_artefacts/Release -Filter *.exe | Select-Object -First 1).FullName "$s/Split/"
+          Copy-Item "build-split64/Release/BC Split x64.dll" "$s/Split/"
+          Copy-Item "build-split32/Release/BC Split x86.dll" "$s/Split/"
+          Copy-Item -Recurse "build/ToolkitLink_artefacts/Release/VST3/BC Link.vst3" "$s/"
+          Copy-Item toolkit/pc/Resources/tutorial.md "$s/Toolkit Tutorial.md"
+          Copy-Item toolkit/pc/INSTALL.txt "$s/INSTALL.txt"
+          Copy-Item "toolkit/pc/split/Split README.txt" "$s/Split README.txt"
+          Get-ChildItem -Recurse $s | Select-Object FullName, Length | Format-Table -AutoSize | Out-String -Width 300
+
+      - name: Unit tests + screenshots (test runner)
+        id: tests
+        continue-on-error: true
+        run: |
+          mkdir -p toolkit/pc/ci-results/shots
+          set -o pipefail
+          ./build/ToolkitTests_artefacts/Release/ToolkitTests.exe toolkit/pc/ci-results/shots 2>&1 | tee toolkit/pc/ci-results/tests.txt
+
+      - name: Split tests (protocol, both drivers through a real host, JUCE as an ASIO host)
+        id: split
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $out = "toolkit/pc/ci-results/split-tests.txt"
+          $ok = $true
+          "== protocol (Windows shared memory + events)" | Tee-Object $out
+          & ./build-split64/Release/SplitProtocolTest.exe 2>&1 | Tee-Object -Append $out; if ($LASTEXITCODE -ne 0) { $ok = $false }
+          "== register both drivers" | Tee-Object -Append $out
+          $p = Start-Process "$env:WINDIR\System32\regsvr32.exe" -ArgumentList '/s', "`"$PWD\stage\Split\BC Split x64.dll`"" -Wait -PassThru; "x64 regsvr32 exit $($p.ExitCode)" | Tee-Object -Append $out
+          $q = Start-Process "$env:WINDIR\SysWOW64\regsvr32.exe" -ArgumentList '/s', "`"$PWD\stage\Split\BC Split x86.dll`"" -Wait -PassThru; "x86 regsvr32 exit $($q.ExitCode)" | Tee-Object -Append $out
+          if ($p.ExitCode -ne 0 -or $q.ExitCode -ne 0) { $ok = $false }
+          "== host in test mode" | Tee-Object -Append $out
+          $shot = "$PWD\toolkit\pc\ci-results\shots\15-split-host.png"
+          $host_ = Start-Process "$PWD\stage\Split\BC Split Host.exe" -ArgumentList '--test', '--stay', '--screenshot', "`"$shot`"" -PassThru
+          Start-Sleep -Seconds 4
+          "== 64-bit driver, two apps" | Tee-Object -Append $out
+          & ./build-split64/Release/SplitDriverTest.exe 2>&1 | Tee-Object -Append $out; if ($LASTEXITCODE -ne 0) { $ok = $false }
+          "== 32-bit driver (Rocksmith's kind), two apps" | Tee-Object -Append $out
+          & ./build-split32/Release/SplitDriverTest.exe 2>&1 | Tee-Object -Append $out; if ($LASTEXITCODE -ne 0) { $ok = $false }
+          "== JUCE's ASIO host opening Split" | Tee-Object -Append $out
+          & ./build/ToolkitTests_artefacts/Release/ToolkitTests.exe --split-check 2>&1 | Tee-Object -Append $out; if ($LASTEXITCODE -ne 0) { $ok = $false }
+          Start-Sleep -Seconds 2
+          Stop-Process -Id $host_.Id -Force -ErrorAction SilentlyContinue
+          if (-not $ok) { throw "split tests failed" }
+          exit 0
+
+      - name: Launch the real app and let it screenshot itself
+        id: app
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path toolkit/pc/ci-results/app | Out-Null
+          $p = Start-Process -FilePath "$PWD\stage\BC Toolkit.exe" -ArgumentList '--screenshots', "`"$PWD\toolkit\pc\ci-results\app`"" -PassThru
+          if (-not $p.WaitForExit(180000)) { $p.Kill(); throw "app did not finish its screenshot run" }
+          $n = (Get-ChildItem toolkit/pc/ci-results/app -Filter *.png).Count
+          "app screenshot run: $n pages" | Tee-Object toolkit/pc/ci-results/app-run.txt
+          if ($n -lt 13) { throw "expected 13 pages, got $n" }
+
+      - name: Build the installer
+        id: installer
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress | Out-Null }
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          & $iscc "/DStage=$PWD\stage" "/DAppVersion=$env:TK_VERSION" "/O$PWD\dist" toolkit/pc/installer/Toolkit.iss
+          if ($LASTEXITCODE -ne 0) { throw "Toolkit installer build failed" }
+          & $iscc "/DStage=$PWD\stage" "/DAppVersion=$env:SPLIT_VERSION" "/O$PWD\dist" toolkit/pc/installer/Split.iss
+          if ($LASTEXITCODE -ne 0) { throw "Split installer build failed" }
+          Get-ChildItem dist
+
+      - name: Test both installers (silent install, check, uninstall)
+        id: install
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $out = "toolkit/pc/ci-results/installer-test.txt"
+          $ok = $true
+          function Check ($name, $cond) { "$(if ($cond) {'PASS'} else {'FAIL'})  $name" | Tee-Object -Append $out; if (-not $cond) { $script:ok = $false } }
+          "" | Out-File $out
+          # the earlier test registration points at the staging folder: drop it so we test what the setups do
+          Start-Process "$env:WINDIR\System32\regsvr32.exe" -ArgumentList '/u', '/s', "`"$PWD\stage\Split\BC Split x64.dll`"" -Wait
+          Start-Process "$env:WINDIR\SysWOW64\regsvr32.exe" -ArgumentList '/u', '/s', "`"$PWD\stage\Split\BC Split x86.dll`"" -Wait
+
+          "== Toolkit setup" | Tee-Object -Append $out
+          $tk = (Get-ChildItem dist -Filter "BC-Toolkit-Setup*.exe" | Select-Object -First 1).FullName
+          $p = Start-Process $tk -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/LOG=toolkit-install.log' -Wait -PassThru
+          $app = "$env:ProgramFiles\BC Toolkit"
+          Check "Toolkit setup exits cleanly" ($p.ExitCode -eq 0)
+          Check "app installed" (Test-Path "$app\BC Toolkit.exe")
+          Check "VST3 installed" (Test-Path "$env:CommonProgramFiles\VST3\BC Link.vst3")
+          Check "Toolkit setup leaves Split alone" (-not (Test-Path "$app\Split"))
+
+          "== Split setup (on its own)" | Tee-Object -Append $out
+          $sp = (Get-ChildItem dist -Filter "BC-Split-Setup*.exe" | Select-Object -First 1).FullName
+          $q = Start-Process $sp -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/LOG=split-install.log' -Wait -PassThru
+          $sdir = "$env:ProgramFiles\BC Split"
+          Check "Split setup exits cleanly" ($q.ExitCode -eq 0)
+          Check "Split host installed" (Test-Path "$sdir\BC Split Host.exe")
+          Check "both drivers installed" ((Test-Path "$sdir\BC Split x64.dll") -and (Test-Path "$sdir\BC Split x86.dll"))
+          Check "64-bit Split registered for ASIO hosts" (Test-Path "HKLM:\SOFTWARE\ASIO\BC Split")
+          Check "32-bit Split registered for 32-bit hosts (Rocksmith)" (Test-Path "HKLM:\SOFTWARE\WOW6432Node\ASIO\BC Split")
+          $reg = (Get-ItemProperty "Registry::HKEY_CLASSES_ROOT\CLSID\{6F3B8C2E-1D47-4A9B-9E3C-5B2A7D81F4C6}\InprocServer32").'(default)'
+          Check "the driver registration points at the installed DLL (Toolkit finds Split this way)" ($reg -like "$sdir*")
+
+          "== the installed drivers through the installed host (test clock in place of an interface)" | Tee-Object -Append $out
+          $h = Start-Process "$sdir\BC Split Host.exe" -ArgumentList '--test', '--stay' -PassThru
+          Start-Sleep -Seconds 4
+          & ./build-split64/Release/SplitDriverTest.exe 2>&1 | Tee-Object -Append $out; Check "installed 64-bit driver works" ($LASTEXITCODE -eq 0)
+          & ./build-split32/Release/SplitDriverTest.exe 2>&1 | Tee-Object -Append $out; Check "installed 32-bit driver works" ($LASTEXITCODE -eq 0)
+          Stop-Process -Id $h.Id -Force -ErrorAction SilentlyContinue
+          Start-Sleep -Seconds 2
+
+          "== without --test the host looks for a real interface; a runner has none, so it should say so" | Tee-Object -Append $out
+          & ./build-split64/Release/SplitDriverTest.exe 2>&1 | Tee-Object -Append $out
+          Check "a missing interface gives a clear message" ((Get-Content $out -Raw) -match "No ASIO interface found")
+          Stop-Process -Name "BC Split Host" -Force -ErrorAction SilentlyContinue
+
+          "== uninstall both" | Tee-Object -Append $out
+          $u1 = Start-Process "$sdir\unins000.exe" -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART' -Wait -PassThru
+          $u2 = Start-Process "$app\unins000.exe" -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART' -Wait -PassThru
+          Start-Sleep -Seconds 3
+          Check "uninstallers exit cleanly" ($u1.ExitCode -eq 0 -and $u2.ExitCode -eq 0)
+          Check "Split uninstall removes both registrations" (-not (Test-Path "HKLM:\SOFTWARE\ASIO\BC Split") -and -not (Test-Path "HKLM:\SOFTWARE\WOW6432Node\ASIO\BC Split"))
+          Check "Split folder gone" (-not (Test-Path "$sdir\BC Split Host.exe"))
+          if (-not $ok) { Get-Content split-install.log -Tail 40 | Out-File -Append $out; throw "installer test failed" }
+          exit 0
+
+      - name: Package
+        shell: pwsh
+        run: |
+          $zipDir = "dist/BC Toolkit $env:TK_VERSION (portable)"
+          New-Item -ItemType Directory -Force -Path $zipDir | Out-Null
+          Copy-Item "stage/BC Toolkit.exe", "stage/Toolkit Tutorial.md", "stage/INSTALL.txt" $zipDir
+          Copy-Item -Recurse "stage/BC Link.vst3" $zipDir
+          Compress-Archive -Path "$zipDir/*" -DestinationPath "dist/BC-Toolkit-PC-$env:TK_VERSION-portable.zip" -Force
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Toolkit-PC
+          path: |
+            dist/*.exe
+            dist/*.zip
+
+      - name: Publish a release (when everything passed)
+        if: github.event_name == 'push' && steps.tests.outcome == 'success' && steps.split.outcome == 'success' && steps.app.outcome == 'success' && steps.install.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="toolkit-pc-v$TK_VERSION"
+          SETUP=$(ls dist/BC-Toolkit-Setup*.exe)
+          SPLIT=$(ls dist/BC-Split-Setup*.exe)
+          ZIP="dist/BC-Toolkit-PC-$TK_VERSION-portable.zip"
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release upload "$TAG" "$SETUP" "$SPLIT" "$ZIP" --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$TAG" "$SETUP" "$SPLIT" "$ZIP" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest=false \
+              --title "BC Toolkit for PC $TK_VERSION" \
+              --notes "BC-Toolkit-Setup: the app + the BC Link VST3. BC-Split-Setup (separate): one audio interface shared by Ableton, Toolkit and Rocksmith at once. The portable zip has the app and VST3 only."
+          fi
+
+      - name: Commit test results back to the branch
+        if: always() && steps.build.outcome == 'success'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          echo "tests: ${{ steps.tests.outcome }}   split: ${{ steps.split.outcome }}   app: ${{ steps.app.outcome }}   installer: ${{ steps.install.outcome }}" > toolkit/pc/ci-results/status.txt
+          git add -f toolkit/pc/ci-results
+          if ! git diff --cached --quiet; then
+            git commit -m "Toolkit PC $TK_VERSION: test results + screenshots"
+            git pull --rebase origin "$GITHUB_REF_NAME" || true
+            git push origin "HEAD:$GITHUB_REF_NAME"
+          fi
