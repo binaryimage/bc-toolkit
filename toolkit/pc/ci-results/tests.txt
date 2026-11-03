@@ -54,6 +54,46 @@ PASS  Link packet encodes and decodes
 PASS  Link rejects junk packets
 PASS  plugin client connects to the app
 PASS  audio streams across intact, named after the track   (20480 frames from Lead bus)
+PASS  markers are tidied: sorted, inside the sample, no near-duplicates   (5)
+PASS  slice ranges, and a bad index gives an empty slice
+PASS  16 equal slices   (16)
+PASS  never more than 64 slices
+PASS  beat grid at 120 BPM: a marker every 24000 samples from the first hit   (8)
+PASS  snaps to the next upward zero crossing   (481)
+PASS  a kick reads as a kick   (kick)
+PASS  a snare reads as a snare   (snare)
+PASS  a hat reads as a hat   (hat)
+PASS  a held note reads as a tone   (tone)
+PASS  tuned down an octave = twice as long, like an MPC pad   (48000)
+PASS  reverse plays the slice backwards
+PASS  normalise then level: -6 dB below 0.95   (0.476)
+PASS  tiny fades take the click off both ends
+PASS  an empty slice renders as nothing instead of crashing
+PASS  hit types in a break: kicks, snares and hats   (16 of 16)
+PASS  each one within 12 ms of the hit, kicks included
+PASS  finds all 16 hits in the break   (16)
+PASS  all 6 flip styles at 1, 2 and 4 bars: hits on the grid, loop-length audio, no clipping
+PASS  boom bap flip: a kick pad on the one, snare pads on 2 and 4
+PASS  New flip gives a different pattern
+PASS  a flip of nothing is empty, not a crash
+PASS  playing shares the audio, it doesn't copy it   (2)
+PASS  a voice plays its slice, both channels
+PASS  and stops at the slice end
+PASS  64 pad hits on a 10-minute sample take no time   (0.01 ms)
+PASS  poly: two hits ring together   (3)
+PASS  mono: a new hit cuts the others (with a fade, not a click)   (1)
+PASS  Stop fades out within a few milliseconds
+PASS  and the stop doesn't click   (0.0001)
+PASS  reverse plays backwards from the slice end
+PASS  tuned up an octave finishes in half the time   (2560)
+PASS  loop keeps going past the slice end
+PASS  the old copy-and-play call still works
+PASS  the Video page has the visualizer's styles   (48)
+PASS  exports an MP4 from inside the Toolkit   (214650 bytes)
+PASS  the Video page is in the Toolkit
+PASS  a take sent from Record opens the Video page
+PASS  and the chop station still takes audio the same way
+PASS  3000 random chop station actions without a crash   (2964)
 
-56 passed, 0 failed
+96 passed, 0 failed
 
