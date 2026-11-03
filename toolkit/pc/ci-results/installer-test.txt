@@ -1,0 +1,62 @@
+
+== Toolkit setup
+PASS  Toolkit setup exits cleanly
+PASS  app installed
+PASS  VST3 installed
+PASS  Toolkit setup leaves Split alone
+== Split setup (on its own)
+PASS  Split setup exits cleanly
+PASS  Split host installed
+PASS  both drivers installed
+PASS  64-bit Split registered for ASIO hosts
+PASS  32-bit Split registered for 32-bit hosts (Rocksmith)
+PASS  the driver registration points at the installed DLL (Toolkit finds Split this way)
+== the installed drivers through the installed host (test clock in place of an interface)
+PASS  [64-bit] BC Split is in the ASIO driver list
+PASS  [64-bit] two apps can load the driver
+PASS  [64-bit] driver name   (BC Split)
+PASS  [64-bit] app A init (connects to the host)
+PASS  [64-bit] app B init
+PASS  [64-bit] format matches the host   (8 in, 8 out, 256 @ 48000)
+PASS  [64-bit] channel names come from the real interface   (Test sine 1)
+PASS  [64-bit] both create 8+8 buffers
+PASS  [64-bit] a different buffer size is refused
+PASS  [64-bit] both start
+PASS  [64-bit] both get callbacks (time-info host and plain host)   (282 / 282)
+PASS  [64-bit] app A hears input 1   (0.499989)
+PASS  [64-bit] app B hears app A's output through the mix   (0.250000)
+PASS  [64-bit] reported output latency includes Split's two extra buffers   (768)
+PASS  [64-bit] can't change the rate under another app
+PASS  [64-bit] sample position advances
+
+16 passed, 0 failed
+PASS  installed 64-bit driver works
+PASS  [32-bit] BC Split is in the ASIO driver list
+PASS  [32-bit] two apps can load the driver
+PASS  [32-bit] driver name   (BC Split)
+PASS  [32-bit] app A init (connects to the host)
+PASS  [32-bit] app B init
+PASS  [32-bit] format matches the host   (8 in, 8 out, 256 @ 48000)
+PASS  [32-bit] channel names come from the real interface   (Test sine 1)
+PASS  [32-bit] both create 8+8 buffers
+PASS  [32-bit] a different buffer size is refused
+PASS  [32-bit] both start
+PASS  [32-bit] both get callbacks (time-info host and plain host)   (282 / 282)
+PASS  [32-bit] app A hears input 1   (0.500000)
+PASS  [32-bit] app B hears app A's output through the mix   (0.250000)
+PASS  [32-bit] reported output latency includes Split's two extra buffers   (768)
+PASS  [32-bit] can't change the rate under another app
+PASS  [32-bit] sample position advances
+
+16 passed, 0 failed
+PASS  installed 32-bit driver works
+== without --test the host looks for a real interface; a runner has none, so it should say so
+PASS  [64-bit] BC Split is in the ASIO driver list
+PASS  [64-bit] two apps can load the driver
+PASS  [64-bit] driver name   (BC Split)
+FAIL  [64-bit] app A init (connects to the host)   (No ASIO interface found. Install your interface's ASIO driver (TASCAM Model 12).)
+PASS  a missing interface gives a clear message
+== uninstall both
+PASS  uninstallers exit cleanly
+PASS  Split uninstall removes both registrations
+PASS  Split folder gone

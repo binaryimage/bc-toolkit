@@ -1,0 +1,59 @@
+PASS  YIN pitch 41.2 Hz   (41.20 Hz, 0.00 c)
+PASS  YIN pitch 110 Hz   (110.00 Hz, 0.00 c)
+PASS  YIN pitch 261.63 Hz   (261.63 Hz, 0.01 c)
+PASS  YIN pitch 880 Hz   (880.05 Hz, 0.10 c)
+PASS  YIN pitch 2093 Hz   (2094.86 Hz, 1.54 c)
+PASS  YIN on a low saw (D2)   (73.39 Hz)
+PASS  YIN says no pitch for white noise
+PASS  note names follow Ableton (middle C = C3)   (C3)
+PASS  LUFS of a -20 dBFS stereo 1 kHz sine is about -20   (-20.00)
+PASS  true peak of that sine is about -20 dBTP   (-20.00)
+PASS  silence is gated out of integrated loudness   (-120.0)
+PASS  hum finder catches 60 Hz + harmonics   (60 Hz, -0.0 dB)
+PASS  no hum on a clean A440
+PASS  onsets: 8 hits in 4 s at 120 BPM   (8)
+PASS  onsets land within 12 ms of the hits
+PASS  tempo of a 96 BPM pulse   (95.5)
+PASS  tempo of a 140 BPM pulse   (140.5)
+PASS  key of an A minor arpeggio   (Am)
+PASS  write 24-bit WAV
+PASS  read it back: same length, rate, channels
+PASS  24-bit round trip error is tiny   (0.00000012)
+PASS  write MIDI file
+PASS  MIDI file reads back
+PASS  both notes are in it   (2)
+PASS  write keygroup .xpm
+PASS  keygroup .xpm is valid XML
+PASS  program type is Keygroup
+PASS  two keygroups
+PASS  keygroup 1 covers notes 0-37
+PASS  RootNote is MIDI note + 1 (MPC quirk)   (37)
+PASS  SampleName has no extension
+PASS  program name survives XML escaping
+PASS  write drum .xpm
+PASS  drum .xpm has a pad note map
+PASS  SFZ has the root notes
+PASS  SysEx splitter finds the 2 complete messages and drops junk   (2)
+PASS  auto-sampler finishes
+PASS  6 WAVs for 3 notes x 2 velocities   (6)
+PASS  writes .xpm and .sfz
+PASS  one common gain keeps the velocity dynamics   (1.984)
+PASS  leading silence trimmed   (45696)
+PASS  wavetable renders 64 frames of 2048
+PASS  MiniFreak export: 64 x 512 points, 24-bit, mono   (98348)
+PASS  the MiniFreak WAV reads as a normal mono WAV
+PASS  imported back as 64 frames   (64)
+PASS  pulls 8 cycles from a 110 Hz recording   (110.00 Hz)
+PASS  stretch x4 is about 4 s long   (4.27 s)
+PASS  stretch keeps the pitch   (220.1 Hz)
+PASS  tape rot output is sane
+PASS  riff has 4 chords, bass and lead
+PASS  every riff note is in Phrygian
+PASS  bass notes never overlap (no legato glide)
+PASS  Link packet encodes and decodes
+PASS  Link rejects junk packets
+PASS  plugin client connects to the app
+PASS  audio streams across intact, named after the track   (20480 frames from Lead bus)
+
+56 passed, 0 failed
+
