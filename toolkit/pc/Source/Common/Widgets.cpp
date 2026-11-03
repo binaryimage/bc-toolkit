@@ -236,16 +236,28 @@ void LedMeter::paint (juce::Graphics& g)
 
 // ------------------------------------------------------------ waveform
 
+void WaveView::setView (int start, int length)
+{
+    if (audio == nullptr) return;
+    const int n = audio->getNumSamples();
+    viewLen = juce::jlimit (juce::jmin (n, 256), juce::jmax (1, n), length);
+    viewStart = juce::jlimit (0, juce::jmax (0, n - viewLen), start);
+    rebuild();
+}
+
 void WaveView::rebuild()
 {
     mins.clear(); maxs.clear();
     int w = juce::jmax (1, (int) screenArea().reduced (6).getWidth());
     if (audio == nullptr || audio->getNumSamples() == 0) { repaint(); return; }
+    const int n = audio->getNumSamples();
+    if (viewLen <= 0 || viewStart + viewLen > n) { viewStart = 0; viewLen = n; }
     mins.assign ((size_t) w, 0); maxs.assign ((size_t) w, 0);
-    int n = audio->getNumSamples();
     for (int x = 0; x < w; ++x)
     {
-        int a = (int) ((juce::int64) n * x / w), b = juce::jmax (a + 1, (int) ((juce::int64) n * (x + 1) / w));
+        int a = viewStart + (int) ((juce::int64) viewLen * x / w);
+        int b = juce::jmin (n, juce::jmax (a + 1, viewStart + (int) ((juce::int64) viewLen * (x + 1) / w)));
+        if (a >= n) break;
         float lo = 0, hi = 0;
         for (int c = 0; c < audio->getNumChannels(); ++c)
         {
@@ -260,15 +272,14 @@ void WaveView::rebuild()
 float WaveView::xAtSample (int s) const
 {
     auto r = screenArea().reduced (6);
-    int n = audio != nullptr ? juce::jmax (1, audio->getNumSamples()) : 1;
-    return r.getX() + r.getWidth() * (float) s / (float) n;
+    return r.getX() + r.getWidth() * (float) (s - viewStart) / (float) juce::jmax (1, viewLen);
 }
 
 int WaveView::sampleAtX (float x) const
 {
     auto r = screenArea().reduced (6);
     int n = audio != nullptr ? audio->getNumSamples() : 0;
-    return juce::jlimit (0, juce::jmax (0, n - 1), (int) ((x - r.getX()) / r.getWidth() * n));
+    return juce::jlimit (0, juce::jmax (0, n - 1), viewStart + (int) ((x - r.getX()) / r.getWidth() * viewLen));
 }
 
 void WaveView::paintScreen (juce::Graphics& g, juce::Rectangle<float> r)
@@ -279,40 +290,61 @@ void WaveView::paintScreen (juce::Graphics& g, juce::Rectangle<float> r)
         g.drawText ("drop an audio file here, or record one", r.toNearestInt(), juce::Justification::centred);
         return;
     }
+    g.saveState();
+    g.reduceClipRegion (r.toNearestInt());
     // selected slice glow
     if (selected >= 0 && selected < (int) slices.size())
     {
         float x0 = xAtSample (slices[(size_t) selected]);
-        float x1 = selected + 1 < (int) slices.size() ? xAtSample (slices[(size_t) selected + 1]) : r.getRight();
+        float x1 = selected + 1 < (int) slices.size() ? xAtSample (slices[(size_t) selected + 1]) : xAtSample (audio->getNumSamples());
         g.setColour (juce::Colours::white.withAlpha (0.1f));
         g.fillRect (juce::Rectangle<float> (x0, r.getY(), x1 - x0, r.getHeight()));
     }
-    // waveform with a faint mirrored "floor reflection" for depth
     float mid = r.getCentreY();
+    g.setColour (juce::Colours::white.withAlpha (0.85f));
     for (int x = 0; x < (int) mins.size(); ++x)
-    {
-        float px = r.getX() + (float) x;
-        g.setColour (juce::Colours::white.withAlpha (0.85f));
-        g.drawVerticalLine ((int) px, mid - maxs[(size_t) x] * r.getHeight() * 0.46f, mid - mins[(size_t) x] * r.getHeight() * 0.46f + 1);
-    }
+        g.drawVerticalLine ((int) (r.getX() + (float) x), mid - maxs[(size_t) x] * r.getHeight() * 0.46f, mid - mins[(size_t) x] * r.getHeight() * 0.46f + 1);
     g.setColour (col::grid); g.drawHorizontalLine ((int) mid, r.getX(), r.getRight());
-    // slice markers: numbered tabs
+    // slice markers: numbered tabs (plus a tag such as K / S / H)
     g.setFont (font (10, 2));
     for (size_t i = 0; i < slices.size(); ++i)
     {
         float x = xAtSample (slices[i]);
+        if (x < r.getX() - 40 || x > r.getRight()) continue;
         g.setColour (juce::Colours::white.withAlpha ((int) i == selected ? 1.0f : 0.55f));
         g.drawVerticalLine ((int) x, r.getY(), r.getBottom());
-        auto tab = juce::Rectangle<float> (x, r.getY(), 20, 13);
+        juce::String t (juce::String ((int) i + 1));
+        if (i < tags.size() && tags[i].isNotEmpty()) t << " " << tags[i];
+        auto tab = juce::Rectangle<float> (x, r.getY(), juce::jmax (20.0f, 9.0f + 6.5f * t.length()), 13);
         g.fillRect (tab);
         g.setColour (col::black);
-        g.drawText (juce::String ((int) i + 1), tab.toNearestInt(), juce::Justification::centred);
+        g.drawText (t, tab.toNearestInt(), juce::Justification::centred);
     }
     if (playhead >= 0)
     {
         g.setColour (col::white);
         g.drawVerticalLine ((int) xAtSample (playhead), r.getY(), r.getBottom());
     }
+    g.restoreState();
+    // overview strip when zoomed in
+    if (audio != nullptr && viewLen < audio->getNumSamples())
+    {
+        const float n = (float) audio->getNumSamples();
+        auto strip = r.withTop (r.getBottom() - 4);
+        g.setColour (juce::Colours::white.withAlpha (0.15f)); g.fillRect (strip);
+        g.setColour (juce::Colours::white.withAlpha (0.7f));
+        g.fillRect (strip.withX (r.getX() + r.getWidth() * viewStart / n).withWidth (juce::jmax (3.0f, r.getWidth() * viewLen / n)));
+    }
+}
+
+void WaveView::addMarker (float x)
+{
+    if (onBeforeEdit) onBeforeEdit();
+    slices.push_back (sampleAtX (x));
+    std::sort (slices.begin(), slices.end());
+    slices.erase (std::unique (slices.begin(), slices.end()), slices.end());
+    if (onSlicesEdited) onSlicesEdited();
+    repaint();
 }
 
 void WaveView::mouseDown (const juce::MouseEvent& e)
@@ -322,22 +354,17 @@ void WaveView::mouseDown (const juce::MouseEvent& e)
     dragging = -1;
     for (size_t i = 0; i < slices.size(); ++i)
         if (std::abs (xAtSample (slices[i]) - e.position.x) < 5) dragging = (int) i;
-    if (editable && dragging < 0 && e.mods.isAltDown())
+    if (editable && dragging < 0 && e.mods.isAltDown()) { addMarker (e.position.x); return; }
+    if (editable && dragging >= 0 && e.mods.isPopupMenu())
     {
-        slices.push_back (sampleAtX (e.position.x));
-        std::sort (slices.begin(), slices.end());
-        if (onSlicesEdited) onSlicesEdited();
-        repaint();
-        return;
-    }
-    if (editable && dragging >= 0 && e.mods.isRightButtonDown())
-    {
+        if (onBeforeEdit) onBeforeEdit();
         slices.erase (slices.begin() + dragging);
         dragging = -1;
         if (onSlicesEdited) onSlicesEdited();
         repaint();
         return;
     }
+    if (editable && dragging >= 0 && onBeforeEdit) onBeforeEdit();
     if (dragging < 0)
     {
         int s = sampleAtX (e.position.x), idx = -1;
@@ -348,10 +375,20 @@ void WaveView::mouseDown (const juce::MouseEvent& e)
     }
 }
 
+void WaveView::mouseDoubleClick (const juce::MouseEvent& e)
+{
+    if (audio == nullptr || ! editable || e.mods.isPopupMenu()) return;
+    for (auto s : slices) if (std::abs (xAtSample (s) - e.position.x) < 5) return;
+    addMarker (e.position.x);
+}
+
 void WaveView::mouseDrag (const juce::MouseEvent& e)
 {
-    if (! editable || dragging < 0) return;
-    slices[(size_t) dragging] = sampleAtX (e.position.x);
+    if (! editable || dragging < 0 || dragging >= (int) slices.size()) return;
+    // a marker can't pass its neighbours, so the slices always stay in order
+    int lo = dragging > 0 ? slices[(size_t) dragging - 1] + 1 : 0;
+    int hi = dragging + 1 < (int) slices.size() ? slices[(size_t) dragging + 1] - 1 : (audio != nullptr ? audio->getNumSamples() - 2 : 0);
+    slices[(size_t) dragging] = juce::jlimit (lo, juce::jmax (lo, hi), sampleAtX (e.position.x));
     repaint();
 }
 
@@ -360,9 +397,27 @@ void WaveView::mouseUp (const juce::MouseEvent&)
     if (dragging >= 0)
     {
         std::sort (slices.begin(), slices.end());
+        slices.erase (std::unique (slices.begin(), slices.end()), slices.end());
         dragging = -1;
         if (onSlicesEdited) onSlicesEdited();
     }
+}
+
+void WaveView::mouseWheelMove (const juce::MouseEvent& e, const juce::MouseWheelDetails& w)
+{
+    if (! zoomable || audio == nullptr) { Screen::mouseWheelMove (e, w); return; }
+    const float dy = w.isReversed ? -w.deltaY : w.deltaY;
+    if (e.mods.isShiftDown() || std::abs (w.deltaX) > std::abs (w.deltaY))
+    {
+        float d = std::abs (w.deltaX) > std::abs (w.deltaY) ? -w.deltaX : -dy;
+        setView (viewStart + (int) (d * viewLen * 0.5f), viewLen);
+        return;
+    }
+    const int anchor = sampleAtX (e.position.x);
+    const double zoom = std::pow (0.8, dy * 4.0);
+    const int newLen = (int) (viewLen * zoom);
+    const double frac = (anchor - viewStart) / (double) juce::jmax (1, viewLen);
+    setView (anchor - (int) (frac * newLen), newLen);
 }
 
 // ------------------------------------------------------------ wavetable stack

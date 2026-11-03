@@ -251,32 +251,9 @@ void Engine::audioDeviceIOCallbackWithContext (const float* const* in, int nin, 
     for (int c = 0; c < nout; ++c) if (out[c] != nullptr) juce::FloatVectorOperations::clear (out[c], n);
     if (nout == 0) return;
     float* L = out[0]; float* R = nout > 1 ? out[1] : nullptr;
-    if (playing.load())
-    {
-        const juce::SpinLock::ScopedTryLockType tl (playLock);
-        if (tl.isLocked() && playBuf.getNumSamples() > 0)
-        {
-            double step = playSr / sr.load();
-            int end = playEnd.load();
-            for (int i = 0; i < n; ++i)
-            {
-                int p = playPos.load();
-                if (p >= end - 1) { playing = false; break; }
-                float a = playBuf.getSample (0, p), b = playBuf.getSample (0, p + 1);
-                float t = (float) playFrac, v = a + (b - a) * t;
-                float v2 = v;
-                if (playBuf.getNumChannels() > 1) { float c2 = playBuf.getSample (1, p), d2 = playBuf.getSample (1, p + 1); v2 = c2 + (d2 - c2) * t; }
-                L[i] += v; if (R) R[i] += v2;
-                playFrac += step;
-                int adv = (int) playFrac; playFrac -= adv;
-                playPos = p + adv;
-            }
-        }
-    }
-    {
-        const juce::SpinLock::ScopedTryLockType tl (playLock);
-        if (tl.isLocked() && generator) generator (L, R, n, sr.load());
-    }
+    const juce::SpinLock::ScopedLockType tl (playLock);   // the message thread only holds it for a pointer swap
+    renderVoices (L, R, n, sr.load());
+    if (generator) generator (L, R, n, sr.load());
 }
 
 juce::Array<Source*> Engine::sources (bool activeOnly) const
@@ -432,17 +409,98 @@ int Engine::linkCount() const
 
 // ------------------------------------------------------------ playback
 
-void Engine::play (const juce::AudioBuffer<float>& b, double s, int start, int len)
+int Engine::play (SharedAudio audio, double sourceRate, const PlayOptions& o)
 {
-    const juce::SpinLock::ScopedLockType l (playLock);
-    playBuf.makeCopyOf (b);
-    playSr = s; playFrac = 0;
-    playPos = juce::jlimit (0, juce::jmax (0, b.getNumSamples() - 1), start);
-    playEnd = len < 0 ? b.getNumSamples() : juce::jmin (b.getNumSamples(), start + len);
-    playing = b.getNumSamples() > 1;
+    if (audio == nullptr || audio->getNumSamples() < 2 || audio->getNumChannels() < 1) return 0;
+    const int n = audio->getNumSamples();
+    Voice v;
+    v.buf = audio.get();
+    v.lo = juce::jlimit (0, n - 2, o.start);
+    v.hi = o.length < 0 ? n : juce::jlimit (v.lo + 2, n, v.lo + o.length);
+    v.rate = sourceRate * std::pow (2.0, o.semitones / 12.0);
+    v.gain = juce::Decibels::decibelsToGain (o.gainDb);
+    v.reverse = o.reverse; v.loop = o.loop;
+    v.pos = o.reverse ? v.hi - 1 : v.lo;
+    v.env = o.fadeInMs <= 0 ? 1.0f : 0.0f;
+    v.target = 1; v.fadeIn = o.fadeInMs; v.fadeOut = juce::jmax (0.5f, o.fadeOutMs);
+    v.active = true;
+
+    SharedAudio old;   // released after the lock, so a big free never blocks the audio thread
+    {
+        const juce::SpinLock::ScopedLockType l (playLock);
+        v.token = nextToken++;
+        if (o.choke) for (auto& x : voices) if (x.active) x.target = 0;
+        int slot = -1;
+        for (int i = 0; i < kVoices && slot < 0; ++i) if (! voices[(size_t) i].active) slot = i;
+        if (slot < 0)   // all busy: steal the oldest
+        {
+            slot = 0;
+            for (int i = 1; i < kVoices; ++i) if (voices[(size_t) i].token < voices[(size_t) slot].token) slot = i;
+        }
+        old = std::move (holders[(size_t) slot]);
+        holders[(size_t) slot] = std::move (audio);
+        voices[(size_t) slot] = v;
+        focusToken = v.token;
+        focusPos = (int) v.pos;
+        focusActive = true;
+    }
+    return v.token;
 }
 
-void Engine::stopPlayback() { playing = false; }
+void Engine::play (const juce::AudioBuffer<float>& b, double s, int start, int len)
+{
+    if (b.getNumSamples() < 2) return;
+    PlayOptions o; o.start = start; o.length = len; o.fadeInMs = 0;
+    play (std::make_shared<const juce::AudioBuffer<float>> (b), s, o);   // the copy happens here, outside the lock
+}
+
+void Engine::stopPlayback()
+{
+    const juce::SpinLock::ScopedLockType l (playLock);
+    for (auto& v : voices) if (v.active) v.target = 0;
+}
+
+void Engine::renderVoices (float* L, float* R, int n, double outRate)
+{
+    int count = 0;
+    bool focusOn = false;
+    const int focus = focusToken.load();
+    for (auto& v : voices)
+    {
+        if (! v.active) continue;
+        const auto& b = *v.buf;
+        const float* x0 = b.getReadPointer (0);
+        const float* x1 = b.getReadPointer (juce::jmin (1, b.getNumChannels() - 1));
+        const double step = v.rate / outRate;
+        const float inc = 1.0f / juce::jmax (1.0f, (float) outRate * v.fadeIn * 0.001f);
+        const float dec = 1.0f / juce::jmax (1.0f, (float) outRate * v.fadeOut * 0.001f);
+        const double endFade = juce::jmax (1.0, outRate * v.fadeOut * 0.001 * step);   // source samples
+        const double span = (double) (v.hi - 1 - v.lo);
+        for (int i = 0; i < n; ++i)
+        {
+            if (v.env < v.target) v.env = juce::jmin (v.target, v.env + inc);
+            else if (v.env > v.target) v.env = juce::jmax (v.target, v.env - dec);
+            if (v.target <= 0 && v.env <= 0) { v.active = false; break; }
+            const double left = v.reverse ? v.pos - v.lo : (v.hi - 1) - v.pos;
+            if (! v.loop && left <= 0) { v.active = false; break; }
+            const float tail = v.loop ? 1.0f : (float) juce::jmin (1.0, left / endFade);
+            const int p = juce::jlimit (v.lo, v.hi - 2, (int) v.pos);
+            const float fr = (float) (v.pos - p), g = v.gain * v.env * tail;
+            L[i] += (x0[p] + (x0[p + 1] - x0[p]) * fr) * g;
+            if (R != nullptr) R[i] += (x1[p] + (x1[p + 1] - x1[p]) * fr) * g;
+            v.pos += v.reverse ? -step : step;
+            if (v.loop && span > 1)
+            {
+                if (! v.reverse && v.pos >= v.hi - 1) v.pos -= span;
+                if (v.reverse && v.pos < v.lo) v.pos += span;
+            }
+        }
+        if (v.token == focus) { focusPos = (int) v.pos; focusOn = v.active; }
+        if (v.active) ++count;
+    }
+    voiceCount = count;
+    focusActive = focusOn;
+}
 
 void Engine::setGenerator (std::function<void (float*, float*, int, double)> g)
 {

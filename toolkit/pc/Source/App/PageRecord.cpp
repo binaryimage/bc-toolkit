@@ -52,7 +52,8 @@ public:
         chopBtn = makeButton ("To chop station", [this] { send ("chop"); });
         wavesBtn = makeButton ("To wavetables", [this] { send ("waves"); });
         mangleBtn = makeButton ("To mangle", [this] { send ("mangle"); });
-        for (auto* b : { playBtn.get(), saveBtn.get(), trimBtn.get(), chopBtn.get(), wavesBtn.get(), mangleBtn.get() }) takeSlab.addAndMakeVisible (b);
+        videoBtn = makeButton ("To video", [this] { send ("video"); });
+        for (auto* b : { playBtn.get(), saveBtn.get(), trimBtn.get(), chopBtn.get(), wavesBtn.get(), mangleBtn.get(), videoBtn.get() }) takeSlab.addAndMakeVisible (b);
         info = makeLabel ("", 13, col::text2);
         takeSlab.addAndMakeVisible (*info);
 
@@ -106,8 +107,8 @@ public:
         name.setBounds (tr.removeFromLeft (260)); tr.removeFromLeft (10); info->setBounds (tr);
         t.removeFromTop (8);
         auto btns = t.removeFromBottom (44);
-        int bw = btns.getWidth() / 6;
-        for (auto* b : { playBtn.get(), saveBtn.get(), trimBtn.get(), chopBtn.get(), wavesBtn.get(), mangleBtn.get() }) b->setBounds (btns.removeFromLeft (bw).reduced (2, 0));
+        int bw = btns.getWidth() / 7;
+        for (auto* b : { playBtn.get(), saveBtn.get(), trimBtn.get(), chopBtn.get(), wavesBtn.get(), mangleBtn.get(), videoBtn.get() }) b->setBounds (btns.removeFromLeft (bw).reduced (2, 0));
         t.removeFromBottom (8);
         wave.setBounds (t);
 
@@ -225,7 +226,7 @@ public:
 
     SourcePicker picker { engine, "recSource" };
     Slab srcSlab, takeSlab, jamSlab;
-    std::unique_ptr<juce::TextButton> pcBtn, recBtn, armBtn, playBtn, saveBtn, trimBtn, chopBtn, wavesBtn, mangleBtn, openJams;
+    std::unique_ptr<juce::TextButton> pcBtn, recBtn, armBtn, playBtn, saveBtn, trimBtn, chopBtn, wavesBtn, mangleBtn, videoBtn, openJams;
     juce::OwnedArray<juce::TextButton> jamBtns;
     std::unique_ptr<juce::Label> state, threshLbl, maxLbl, info, jamLbl, jamInfo;
     juce::Slider thresh; juce::ComboBox maxLen, jamMins;

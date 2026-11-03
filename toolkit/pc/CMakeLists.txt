@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(BinaryimageToolkit VERSION 1.2.0)
+project(BinaryimageToolkit VERSION 1.3.0)
 
 if(MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
@@ -64,9 +64,24 @@ set(TOOLKIT_APP_SOURCES
     Source/App/PageMangle.cpp
     Source/App/PageRiffs.cpp
     Source/App/PageBooks.cpp
+    Source/App/PageVideo.cpp
     Source/App/PageHelp.cpp
     Source/App/PageSettings.cpp
     Source/App/Settings.cpp)
+
+# The Video page is the BC Visualizer (visualizer/Source): its styles, renderer and MP4 encoder are shared, not copied.
+set(VISUALIZER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../visualizer/Source)
+list(APPEND TOOLKIT_APP_SOURCES
+    ${VISUALIZER_DIR}/Analysis.cpp
+    ${VISUALIZER_DIR}/Visualizers.cpp
+    ${VISUALIZER_DIR}/Renderer.cpp
+    ${VISUALIZER_DIR}/Session.cpp
+    ${VISUALIZER_DIR}/Video.cpp)
+if(WIN32)
+    set(TOOLKIT_VIDEO_LIBS mfplat mfreadwrite mfuuid ole32)   # Media Foundation writes the MP4
+else()
+    set(TOOLKIT_VIDEO_LIBS "")
+endif()
 
 set(TOOLKIT_DEFS
     JUCE_WEB_BROWSER=0
@@ -91,11 +106,11 @@ juce_add_gui_app(BinaryimageToolkit
     ICON_BIG Resources/icon.png
     ICON_SMALL Resources/icon.png)
 target_sources(BinaryimageToolkit PRIVATE Source/App/Main.cpp split/SplitCore.cpp split/SplitPlatform.cpp ${TOOLKIT_APP_SOURCES} ${TOOLKIT_COMMON_SOURCES})
-target_include_directories(BinaryimageToolkit PRIVATE Source split)
+target_include_directories(BinaryimageToolkit PRIVATE Source split ${VISUALIZER_DIR})
 target_compile_definitions(BinaryimageToolkit PRIVATE ${TOOLKIT_DEFS}
     JUCE_APPLICATION_NAME_STRING="$<TARGET_PROPERTY:BinaryimageToolkit,JUCE_PRODUCT_NAME>"
     JUCE_APPLICATION_VERSION_STRING="$<TARGET_PROPERTY:BinaryimageToolkit,JUCE_VERSION>")
-target_link_libraries(BinaryimageToolkit PRIVATE ToolkitAssets ${TOOLKIT_MODULES}
+target_link_libraries(BinaryimageToolkit PRIVATE ToolkitAssets ${TOOLKIT_MODULES} ${TOOLKIT_VIDEO_LIBS}
     PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)
 
 # ---------------------------------------------------------------- BC Split host (owns the real interface)
@@ -142,8 +157,8 @@ target_link_libraries(ToolkitLink PRIVATE ToolkitAssets ${TOOLKIT_MODULES}
 if(TOOLKIT_BUILD_TESTS)
     juce_add_console_app(ToolkitTests PRODUCT_NAME "ToolkitTests")
     target_sources(ToolkitTests PRIVATE tests/Tests.cpp split/SplitCore.cpp split/SplitPlatform.cpp Source/Plugin/LinkProcessor.cpp Source/Plugin/LinkEditor.cpp ${TOOLKIT_APP_SOURCES} ${TOOLKIT_COMMON_SOURCES})
-    target_include_directories(ToolkitTests PRIVATE Source split)
+    target_include_directories(ToolkitTests PRIVATE Source split ${VISUALIZER_DIR})
     target_compile_definitions(ToolkitTests PRIVATE ${TOOLKIT_DEFS} TOOLKIT_TESTS=1 JUCE_MODAL_LOOPS_PERMITTED=1)
-    target_link_libraries(ToolkitTests PRIVATE ToolkitAssets ${TOOLKIT_MODULES}
+    target_link_libraries(ToolkitTests PRIVATE ToolkitAssets ${TOOLKIT_MODULES} ${TOOLKIT_VIDEO_LIBS}
         PUBLIC juce::juce_recommended_config_flags)
 endif()

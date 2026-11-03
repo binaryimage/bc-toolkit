@@ -132,8 +132,9 @@ public:
         table.addMouseListener (this, true);
         chopBtn = makeButton ("To chop station", [this] { sendTo ("chop"); });
         mangleBtn = makeButton ("To mangle", [this] { sendTo ("mangle"); });
+        videoBtn = makeButton ("To video", [this] { sendTo ("video"); });
         revealBtn = makeButton ("Show in folder", [this] { if (auto* e = selected()) juce::File (e->path).revealToUser(); });
-        for (auto* b : { chopBtn.get(), mangleBtn.get(), revealBtn.get() }) tableSlab.addAndMakeVisible (b);
+        for (auto* b : { chopBtn.get(), mangleBtn.get(), videoBtn.get(), revealBtn.get() }) tableSlab.addAndMakeVisible (b);
         tipLbl = makeLabel ("Click a row to hear it. Drag a row straight into Ableton or the MPC software.", 12, col::text3);
         tableSlab.addAndMakeVisible (*tipLbl);
         loadCache();
@@ -360,7 +361,7 @@ public:
         rowLayout (c.removeFromTop (36), { { &search, 300 }, { &kind, 140 }, { &key, 190 }, { &tone, 160 }, { &bpmLo, 130 }, { &bpmHi, 110 } });
         c.removeFromTop (8);
         auto bottom = c.removeFromBottom (42);
-        rowLayout (bottom, { { chopBtn.get(), 160 }, { mangleBtn.get(), 130 }, { revealBtn.get(), 150 }, { tipLbl.get(), 600 } });
+        rowLayout (bottom, { { chopBtn.get(), 160 }, { mangleBtn.get(), 130 }, { videoBtn.get(), 120 }, { revealBtn.get(), 150 }, { tipLbl.get(), 600 } });
         c.removeFromBottom (6);
         table.setBounds (c);
         table.getHeader().setStretchToFitActive (true);
@@ -399,7 +400,7 @@ public:
 
     Slab top, tableSlab;
     juce::TextEditor folders, search;
-    std::unique_ptr<juce::TextButton> addBtn, scanBtn, stopBtn, chopBtn, mangleBtn, revealBtn;
+    std::unique_ptr<juce::TextButton> addBtn, scanBtn, stopBtn, chopBtn, mangleBtn, videoBtn, revealBtn;
     std::unique_ptr<juce::Label> tipLbl;
     juce::ComboBox kind, key, tone, bpmLo, bpmHi;
     juce::TableListBox table;

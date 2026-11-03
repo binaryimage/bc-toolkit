@@ -14,6 +14,7 @@ namespace tk
     std::unique_ptr<Page> makeManglePage (Engine&);
     std::unique_ptr<Page> makeRiffsPage (Engine&);
     std::unique_ptr<Page> makeBooksPage (Engine&);
+    std::unique_ptr<Page> makeVideoPage (Engine&);
     std::unique_ptr<Page> makeHelpPage (Engine&);
     std::unique_ptr<Page> makeSettingsPage (Engine&);
 }

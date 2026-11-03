@@ -108,7 +108,7 @@ public:
         s << "MPC drive (Purple Idea):  " << (k.isDirectory() ? k.getFullPathName() + "  (plugged in)" : juce::String ("not plugged in, exports go to Music\\MPC Songs only")) << "\n";
         s << "MPC exports:  " << juce::StringArray ([] { juce::StringArray a; for (auto& f : mpcExportFolders ("...")) a.add (f.getFullPathName()); return a; }()).joinIntoString ("  +  ") << "\n";
         s << "Recordings:  Music\\Toolkit Recordings      Jams:  Music\\Toolkit Jams\n";
-        s << "Samples:  Music\\Toolkit Samples      Wavetables:  Music\\Toolkit Wavetables\n";
+        s << "Samples:  Music\\Toolkit Samples      Wavetables:  Music\\Toolkit Wavetables      Videos:  Music\\BC Visualizer\n";
         s << "Patch backups:  " << Settings::get().folder ("backupRoot", musicFolder().getChildFile ("Synth Patches")).getFullPathName() << "\n";
         s << "MIDI:  " << engine.midiIns().size() << " inputs, " << engine.midiOuts().size() << " outputs";
         folderInfo->setText (s, juce::dontSendNotification);

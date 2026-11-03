@@ -100,7 +100,7 @@ Select a strip to show it in the large display, which has five views:
 
 Choose a source, then select **Record** to start immediately, or **Arm** to start automatically when the signal rises above the threshold. Armed recording keeps a short pre-roll so the attack is not lost. **Longest take** sets a time limit.
 
-After recording you can play the take, name it, use **Trim silence**, select **Save WAV** (saved to Music\Toolkit Recordings), or send it to the Chop station, Wavetables or Mangle.
+After recording you can play the take, name it, use **Trim silence**, select **Save WAV** (saved to Music\Toolkit Recordings), or send it to the Chop station, Wavetables, Mangle or Video.
 
 ### Jam recorder
 
@@ -148,19 +148,69 @@ Toolkit plays C notes across the range through the 2600's MIDI-to-CV converter a
 
 ## Chop station
 
-Load a loop, or send a take from Record. Toolkit detects the hits and places a slice marker at each one.
+Load a sample (or drop one on the page), or send one from Record, the sample library or Mangle. Toolkit finds the hits and the tempo in the background, then places a marker at each hit. Samples up to 10 minutes long are fine.
 
-- Adjust **Sensitivity** and select **Find hits** again, or use **8 equal** or **16 equal** for even slices.
-- Drag a marker to move it. Alt-click to add a marker. Right-click a marker to remove it.
-- Play slices on the 16 pads or with the keys 1 to 8 and Q to I.
+### Chopping
 
-**Export to MPC** saves the slices as WAV files, an MPC drum program (.xpm) with the first slice on pad A01, and a MIDI file of the original rhythm at the detected tempo. Exports go to K:\Toolkit Chops and Music\MPC Songs\Toolkit Chops.
+Choose how to chop under **Chop by**:
+
+- **Hits (transients)**: a marker at every drum hit or note start. Drag the sensitivity slider to find more or fewer hits. Kicks, snares and hats are all detected.
+- **Equal slices**: 4 to 64 slices of the same length.
+- **Beat grid**: a marker every bar, 2 beats, beat, 1/8 or 1/16 note at the tempo in the BPM field, starting from the first hit.
+- **By hand (tap)**: select **Play**, then press **T** (or **Tap marker**) on each hit, the way you would chop on the MPC.
+
+**Chop** applies the current method again. With **Snap to zero crossings** on, each marker moves to the nearest point where the waveform crosses zero (within 2 ms), so slices start without a click.
+
+To edit markers: drag one to move it (markers cannot pass each other), double-click or Alt-click to add one, and right-click one to remove it. The mouse wheel zooms around the pointer and Shift+wheel scrolls; **Zoom out** shows the whole sample. **Undo** (Ctrl+Z) steps back through every change. **Clear** removes all markers except the first.
+
+Each marker's tab shows its number and what the slice sounds like: **K** kick, **S** snare, **H** hat, **T** a tonal hit (a note, stab or bass), or **-** for anything else.
+
+### Pads
+
+There are 64 pads in four banks (**A** to **D**, 16 pads each), laid out like the MPC with pad 1 at the bottom left. Play them with the mouse or the keys:
+
+| Row | Keys |
+| --- | --- |
+| Top (pads 13 to 16) | 1 2 3 4 |
+| Pads 9 to 12 | Q W E R |
+| Pads 5 to 8 | A S D F |
+| Bottom (pads 1 to 4) | Z X C V |
+
+- **Mono** cuts the previous hit when a new one starts, like a chop program with a mute group. **Poly** lets hits ring over each other.
+- **Loop** loops whatever you play next (a pad or the whole sample).
+- **Play** plays the whole sample, **Stop** (or Esc) stops everything, and Space starts or stops playback. The left and right arrow keys step through the pads.
+
+Select a pad to set its **Tune** (-24 to +24 semitones; like the MPC, tuning changes the length), **Level** and **Reverse**. Pads with changes are marked with an asterisk. **Remove marker** joins the pad with the one before it.
+
+### Flips
+
+A flip is a new pattern built from your pads. Choose a style and a length (1, 2 or 4 bars), then select **Play flip**. **New flip** makes a different pattern in the same style.
+
+- **Original groove**: the hits where they were in the sample.
+- **Boom bap**: kick pads on the one and the "and" of three, snare pads on 2 and 4, hat pads on the eighths, with the odd ghost note.
+- **Resequence**: the pads in a new order on a 16th-note grid.
+- **Stutter**: the original order with rolls and repeats.
+- **Half-time**: kick on the one, snare on the three.
+- **Dragged (dark)**: the original order pitched down 3 to 7 semitones, with some hits reversed.
+
+Boom bap and Half-time use the kick, snare and hat labels, so they work best on drum breaks.
+
+### Export
+
+**Export to MPC** saves, in a folder named after the sample:
+
+- one WAV per pad (for example, Fifth Ward break A01.wav), with each pad's tune, level and reverse applied, normalized and with tiny fades if those options are on
+- an MPC drum program (.xpm) with the pads on A01 onwards (MIDI notes 37 to 100)
+- *name* groove.mid: the original rhythm at the detected tempo
+- *name* flip.wav and *name* flip.mid: the current flip (the WAV includes the flip's own tuning and reversing; the MIDI plays the pads as they are)
+
+Exports go to K:\Toolkit Chops (when the MPC drive is connected) and Music\MPC Songs\Toolkit Chops.
 
 ## Sample library
 
 Add your sample folders and select **Scan**. Toolkit analyses each file and records its length, tempo, key (when the file is tonal enough to detect one), character (dark, mid or bright; punchy or dense) and type (loop, one-shot or phrase). The first scan of a large library takes some time; later scans analyse only new or changed files.
 
-Filter by type, key, character and tempo. A minor key filter also finds the relative major. Select a row to preview it. Drag a row into Ableton or the MPC software, or send it to the Chop station or Mangle.
+Filter by type, key, character and tempo. A minor key filter also finds the relative major. Select a row to preview it. Drag a row into Ableton or the MPC software, or send it to the Chop station, Mangle or Video.
 
 ## Wavetables
 
@@ -206,6 +256,25 @@ The patch books contain 147 patches: 37 for the Behringer 2600, 25 for the Moog 
 - **Save sheet as PNG** saves a printable sheet to Music\Toolkit Patch Sheets.
 - **Copy to mine** creates an editable copy. **+ My patch** starts a new patch. Enter one setting per line as Section / Parameter = value. For the 2600, numeric values are shown as faders, and a line such as "cable: VCO 1 saw out -> VCF in" adds a patch cable.
 
+## Video
+
+The Video page is BC Visualizer built into Toolkit. It turns a track into a music video for YouTube: one of 48 audio-reactive styles, your title and artist name, and optional cover art, exported as an MP4 (H.264 video, AAC audio).
+
+1. Select **Open track...**, drop a WAV, AIFF, FLAC, MP3 or OGG file on the page, or send a take from Record or a file from the sample library with **To video**.
+2. Choose a style on the left. Press Space to preview it with sound; the up and down arrow keys step through the styles.
+3. Set the title (it defaults to the file name) and the artist (binaryimage).
+4. Optional: **Cover art...** adds artwork next to the title. With **Background** set to **Cover art (dimmed)**, the artwork also appears behind the visuals. You can also drop an image on the page.
+5. Choose the size (1080p, 1440p or 4K) and frame rate, then select **Export MP4**.
+
+Videos are saved to Music\BC Visualizer. You can keep previewing, or use other pages, while a video renders; **Cancel** stops it.
+
+- **Intensity** sets how strongly the visuals react. Lower it for ambient tracks; raise it for quiet masters.
+- Upload at 1440p even for 1080p viewers: YouTube uses its better encoder for 1440p uploads.
+- 60 fps looks smoother on fast styles (Warp Field, Tunnel, Glitch) but takes twice as long to render.
+- **Colour** changes the ink: White, Ice, Amber, Red, Phosphor green or Violet. The **Paper** background gives black ink on off-white.
+
+The standalone BC Visualizer app still works and shares the same styles.
+
 ## Settings
 
 Settings contains the audio interface and input selection, BC Link status (the Ableton tracks currently linked), PC audio capture, the status of BC Split, the jam recorder length, the tuning reference and the save locations. Select **Rescan MIDI devices** after connecting new MIDI equipment.
@@ -222,6 +291,7 @@ Settings contains the audio interface and input selection, BC Link status (the A
 | Pattern generator MIDI files | Music\Toolkit Patterns |
 | Patch sheets | Music\Toolkit Patch Sheets |
 | Patch backups | Music\Synth Patches (one folder per synth) |
+| Videos | Music\BC Visualizer |
 | MPC exports | K:\ (when connected) and Music\MPC Songs: Toolkit Instruments, Toolkit Chops and Toolkit Patterns |
 
 ## Troubleshooting

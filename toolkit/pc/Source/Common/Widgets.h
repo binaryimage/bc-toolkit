@@ -80,31 +80,44 @@ namespace tk
         float peak = -120, rms = -120, hold = -120; juce::uint32 holdTime = 0;
     };
 
-    /** Waveform overview with optional slice markers and a selected slice. */
+    /** Waveform overview with optional slice markers and a selected slice.
+        Markers: drag to move (they can't cross), double-click or Alt-click to add, right-click to remove.
+        When zoomable: mouse wheel zooms round the pointer, Shift+wheel scrolls. */
     class WaveView : public Screen
     {
     public:
-        void setAudio (const juce::AudioBuffer<float>* b) { audio = b; rebuild(); }
+        void setAudio (const juce::AudioBuffer<float>* b) { audio = b; viewStart = 0; viewLen = b != nullptr ? b->getNumSamples() : 0; rebuild(); }
         void setSlices (std::vector<int> s) { slices = std::move (s); repaint(); }
         const std::vector<int>& getSlices() const { return slices; }
-        void setPlayhead (int sample) { playhead = sample; repaint(); }
+        /** short text drawn on each marker's tab after its number (e.g. "K" for a kick) */
+        void setTags (std::vector<juce::String> t) { tags = std::move (t); repaint(); }
+        void setPlayhead (int sample) { if (sample != playhead) { playhead = sample; repaint(); } }
+        void setView (int start, int length);
+        void zoomToFit() { if (audio != nullptr) setView (0, audio->getNumSamples()); }
+        int getViewStart() const { return viewStart; }
+        int getViewLength() const { return viewLen; }
         void paintScreen (juce::Graphics&, juce::Rectangle<float>) override;
         void mouseDown (const juce::MouseEvent&) override;
         void mouseDrag (const juce::MouseEvent&) override;
         void mouseUp (const juce::MouseEvent&) override;
+        void mouseDoubleClick (const juce::MouseEvent&) override;
+        void mouseWheelMove (const juce::MouseEvent&, const juce::MouseWheelDetails&) override;
         void resized() override { rebuild(); }
         std::function<void (int)> onSliceClicked;          // slice index
         std::function<void()> onSlicesEdited;
+        std::function<void()> onBeforeEdit;                // so the owner can save an undo step
         int selected = -1;
-        bool editable = true;
+        bool editable = true, zoomable = false;
     private:
         void rebuild();
+        void addMarker (float x);
         int sampleAtX (float x) const;
         float xAtSample (int s) const;
         const juce::AudioBuffer<float>* audio = nullptr;
         std::vector<float> mins, maxs;
         std::vector<int> slices;
-        int playhead = -1, dragging = -1;
+        std::vector<juce::String> tags;
+        int playhead = -1, dragging = -1, viewStart = 0, viewLen = 0;
     };
 
     /** A wavetable drawn as a 3D stack of frames, current position highlighted. */

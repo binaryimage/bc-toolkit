@@ -2,7 +2,7 @@ name: Build + test Toolkit (PC)
 
 on:
   push:
-    paths: ["toolkit/pc/**", ".github/workflows/toolkit-pc.yml", "!toolkit/pc/ci-results/**"]
+    paths: ["toolkit/pc/**", "visualizer/Source/**", ".github/workflows/toolkit-pc.yml", "!toolkit/pc/ci-results/**"]
   workflow_dispatch:
 
 concurrency:
@@ -99,7 +99,7 @@ jobs:
           $q = Start-Process "$env:WINDIR\SysWOW64\regsvr32.exe" -ArgumentList '/s', "`"$PWD\stage\Split\BC Split x86.dll`"" -Wait -PassThru; "x86 regsvr32 exit $($q.ExitCode)" | Tee-Object -Append $out
           if ($p.ExitCode -ne 0 -or $q.ExitCode -ne 0) { $ok = $false }
           "== host in test mode" | Tee-Object -Append $out
-          $shot = "$PWD\toolkit\pc\ci-results\shots\15-split-host.png"
+          $shot = "$PWD\toolkit\pc\ci-results\shots\16-split-host.png"
           $host_ = Start-Process "$PWD\stage\Split\BC Split Host.exe" -ArgumentList '--test', '--stay', '--screenshot', "`"$shot`"" -PassThru
           Start-Sleep -Seconds 4
           "== 64-bit driver, two apps" | Tee-Object -Append $out
@@ -123,7 +123,7 @@ jobs:
           if (-not $p.WaitForExit(180000)) { $p.Kill(); throw "app did not finish its screenshot run" }
           $n = (Get-ChildItem toolkit/pc/ci-results/app -Filter *.png).Count
           "app screenshot run: $n pages" | Tee-Object toolkit/pc/ci-results/app-run.txt
-          if ($n -lt 13) { throw "expected 13 pages, got $n" }
+          if ($n -lt 14) { throw "expected 14 pages, got $n" }
 
       - name: Build the installer
         id: installer

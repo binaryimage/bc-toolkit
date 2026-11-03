@@ -2,11 +2,27 @@
 #include "Common/JuceHeader.h"
 #include "Common/Dsp.h"
 #include "Common/Link.h"
+#include <array>
 #include <atomic>
 #include <map>
+#include <memory>
 
 namespace tk
 {
+    /** Audio shared between a page and the playback voices, so playing it never copies it. */
+    using SharedAudio = std::shared_ptr<const juce::AudioBuffer<float>>;
+
+    /** How one voice plays a stretch of audio. Positions are in samples of the source buffer. */
+    struct PlayOptions
+    {
+        int start = 0, length = -1;     // -1 = to the end
+        float gainDb = 0;
+        double semitones = 0;           // repitch (changes speed, like an MPC pad's tune)
+        bool reverse = false, loop = false;
+        bool choke = true;              // stop every other voice first (mono); false lets hits overlap
+        float fadeInMs = 0.7f, fadeOutMs = 4.0f;   // tiny ramps so starts, ends and stops never click
+    };
+
     /** One thing that makes sound: an interface input, an Ableton track over Link, or the PC's own output. */
     class Source
     {
@@ -68,6 +84,8 @@ namespace tk
 
         juce::AudioDeviceManager devices;
         double sampleRate() const { return sr.load(); }
+        /** true when an output device is open (so voices actually advance) */
+        bool hasOutput() { return devices.getCurrentAudioDevice() != nullptr; }
 
         // sources (pointers stay valid for the life of the app)
         juce::Array<Source*> sources (bool activeOnly = true) const;
@@ -87,11 +105,21 @@ namespace tk
         void stopLoopback();
         bool loopbackRunning() const;
 
-        // preview playback through the output
+        // preview playback through the output: up to 32 voices, mixed on the audio thread
+        /** Play shared audio without copying it. Returns a token for the new voice. */
+        int play (SharedAudio audio, double sampleRate, const PlayOptions& options = {});
+        /** Copies b first (fine for short previews); stops anything else that's playing. */
         void play (const juce::AudioBuffer<float>& b, double sampleRate, int start = 0, int len = -1);
+        /** Fades every voice out over a few milliseconds. */
         void stopPlayback();
-        int playPosition() const { return playPos.load(); }
-        bool isPlaying() const { return playing.load(); }
+        /** Where the most recently started voice is, in samples of its buffer (-1 when nothing has played). */
+        int playPosition() const { return focusPos.load(); }
+        /** True while the most recently started voice is still sounding. */
+        bool isPlaying() const { return focusActive.load(); }
+        int playingToken() const { return focusToken.load(); }
+        int voicesPlaying() const { return voiceCount.load(); }
+        /** Mix every voice into L/R at the output rate (the audio callback uses this; tests call it directly). */
+        void renderVoices (float* L, float* R, int n, double outputRate);
         /** a continuous generator (wavetable preview, riff synth). nullptr to stop. */
         void setGenerator (std::function<void (float*, float*, int, double)> g);
 
@@ -130,11 +158,21 @@ namespace tk
         std::unique_ptr<link::Server> server;
         std::vector<float> tmpL, tmpR;
 
-        juce::SpinLock playLock;
-        juce::AudioBuffer<float> playBuf;
-        double playSr = 48000, playFrac = 0;
-        std::atomic<int> playPos { 0 }, playEnd { 0 };
-        std::atomic<bool> playing { false };
+        struct Voice
+        {
+            const juce::AudioBuffer<float>* buf = nullptr;
+            double pos = 0, rate = 48000;   // rate = source rate x pitch ratio
+            int lo = 0, hi = 0, token = 0;
+            float gain = 1, env = 0, target = 1, fadeIn = 0.7f, fadeOut = 4.0f;
+            bool reverse = false, loop = false, active = false;
+        };
+        static constexpr int kVoices = 32;
+        juce::SpinLock playLock;                       // held only for pointer swaps on the message thread
+        std::array<Voice, kVoices> voices;
+        std::array<SharedAudio, kVoices> holders;      // keep each voice's audio alive; freed off the audio thread
+        int nextToken = 1;
+        std::atomic<int> focusToken { 0 }, focusPos { -1 }, voiceCount { 0 };
+        std::atomic<bool> focusActive { false };
         std::function<void (float*, float*, int, double)> generator;
 
         std::map<juce::String, std::unique_ptr<juce::MidiOutput>> outs;

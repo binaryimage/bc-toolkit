@@ -29,7 +29,7 @@ namespace tk
     bool writeSfz (const juce::File& f, const std::vector<ZoneSample>& zones);
     /** MPC keygroup program (.xpm) for multisampled instruments. */
     bool writeXpmKeygroup (const juce::File& f, const juce::String& programName, const std::vector<ZoneSample>& zones);
-    /** MPC drum program (.xpm): up to 16 samples on pads A01..A16. */
+    /** MPC drum program (.xpm): samples on pads A01, A02 ... (64 pads = banks A-D, notes 37-100). */
     bool writeXpmDrum (const juce::File& f, const juce::String& programName, const juce::StringArray& sampleFiles);
 
     // ------------------------------------------------------------ SysEx

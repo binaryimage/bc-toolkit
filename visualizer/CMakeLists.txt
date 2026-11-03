@@ -23,7 +23,7 @@ endif()
 
 option(TOOLKIT_HEADLESS_LINUX "Build without ALSA/Xrandr/Xinerama/Xcursor (CI screenshots)" OFF)
 
-# Shares the Toolkit's look, widgets and fonts so it can become the Toolkit's Video page later.
+# Shares the Toolkit's look, widgets and fonts. Its Source/ (minus Main.cpp) is also compiled into BC Toolkit as the Video page.
 set(TK ${CMAKE_CURRENT_SOURCE_DIR}/../toolkit/pc)
 
 juce_add_binary_data(VisualizerAssets SOURCES

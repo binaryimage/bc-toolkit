@@ -218,33 +218,55 @@ static std::vector<float> fluxEnvelope (const juce::AudioBuffer<float>& mono, in
 {
     Spectrum sp (order);
     const int n = sp.size(), len = mono.getNumSamples();
-    std::vector<float> prev ((size_t) n / 2, -120.0f), env;
+    std::vector<float> prev ((size_t) n / 2, 0.0f), cur ((size_t) n / 2, 0.0f), env;
     std::vector<float> frame ((size_t) n, 0.0f);
+    env.reserve ((size_t) juce::jmax (0, len / hop + 1));
     const float* x = mono.getReadPointer (0);
+    const float k = std::log (10.0f) / 20.0f;
     for (int pos = 0; pos + hop <= len; pos += hop)
     {
-        for (int i = 0; i < n; ++i) { int k = pos + i - n / 2; frame[(size_t) i] = (k >= 0 && k < len) ? x[k] : 0.0f; }
+        for (int i = 0; i < n; ++i) { int j = pos + i - n / 2; frame[(size_t) i] = (j >= 0 && j < len) ? x[j] : 0.0f; }
         const auto& m = sp.analyse (frame.data());
+        // Octave bands, each averaged over its bins, so a kick (a few low bins) counts as much as a hat (hundreds of high ones).
         double f = 0;
-        for (int i = 2; i < n / 2; ++i)
+        for (int lo = 2; lo < n / 2; lo *= 2)
         {
-            double a = std::pow (10.0, m[(size_t) i] / 20.0), b = std::pow (10.0, prev[(size_t) i] / 20.0);
-            double d = std::log1p (1000 * a) - std::log1p (1000 * b);
-            if (d > 0) f += d;
+            int hi = juce::jmin (n / 2, lo * 2);
+            double band = 0;
+            for (int i = lo; i < hi; ++i)
+            {
+                cur[(size_t) i] = std::log1p (1000.0f * std::exp (m[(size_t) i] * k));   // log-compressed magnitude
+                float d = cur[(size_t) i] - prev[(size_t) i];
+                if (d > 0) band += d;
+            }
+            f += band / (hi - lo);
         }
-        prev = m;
+        std::swap (prev, cur);
         env.push_back ((float) f);
     }
     return env;
 }
 
+OnsetEnvelope onsetEnvelope (const juce::AudioBuffer<float>& audio, double)
+{
+    OnsetEnvelope e;
+    auto mono = mixToMono (audio);
+    e.env = fluxEnvelope (mono, e.hop, 10);
+    e.firstSound = firstAbove (mono, 0.01f);
+    return e;
+}
+
 std::vector<int> detectOnsets (const juce::AudioBuffer<float>& audio, double sr, OnsetOptions opt)
 {
-    auto mono = mixToMono (audio);
-    const int hop = 256;
-    auto env = fluxEnvelope (mono, hop, 10);
+    return pickOnsets (onsetEnvelope (audio, sr), sr, opt);
+}
+
+std::vector<int> pickOnsets (const OnsetEnvelope& e, double sr, OnsetOptions opt)
+{
+    const auto& env = e.env;
+    const int hop = e.hop;
     std::vector<int> out;
-    if (env.empty()) return out;
+    if (env.size() < 3) return out;
     // adaptive threshold: local median + offset scaled by sensitivity
     const int W = 12;
     double mx = *std::max_element (env.begin(), env.end());
@@ -252,10 +274,12 @@ std::vector<int> detectOnsets (const juce::AudioBuffer<float>& audio, double sr,
     double delta = juce::jmap (juce::jlimit (0.0, 1.0, opt.sensitivity), 0.35, 0.03) * mx;
     int minGap = std::max (1, (int) (opt.minGapMs * sr / 1000.0 / hop));
     int last = -minGap;
+    std::vector<float> win;
+    win.reserve ((size_t) W * 2);
     for (int i = 1; i + 1 < (int) env.size(); ++i)
     {
         int a = std::max (0, i - W), b = std::min ((int) env.size(), i + W);
-        std::vector<float> win (env.begin() + a, env.begin() + b);
+        win.assign (env.begin() + a, env.begin() + b);
         std::nth_element (win.begin(), win.begin() + (long) win.size() / 2, win.end());
         double th = win[win.size() / 2] + delta;
         if (env[(size_t) i] > th && env[(size_t) i] >= env[(size_t) i - 1] && env[(size_t) i] >= env[(size_t) i + 1] && i - last >= minGap)
@@ -267,9 +291,9 @@ std::vector<int> detectOnsets (const juce::AudioBuffer<float>& audio, double sr,
         }
     }
     // make sure the very start is a slice if audio begins immediately
-    int fa = firstAbove (mono, 0.01f);
+    int fa = e.firstSound;
     if (fa >= 0 && (out.empty() || out.front() - fa > (int) (0.05 * sr))) out.insert (out.begin(), std::max (0, fa - 64));
-    if ((int) out.size() > opt.maxSlices)
+    if ((int) out.size() > opt.maxSlices && opt.maxSlices > 0)
     {
         // keep the strongest onsets
         std::vector<std::pair<float, int>> s;
@@ -277,7 +301,7 @@ std::vector<int> detectOnsets (const juce::AudioBuffer<float>& audio, double sr,
         std::sort (s.begin(), s.end(), [] (auto& x, auto& y) { return x.first > y.first; });
         s.resize ((size_t) opt.maxSlices);
         out.clear();
-        for (auto& e : s) out.push_back (e.second);
+        for (auto& x : s) out.push_back (x.second);
         std::sort (out.begin(), out.end());
     }
     return out;

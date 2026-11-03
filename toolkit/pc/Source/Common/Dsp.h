@@ -63,6 +63,10 @@ namespace tk
     // ------------------------------------------------------------ onsets, tempo, key
     struct OnsetOptions { double sensitivity = 0.5; int minGapMs = 60; int maxSlices = 64; };
     std::vector<int> detectOnsets (const juce::AudioBuffer<float>& audio, double sampleRate, OnsetOptions opt = {});
+    /** The slow part of onset detection, done once per file so changing the sensitivity is instant. */
+    struct OnsetEnvelope { std::vector<float> env; int hop = 256; int firstSound = -1; };
+    OnsetEnvelope onsetEnvelope (const juce::AudioBuffer<float>& audio, double sampleRate);
+    std::vector<int> pickOnsets (const OnsetEnvelope& e, double sampleRate, OnsetOptions opt = {});
     /** Tempo in BPM (70..180 folded), or 0 when there's no clear pulse. */
     double estimateBpm (const juce::AudioBuffer<float>& audio, double sampleRate);
     struct KeyResult { int root = -1; bool minor = false; double confidence = 0; juce::String name() const; };

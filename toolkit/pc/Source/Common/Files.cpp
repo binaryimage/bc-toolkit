@@ -202,7 +202,7 @@ bool writeXpmDrum (const juce::File& f, const juce::String& name, const juce::St
           << "      </Instrument>\n";
     }
     s << "    </Instruments>\n    <PadNoteMap>\n";
-    for (int p = 0; p < 128; ++p) s << "      <PadNote number=\"" << p + 1 << "\">\n        <Note>" << (p < 16 ? 37 + p : 0) << "</Note>\n      </PadNote>\n";
+    for (int p = 0; p < 128; ++p) s << "      <PadNote number=\"" << p + 1 << "\">\n        <Note>" << (p < 64 ? 37 + p : 0) << "</Note>\n      </PadNote>\n";
     s << "    </PadNoteMap>\n  </Program>\n</MPCVObject>\n";
     return f.replaceWithText (s);
 }

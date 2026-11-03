@@ -65,13 +65,13 @@ struct NavInfo { const char* id; const char* label; };
 static const NavInfo kNav[] = {
     { "meters", "Meters" }, { "record", "Record" }, { "sampler", "Auto-sampler" }, { "backup", "Patch backup" },
     { "gear", "Gear check" }, { "chop", "Chop station" }, { "library", "Sample library" }, { "waves", "Wavetables" },
-    { "mangle", "Mangle" }, { "riffs", "Pattern generator" }, { "books", "Patch books" }, { "help", "Tutorial" }, { "settings", "Settings" } };
+    { "mangle", "Mangle" }, { "riffs", "Pattern generator" }, { "books", "Patch books" }, { "video", "Video" }, { "help", "Tutorial" }, { "settings", "Settings" } };
 
 MainComponent::MainComponent (Engine& e) : engine (e)
 {
     std::unique_ptr<Page> (*makers[])(Engine&) = { makeMetersPage, makeRecordPage, makeSamplerPage, makeBackupPage, makeGearCheckPage,
                                                   makeChopPage, makeLibraryPage, makeWavesPage, makeManglePage, makeRiffsPage,
-                                                  makeBooksPage, makeHelpPage, makeSettingsPage };
+                                                  makeBooksPage, makeVideoPage, makeHelpPage, makeSettingsPage };
     for (auto* mk : makers)
     {
         auto p = mk (engine);
@@ -109,7 +109,7 @@ void MainComponent::show (const juce::String& id)
     auto* p = page (id);
     if (p == nullptr) p = pages[0];
     if (current != nullptr) current->setVisible (false);
-    if (current != p) engine.setGenerator (nullptr);   // preview synths belong to the page that started them
+    if (current != p) { engine.setGenerator (nullptr); engine.stopPlayback(); }   // previews belong to the page that started them
     current = p;
     current->setVisible (true);
     current->shown();
