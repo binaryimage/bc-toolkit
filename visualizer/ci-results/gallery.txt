@@ -1,0 +1,1 @@
+gallery: 0 images, exit 0

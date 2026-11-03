@@ -1,0 +1,48 @@
+1. Ridge Lines - Stacked spectrum ridges in perspective, newest at the front.
+2. Oscilloscope - A clean triggered trace with a soft glow.
+3. Phosphor X/Y - Left against right on a slow-fading phosphor screen.
+4. 3D Bars - Extruded spectrum bars lit from above.
+5. Radial Spectrum - Spectrum bars around a circle that breathes with the bass.
+6. Pulse Rings - Every beat throws a ring outward.
+7. Warp Field - Stars streak past faster as the track gets louder.
+8. Particle Burst - Beats explode into particles that fall away.
+9. Tunnel - Square frames rush toward you and twist on the beat.
+10. Terrain - A wireframe landscape scrolls toward you, raised by the spectrum.
+11. Wire Sphere - A rotating sphere of points pushed out by the spectrum.
+12. Cube Lattice - Nested wireframe cubes spin and swell with the bass.
+13. Polar Wave - The waveform wrapped into a ring.
+14. Spectrogram - Frequency over time, scrolling right to left.
+15. CRT Scope - An old tube oscilloscope: persistence, bloom and scanlines.
+16. Mirror Bars - Thin bars mirrored up and down from a centre line.
+17. Dot Matrix - An LED board: each column is a band, each row a level.
+18. Signal Rain - Falling streaks that thicken with the high end.
+19. Flow Field - Particles drift through a moving noise field, faster when it's loud.
+20. Kaleidoscope - The waveform mirrored into an eight-fold star.
+21. Orbits - Bodies circle a core; each orbit is a slice of the spectrum.
+22. Strings - Twelve strings, each set ringing by its own band.
+23. Seismograph - Six pens on scrolling paper, one per frequency range.
+24. Halftone - A field of print dots that swell from the centre outward.
+25. Glitch - A waveform that tears into displaced slices on every hit.
+26. VHS - A tracking-damaged tape: wobbling trace, noise bands and roll.
+27. Constellation - Stars wander and link up when the music pulls them close.
+28. Ripple Pond - Each hit drops a stone somewhere on still water.
+29. Double Helix - Two strands twist across the screen, rungs lit by the spectrum.
+30. Mandala - Layered rose curves; petals grow with each band group.
+31. Lightning - Forked bolts strike on the big hits.
+32. Vortex - Spiral arms wind tighter and faster with the energy.
+33. LED Stack - A classic segmented equalizer with falling peak caps.
+34. Contours - Topographic lines over a shifting landscape shaped by the bass.
+35. Wave Mesh - The last few seconds of waveform as a rotating 3D surface.
+36. Eclipse - A black disc whose corona flares with the spectrum.
+37. Barcode - Bars of changing weight scroll by like a printout of the track.
+38. Split Signal - Lows, mids and highs drawn as three separate traces.
+39. Monoliths - A slowly turning city of columns, each one a band.
+40. Dust & Grain - Drifting motes that catch the light on every beat, with film grain.
+41. Heart Monitor - An ECG trace that spikes on every beat.
+42. Gyroscope - Interlocking rings tumbling at speeds set by the band groups.
+43. Signal Text - The spectrum rendered as a wall of characters, like a terminal.
+44. Pendulum Wave - A row of pendulums drifting in and out of phase, swinging harder when it's loud.
+45. Smoke - Slow plumes rising from the bottom, stirred by the mids.
+46. Prism - A beam enters a turning prism and fans out into the spectrum.
+47. Clockwork - Meshing gears driven by the low end.
+48. Aurora - Curtains of light that ripple with the high end.
