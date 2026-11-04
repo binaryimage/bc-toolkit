@@ -1,8 +1,14 @@
-widgets: 1
+widgets: 2
   [28] provider ProviderId{user:0, app:10192, cmp:ComponentInfo{com.binaryimage.aion/com.binaryimage.aion.ClockWidget}}
     min=(28161x28161)   minResize=(15361x15361) updatePeriodMillis=1800000 resizeMode=3 widgetCategory=3 autoAdvanceViewId=-1 initialLayout=#7f040000 initialKeyguardLayout=#0   zombie=false
  
 Widgets:
+  [0] id=2
+    host=HostId{user:0, app:10169, hostId:1024, pkg:com.google.android.apps.nexuslauncher}
+    provider=ProviderId{user:0, app:10192, cmp:ComponentInfo{com.binaryimage.aion/com.binaryimage.aion.ClockWidget}}
+    host.callbacks=com.android.internal.appwidget.IAppWidgetHost$Stub$Proxy@4256dd6
+    views=android.widget.RemoteViews@4eb2857
  
 Hosts:
   [0] hostId=HostId{user:0, app:10169, hostId:1024, pkg:com.google.android.apps.nexuslauncher}
+    callbacks=com.android.internal.appwidget.IAppWidgetHost$Stub$Proxy@4256dd6
