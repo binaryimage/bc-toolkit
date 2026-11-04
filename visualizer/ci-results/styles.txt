@@ -46,3 +46,4 @@
 46. Prism - A beam enters a turning prism and fans out into the spectrum.
 47. Clockwork - Meshing gears driven by the low end.
 48. Aurora - Curtains of light that ripple with the high end.
+49. Moth - A moth drawn in light: wings beat with the kick, patterns flow out of its body, dust and echoes trail off it.
