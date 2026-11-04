@@ -43,10 +43,5 @@
                 android:resource="@xml/clock_widget" />
         </receiver>
 
-        <!-- read-only: serves the rendered clock images to the launcher -->
-        <provider
-            android:name=".ClockProvider"
-            android:authorities="com.binaryimage.aion.clock"
-            android:exported="true" />
     </application>
 </manifest>

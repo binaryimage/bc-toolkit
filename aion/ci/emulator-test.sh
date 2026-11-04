@@ -83,5 +83,5 @@ for p in 4 6 0 30 5 14; do
 done
 sleep 3; shot home-later
 
-adb logcat -d | grep -i -E "aion|AndroidRuntime|AnalogClock|RemoteViews|FATAL" | tail -300 > "$OUT/logcat.txt"
+adb logcat -d | grep -i -E "aion|AndroidRuntime|AnalogClock|RemoteViews|FATAL|TransactionTooLarge|FAILED BINDER|AppWidget" | tail -300 > "$OUT/logcat.txt"
 ls -la "$OUT" "$OUT/gallery"

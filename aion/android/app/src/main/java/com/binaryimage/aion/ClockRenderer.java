@@ -634,7 +634,6 @@ public final class ClockRenderer {
                     text(cv, String.valueOf(v), px(a, (rm - bw * 0.06f) * k), py(a, (rm - bw * 0.06f) * k), deg(a), bw * 0.3f, Fonts.get(s.numeralFont, 1), tc, 0, 0);
                     radialLine(cv, a, (R - bw * 0.03f) * k, bw * 0.16f, bw * 0.04f, t);
                 }
-                text(cv, "TACHYMETER", c, py(0, rm), 0, bw * 0.26f, Fonts.get(s.numeralFont, 1), tc, 0, 0);
                 break;
             }
             case 8: { // GMT two tone

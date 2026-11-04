@@ -11,8 +11,8 @@ android {
         minSdk 31          // AnalogClock with custom dial/hands in widgets needs Android 12
         targetSdk 34
         // bump both for every build you want to install over the old one
-        versionCode 2
-        versionName '1.0.1'
+        versionCode 3
+        versionName '1.0.2'
     }
 
     signingConfigs {
