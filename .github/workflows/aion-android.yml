@@ -1,0 +1,111 @@
+name: Build + test Aion clock (Android)
+
+on:
+  push:
+    paths: ["aion/android/**", "aion/ci/**", ".github/workflows/aion-android.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write    # releases + committing test results back to the branch
+
+jobs:
+  aion:
+    name: APK + emulator screenshots
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Read version
+        working-directory: aion/android
+        run: echo "AION_VERSION=$(sed -n "s/.*versionName '\(.*\)'.*/\1/p" app/build.gradle)" >> "$GITHUB_ENV"
+
+      - name: Fetch fonts
+        run: bash aion/ci/fetch-fonts.sh aion/android/app/src/main/assets/fonts
+
+      - name: Build the APK
+        id: build
+        working-directory: aion/android
+        run: |
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          set -o pipefail
+          gradle assembleRelease --no-daemon --stacktrace 2>&1 | tee build.log
+          mkdir -p dist
+          cp app/build/outputs/apk/release/app-release.apk "dist/Aion-$AION_VERSION.apk"
+          ls -la dist
+
+      - name: Save the build log if the build failed
+        if: failure() && steps.build.outcome == 'failure'
+        run: |
+          mkdir -p aion/ci-results
+          grep -E "error:|warning: \[|FAILED|What went wrong" -A3 aion/android/build.log | head -n 300 > aion/ci-results/build-errors.log || true
+          tail -n 300 aion/android/build.log > aion/ci-results/build-failure.log
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f aion/ci-results/build-failure.log aion/ci-results/build-errors.log
+          git commit -m "Aion build failed: log"
+          git pull --rebase origin "$GITHUB_REF_NAME" || true
+          git push origin "HEAD:$GITHUB_REF_NAME"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Aion-Android
+          path: aion/android/dist
+
+      - name: Publish a release (first time this version is pushed)
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="aion-v$AION_VERSION"
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "$TAG is already released; the APK is in this run's artifacts."
+          else
+            gh release create "$TAG" "aion/android/dist/Aion-$AION_VERSION.apk" --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" --latest=false --title "Aion $AION_VERSION (analog clock widget)" \
+              --notes "Design-your-own analog clock widget. Install, open Aion, design a clock, tap + Home screen (or long-press the home screen → Widgets → Aion)."
+          fi
+
+      - name: Enable KVM for the emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Gallery + widget screenshots (Android 14 emulator)
+        id: emu
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-boot-timeout: 900
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          script: bash aion/ci/emulator-test.sh "aion/android/dist/Aion-${{ env.AION_VERSION }}.apk" aion/ci-results
+
+      - name: Commit test results back to the branch
+        if: always() && steps.build.outcome == 'success'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p aion/ci-results
+          echo "emulator step: ${{ steps.emu.outcome }}" > aion/ci-results/status.txt
+          git add -f aion/ci-results
+          if ! git diff --cached --quiet; then
+            git commit -m "Aion $AION_VERSION: emulator screenshots"
+            git pull --rebase origin "$GITHUB_REF_NAME" || true
+            git push origin "HEAD:$GITHUB_REF_NAME"
+          fi

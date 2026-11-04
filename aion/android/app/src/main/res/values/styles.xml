@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Aion</string>
+    <string name="desc">An analog clock you design yourself: faces, hands, numerals, fonts, colours</string>
+    <color name="ic_bg">#101218</color>
+    <style name="Aion" parent="android:Theme.DeviceDefault.NoActionBar">
+        <item name="android:windowBackground">#0E0F12</item>
+        <item name="android:statusBarColor">#0E0F12</item>
+        <item name="android:navigationBarColor">#0E0F12</item>
+        <item name="android:colorAccent">#FFB454</item>
+    </style>
+</resources>

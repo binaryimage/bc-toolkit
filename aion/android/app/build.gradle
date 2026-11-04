@@ -1,0 +1,38 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.binaryimage.aion'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.binaryimage.aion'
+        minSdk 31          // AnalogClock with custom dial/hands in widgets needs Android 12
+        targetSdk 34
+        // bump both for every build you want to install over the old one
+        versionCode 1
+        versionName '1.0.0'
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('../aion.keystore')
+            storePassword 'aionclock'
+            keyAlias 'aionclock'
+            keyPassword 'aionclock'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
