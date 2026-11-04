@@ -156,7 +156,7 @@ public final class ClockRenderer {
         cv.clipPath(face);
         drawPattern(cv);
         if (s.vignette && s.pattern != 18) {
-            Paint v = fill(0);
+            Paint v = fill(0xFFFFFFFF);
             v.setShader(new RadialGradient(c, c, u * 1.05f, new int[]{0, 0, 0x70000000}, new float[]{0, 0.62f, 1f}, Shader.TileMode.CLAMP));
             cv.drawRect(0, 0, size, size, v);
         }
@@ -177,7 +177,7 @@ public final class ClockRenderer {
         if (s.gloss) {
             cv.save();
             cv.clipPath(face);
-            Paint g = fill(0);
+            Paint g = fill(0xFFFFFFFF);
             g.setShader(new LinearGradient(0, c - u, 0, c + u * 0.1f, 0x40FFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP));
             cv.drawOval(new RectF(c - u * 1.1f, c - u * 1.2f, c + u * 1.1f, c + u * 0.05f), g);
             cv.restore();
@@ -200,7 +200,7 @@ public final class ClockRenderer {
                 shade(cv, new RadialGradient(c, c, u * 1.2f, A, B, Shader.TileMode.CLAMP));
                 int rays = 60 + Math.round(d * 140);
                 double step = 2 * Math.PI / rays;
-                Paint p = fill(0);
+                Paint p = fill(0xFFFFFFFF);
                 for (int i = 0; i < rays; i++) {
                     double a0 = i * step, a1 = a0 + step;
                     double light = 0.5 + 0.5 * Math.cos(2 * (a0 - Math.PI / 4));
@@ -231,7 +231,7 @@ public final class ClockRenderer {
                 float cell = u * (0.05f + 0.09f * (1 - d));
                 cv.save();
                 cv.rotate(45, c, c);
-                Paint p = fill(0);
+                Paint p = fill(0xFFFFFFFF);
                 int[] tone = { Col.lighten(A, 0.28f), Col.darken(A, 0.12f), Col.darken(A, 0.38f), Col.lighten(A, 0.06f) };
                 for (float y = c - E; y < c + E; y += cell) {
                     for (float x = c - E; x < c + E; x += cell) {
@@ -256,7 +256,7 @@ public final class ClockRenderer {
                 float band = u * (0.07f + 0.13f * (1 - d));
                 cv.save();
                 cv.rotate(-18, c, c);
-                Paint p = fill(0);
+                Paint p = fill(0xFFFFFFFF);
                 for (float y = c - E; y < c + E; y += band) {
                     p.setShader(new LinearGradient(0, y, 0, y + band, new int[]{Col.darken(A, 0.1f), Col.lighten(B, 0.15f), Col.darken(A, 0.15f)},
                             new float[]{0, 0.45f, 1}, Shader.TileMode.CLAMP));
@@ -268,7 +268,7 @@ public final class ClockRenderer {
             case 8: { // carbon fibre
                 float cell = u * (0.025f + 0.045f * (1 - d));
                 int dark = Col.darken(A, 0.25f), light = Col.lighten(A, 0.16f);
-                Paint p = fill(0);
+                Paint p = fill(0xFFFFFFFF);
                 int i = 0;
                 for (float y = c - E; y < c + E; y += cell, i++) {
                     int j = 0;
@@ -284,7 +284,7 @@ public final class ClockRenderer {
             case 9: { // galaxy
                 shade(cv, new RadialGradient(c, c, u * 1.2f, Col.lighten(B, 0.05f), Col.darken(B, 0.6f), Shader.TileMode.CLAMP));
                 int[] neb = { A, s.accent, Col.mix(A, s.accent, 0.5f), Col.lighten(A, 0.3f) };
-                Paint p = fill(0);
+                Paint p = fill(0xFFFFFFFF);
                 for (int k = 0; k < 6; k++) {
                     float x = c + (rnd.nextFloat() - 0.5f) * u * 1.3f, y = c + (rnd.nextFloat() - 0.5f) * u * 1.3f;
                     float r = u * (0.3f + rnd.nextFloat() * 0.5f);
@@ -335,7 +335,7 @@ public final class ClockRenderer {
                 float r = u * (0.045f + 0.08f * (1 - d));
                 float w = (float) (Math.sqrt(3) * r);
                 Paint line = stroke(B, Math.max(1f, u * 0.006f));
-                Paint in = fill(0);
+                Paint in = fill(0xFFFFFFFF);
                 int row = 0;
                 for (float y = c - E; y < c + E; y += r * 1.5f, row++) {
                     for (float x = c - E + ((row % 2) * w / 2); x < c + E; x += w) {
@@ -355,7 +355,7 @@ public final class ClockRenderer {
             }
             case 13: { // tapisserie
                 float cell = u * (0.05f + 0.08f * (1 - d));
-                Paint p = fill(0);
+                Paint p = fill(0xFFFFFFFF);
                 for (float y = c - E; y < c + E; y += cell) {
                     for (float x = c - E; x < c + E; x += cell) {
                         p.setColor(Col.darken(A, 0.3f));
@@ -386,7 +386,7 @@ public final class ClockRenderer {
             case 15: { // aurora
                 cv.drawColor(Col.darken(A, 0.55f));
                 int[] cols = { A, B, s.accent, Col.mix(A, B, 0.5f), Col.mix(B, s.accent, 0.5f), Col.lighten(A, 0.3f) };
-                Paint p = fill(0);
+                Paint p = fill(0xFFFFFFFF);
                 for (int k = 0; k < 7; k++) {
                     float x = c + (rnd.nextFloat() - 0.5f) * u * 1.4f, y = c + (rnd.nextFloat() - 0.5f) * u * 1.4f;
                     float r = u * (0.45f + rnd.nextFloat() * 0.5f);
@@ -542,7 +542,7 @@ public final class ClockRenderer {
     }
 
     void shade(Canvas cv, Shader sh) {
-        Paint p = fill(0);
+        Paint p = fill(0xFFFFFFFF);
         p.setShader(sh);
         cv.drawRect(0, 0, size, size, p);
     }
@@ -557,7 +557,7 @@ public final class ClockRenderer {
         switch (s.bezel) {
             case 1: cv.drawPath(ring, fill(bc)); break;
             case 2: {
-                Paint p = fill(0);
+                Paint p = fill(0xFFFFFFFF);
                 p.setShader(new LinearGradient(0, c - R, 0, c + R, Col.lighten(bc, 0.2f), Col.darken(bc, 0.25f), Shader.TileMode.CLAMP));
                 cv.drawPath(ring, p);
                 break;
@@ -570,7 +570,7 @@ public final class ClockRenderer {
                 break;
             }
             case 4: case 13: {
-                Paint p = fill(0);
+                Paint p = fill(0xFFFFFFFF);
                 p.setShader(new SweepGradient(c, c, new int[]{Col.lighten(bc, 0.55f), Col.darken(bc, 0.35f), Col.lighten(bc, 0.35f),
                         Col.darken(bc, 0.5f), Col.lighten(bc, 0.55f)}, null));
                 cv.drawPath(ring, p);
@@ -666,7 +666,7 @@ public final class ClockRenderer {
             }
             case 9: { // fluted
                 int n = 72;
-                Paint p = fill(0);
+                Paint p = fill(0xFFFFFFFF);
                 cv.save();
                 cv.clipPath(ring);
                 for (int i = 0; i < n; i++) {
@@ -689,7 +689,7 @@ public final class ClockRenderer {
                 cv.drawPath(ring, fill(Col.darken(bc, 0.3f)));
                 float gr = bw * 0.36f;
                 int n = Math.max(12, (int) (2 * Math.PI * rm / (gr * 2.3f)));
-                Paint g = fill(0);
+                Paint g = fill(0xFFFFFFFF);
                 for (int i = 0; i < n; i++) {
                     double a = 2 * Math.PI * i / n;
                     float k = shapeR(a), x = px(a, rm * k), y = py(a, rm * k);
@@ -1056,7 +1056,7 @@ public final class ClockRenderer {
         if (s.numerals == 13) base = u * 0.08f * s.numeralSize;
         if (s.numerals == 6) base = u * 0.26f * s.numeralSize;
         if (s.numerals == 19) base = u * 0.12f * s.numeralSize;
-        Paint meas = fill(0);
+        Paint meas = fill(0xFFFFFFFF);
         meas.setTypeface(tf);
         for (int h = 1; h <= 12; h++) {
             String lab = set[h - 1];
@@ -1093,12 +1093,12 @@ public final class ClockRenderer {
             } else {
                 float y = c - u * (0.16f + 0.3f * s.brandPos);
                 spaced(cv, s.brand, c, y, size, tf, s.textColor);
-                if (s.logo > 0) text(cv, Names.LOGOS[s.logo], c, y - size * 1.25f, 0, size * 1.15f, Typeface.DEFAULT, s.textColor, 0, 0);
+                if (s.logo > 0) text(cv, Names.glyph(s.logo), c, y - size * 1.25f, 0, size * 1.15f, Typeface.DEFAULT, s.textColor, 0, 0);
             }
             if (s.brandLayout == 1 && s.logo > 0)
-                text(cv, Names.LOGOS[s.logo], c, c - u * (0.16f + 0.18f * s.brandPos), 0, size * 1.15f, Typeface.DEFAULT, s.textColor, 0, 0);
+                text(cv, Names.glyph(s.logo), c, c - u * (0.16f + 0.18f * s.brandPos), 0, size * 1.15f, Typeface.DEFAULT, s.textColor, 0, 0);
         } else if (s.logo > 0) {
-            text(cv, Names.LOGOS[s.logo], c, c - u * (0.16f + 0.3f * s.brandPos), 0, u * 0.13f * s.brandSize, Typeface.DEFAULT, s.textColor, 0, 0);
+            text(cv, Names.glyph(s.logo), c, c - u * (0.16f + 0.3f * s.brandPos), 0, u * 0.13f * s.brandSize, Typeface.DEFAULT, s.textColor, 0, 0);
         }
         if (s.subtitle != null && !s.subtitle.trim().isEmpty()) {
             Typeface tf = Fonts.get(s.subFont, s.subWeight);
@@ -1199,7 +1199,7 @@ public final class ClockRenderer {
             }
             case 10: moon(cv, sx, sy, sr); break;
             case 11: {
-                String g = Names.LOGOS[s.logo > 0 ? s.logo : 1];
+                String g = Names.glyph(s.logo > 0 ? s.logo : 1);
                 text(cv, g, px(a, wr * 0.92f), py(a, wr * 0.92f), 0, u * 0.17f, Typeface.DEFAULT, s.compColor, 4, 0);
                 break;
             }
@@ -1213,7 +1213,7 @@ public final class ClockRenderer {
         RectF rc = new RectF(l, t, r, b);
         float rad = (b - t) * 0.14f;
         cv.drawRoundRect(rc, rad, rad, fill(s.compBg));
-        Paint in = fill(0);
+        Paint in = fill(0xFFFFFFFF);
         in.setShader(new LinearGradient(0, t, 0, t + (b - t) * 0.4f, 0x66000000, 0, Shader.TileMode.CLAMP));
         cv.drawRoundRect(rc, rad, rad, in);
         cv.drawRoundRect(rc, rad, rad, stroke(Col.alphaMul(s.compColor, 0.55f), Math.max(1f, u * 0.006f)));
@@ -1221,7 +1221,7 @@ public final class ClockRenderer {
 
     void window(Canvas cv, float x, float y, String str, Typeface tf) {
         float sz = u * 0.075f;
-        Paint p = fill(0);
+        Paint p = fill(0xFFFFFFFF);
         p.setTypeface(tf);
         p.setTextSize(sz);
         float w = p.measureText(str) + sz * 0.7f, h = sz * 1.45f;
@@ -1230,7 +1230,7 @@ public final class ClockRenderer {
     }
 
     void subdial(Canvas cv, float x, float y, float r, String[] labels, int pos, int n) {
-        Paint bg = fill(0);
+        Paint bg = fill(0xFFFFFFFF);
         bg.setShader(new RadialGradient(x, y, r, Col.alphaMul(s.compBg, 0.55f), Col.alphaMul(s.compBg, 0.9f), Shader.TileMode.CLAMP));
         cv.drawCircle(x, y, r, bg);
         cv.drawCircle(x, y, r, stroke(Col.alphaMul(s.compColor, 0.7f), Math.max(1f, u * 0.006f)));
@@ -1255,7 +1255,7 @@ public final class ClockRenderer {
     }
 
     void moon(Canvas cv, float x, float y, float r) {
-        Paint sky = fill(0);
+        Paint sky = fill(0xFFFFFFFF);
         sky.setShader(new RadialGradient(x, y - r * 0.3f, r * 1.2f, 0xFF1C3A7A, 0xFF07122E, Shader.TileMode.CLAMP));
         cv.drawCircle(x, y, r, sky);
         Random rnd = new Random(5);
@@ -1270,7 +1270,7 @@ public final class ClockRenderer {
         float mr = r * 0.58f;
         cv.drawCircle(x, y, mr, fill(0x40EDE3C0));
         Path lit = moonLit(x, y, mr, phase);
-        Paint mp = fill(0);
+        Paint mp = fill(0xFFFFFFFF);
         mp.setShader(new RadialGradient(x - mr * 0.3f, y - mr * 0.3f, mr * 1.4f, 0xFFFFF6D8, 0xFFD9C27A, Shader.TileMode.CLAMP));
         cv.drawPath(lit, mp);
         cv.drawCircle(x, y, r, stroke(Col.alphaMul(s.compColor, 0.7f), Math.max(1f, u * 0.006f)));
@@ -1296,7 +1296,7 @@ public final class ClockRenderer {
         Path ap = new Path();
         ap.addArc(new RectF(x - r, y - r, x + r, y + r), 180, 180);
         ap.close();
-        Paint sky = fill(0);
+        Paint sky = fill(0xFFFFFFFF);
         sky.setShader(new LinearGradient(x - r, 0, x + r, 0, new int[]{0xFF0B1640, 0xFF3B6FD6, 0xFF8FC6FF, 0xFFFFB066, 0xFF2A1450}, null, Shader.TileMode.CLAMP));
         cv.drawPath(ap, sky);
         cv.drawCircle(x + r * 0.42f, y - r * 0.45f, r * 0.16f, fill(0xFFFFD34D));
@@ -1363,7 +1363,7 @@ public final class ClockRenderer {
         float W = Math.max(2f, b.width());
         switch (s.handFinish) {
             case 1: {
-                Paint pp = fill(0);
+                Paint pp = fill(0xFFFFFFFF);
                 pp.setShader(new LinearGradient(b.left, 0, b.right, 0,
                         new int[]{Col.lighten(h, 0.5f), h, Col.darken(h, 0.45f), h, Col.lighten(h, 0.3f)}, null, Shader.TileMode.CLAMP));
                 cv.drawPath(p, pp);
@@ -1395,7 +1395,7 @@ public final class ClockRenderer {
                 break;
             }
             case 6: {
-                Paint pp = fill(0);
+                Paint pp = fill(0xFFFFFFFF);
                 pp.setShader(new LinearGradient(0, c, 0, b.top, h, acc, Shader.TileMode.CLAMP));
                 cv.drawPath(p, pp);
                 break;
@@ -1404,7 +1404,7 @@ public final class ClockRenderer {
                 int[] cols = s.handFinish == 7
                         ? new int[]{0xFFFFF1B8, 0xFFD4A537, 0xFF8A6418, 0xFFE9C766, 0xFFB8892B}
                         : new int[]{0xFFFFFFFF, 0xFFC4CAD2, 0xFF6E757E, 0xFFE3E7EC, 0xFF9AA1AA};
-                Paint pp = fill(0);
+                Paint pp = fill(0xFFFFFFFF);
                 pp.setShader(new LinearGradient(b.left, 0, b.right, 0, cols, null, Shader.TileMode.CLAMP));
                 cv.drawPath(p, pp);
                 break;
@@ -1422,7 +1422,7 @@ public final class ClockRenderer {
                 cv.drawCircle(c, c, u * 0.015f, fill(Col.darken(col, 0.5f)));
                 break;
             case 3: {
-                Paint j = fill(0);
+                Paint j = fill(0xFFFFFFFF);
                 j.setShader(new RadialGradient(c - u * 0.01f, c - u * 0.01f, u * 0.04f, new int[]{0xFFFFFFFF, s.accent, Col.darken(s.accent, 0.6f)},
                         new float[]{0, 0.35f, 1}, Shader.TileMode.CLAMP));
                 cv.drawCircle(c, c, u * 0.032f, j);
@@ -1430,7 +1430,7 @@ public final class ClockRenderer {
                 break;
             }
             case 4: {
-                Paint sc = fill(0);
+                Paint sc = fill(0xFFFFFFFF);
                 sc.setShader(new LinearGradient(c - u * 0.03f, c - u * 0.03f, c + u * 0.03f, c + u * 0.03f, Col.lighten(col, 0.4f), Col.darken(col, 0.3f), Shader.TileMode.CLAMP));
                 cv.drawCircle(c, c, u * 0.032f, sc);
                 Paint sl = stroke(Col.darken(col, 0.55f), Math.max(1.5f, u * 0.008f));

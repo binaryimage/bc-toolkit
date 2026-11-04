@@ -352,26 +352,33 @@ public class EditorActivity extends Activity {
                 if (gen != thumbGen) return;
                 try {
                     ClockStyle v = t.variant.apply(snap.copy());
-                    Bitmap bmp = t.kind == 2 ? handsThumb(v, t.px) : ClockRenderer.composite(v, t.px, today, 10, 9, 36);
+                    Bitmap bmp = t.kind >= 2 ? handsThumb(v, t.px, t.kind == 3) : ClockRenderer.composite(v, t.px, today, 10, 9, 36);
                     ui.post(() -> { if (gen == thumbGen) t.view.setImageBitmap(bmp); });
                 } catch (Throwable ignored) { }
             }
         });
     }
 
-    static Bitmap handsThumb(ClockStyle v, int px) {
+    /** Hands drawn big on the face colour: kind 2 = hour + minute, kind 3 = seconds hand + cap. */
+    static Bitmap handsThumb(ClockStyle v, int px, boolean secondsOnly) {
         ClockStyle s = v.copy();
-        s.handLength = 1.12f;
-        s.handWidth = Math.max(1.1f, s.handWidth * 1.25f);
-        ClockRenderer r = new ClockRenderer(s, px, LocalDate.now());
+        s.handLength = 1f;
+        s.handWidth = Math.max(1.1f, s.handWidth * 1.2f);
+        s.seconds = true;
+        int big = Math.round(px * 2.0f);
+        ClockRenderer r = new ClockRenderer(s, big, LocalDate.now());
         Bitmap out = Bitmap.createBitmap(px, px, Bitmap.Config.ARGB_8888);
         Canvas cv = new Canvas(out);
-        cv.drawColor(Col.alpha(s.faceA, 255));
+        cv.drawColor(Col.alpha(s.pattern == 18 ? 0xFF2A2E38 : s.faceA, 255));
         Paint p = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG);
-        float c = px / 2f;
-        ClockRenderer.drawRot(cv, r.hourHand(), -50, c, p);
-        ClockRenderer.drawRot(cv, r.minuteHand(), 50, c, p);
-        if (s.seconds) ClockRenderer.drawRot(cv, r.secondHand(), 180, c, p);
+        float c = big / 2f;
+        cv.translate(px / 2f - c, px * 0.82f - c);   // pivot low in the tile so the hands fill it
+        if (secondsOnly) {
+            ClockRenderer.drawRot(cv, r.secondHand(), 25, c, p);
+        } else {
+            ClockRenderer.drawRot(cv, r.hourHand(), -38, c, p);
+            ClockRenderer.drawRot(cv, r.minuteHand(), 30, c, p);
+        }
         return out;
     }
 
@@ -392,7 +399,7 @@ public class EditorActivity extends Activity {
         panel.addView(b, lp);
     }
 
-    /** A row of options; kind 0 = text chips, 1 = clock thumbnails, 2 = hand thumbnails. */
+    /** A row of options; kind 0 = text chips, 1 = clock thumbnails, 2 = hand thumbnails, 3 = seconds-hand thumbnails. */
     void choice(String title, String[] names, ToIntFunction<ClockStyle> get, ObjIntConsumer<ClockStyle> set, int kind) {
         section(title);
         HorizontalScrollView hs = new HorizontalScrollView(this);
@@ -815,9 +822,9 @@ public class EditorActivity extends Activity {
         color("Hand colour", s -> s.handColor, (s, v) -> s.handColor = v);
         color("Lume / tip colour", s -> s.handAccent, (s, v) -> s.handAccent = v);
         toggle("Seconds hand", s -> s.seconds, (s, v) -> s.seconds = v);
-        choice("Seconds hand", Names.SECONDS, s -> s.secondHand, (s, v) -> s.secondHand = v, 2);
+        choice("Seconds hand", Names.SECONDS, s -> s.secondHand, (s, v) -> s.secondHand = v, 3);
         color("Seconds colour", s -> s.secondColor, (s, v) -> s.secondColor = v);
-        choice("Centre cap", Names.CAPS, s -> s.cap, (s, v) -> s.cap = v, 2);
+        choice("Centre cap", Names.CAPS, s -> s.cap, (s, v) -> s.cap = v, 3);
         slider("Length", 0.7f, 1.25f, s -> s.handLength, (s, v) -> s.handLength = v);
         slider("Width", 0.5f, 2.0f, s -> s.handWidth, (s, v) -> s.handWidth = v);
         toggle("Hand shadows", s -> s.handShadow, (s, v) -> s.handShadow = v);

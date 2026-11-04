@@ -8,7 +8,7 @@ ACT="$PKG/.EditorActivity"
 EXT=/sdcard/Android/data/$PKG/files
 log() { echo "[$(date +%T)] $*"; }
 sh_() { adb shell "$@" | tr -d '\r'; }
-shot() { adb exec-out screencap -p > "$OUT/$1.png"; log "screenshot $1"; }
+shot() { clear_dialogs; adb exec-out screencap -p > "$OUT/$1.png"; log "screenshot $1"; }
 center_of() {
   sh_ uiautomator dump /sdcard/ui.xml > /dev/null 2>&1
   adb pull /sdcard/ui.xml /tmp/ui.xml > /dev/null 2>&1
@@ -59,14 +59,16 @@ for t in Presets Face Case Marks Numerals Hands Lettering Extras; do
   shot "editor-$(echo $t | tr 'A-Z' 'a-z')"
 done
 
-# ---------- put the widget on the home screen
+# ---------- put the widget on the home screen (restart the launcher first: it tends to ANR on the emulator)
+sh_ am force-stop com.google.android.apps.nexuslauncher
+sh_ input keyevent KEYCODE_HOME; sleep 15; clear_dialogs; sleep 2; clear_dialogs
 sh_ am start -S -n "$ACT" --ez ci_pin true --ei preset 1 > /dev/null
 sleep 5
 ui_texts > "$OUT/pin-dialog.txt"
 shot pin-dialog
 tap_on "prefix:Add to home screen" || tap_on "prefix:ADD TO HOME SCREEN" || tap_on "Add" || tap_on "ADD"
-sleep 4
-sh_ input keyevent KEYCODE_HOME; sleep 6
+sleep 3
+sh_ input keyevent KEYCODE_HOME; sleep 12; clear_dialogs; sleep 4
 shot home-1-diver
 echo "widgets: $(sh_ dumpsys appwidget | grep -c 'com.binaryimage.aion')" > "$OUT/appwidget.txt"
 sh_ dumpsys appwidget | grep -A6 -i aion | head -60 >> "$OUT/appwidget.txt"

@@ -91,7 +91,7 @@ public final class Names {
             case 13: return seq("1 10 11 100 101 110 111 1000 1001 1010 1011 1100");
             case 14: return seq("1 2 3 4 5 6 7 8 9 A B C");
             case 15: return seq("_ 2 _ 4 _ 6 _ 8 _ 10 _ 12");
-            case 16: return seq("♉ ♊ ♋ ♌ ♍ ♎ ♏ ♐ ♑ ♒ ♓ ♈");
+            case 16: return text(seq("♉ ♊ ♋ ♌ ♍ ♎ ♏ ♐ ♑ ♒ ♓ ♈"));
             case 17: return seq("Α Β Γ Δ Ε ΣΤ Ζ Η Θ Ι ΙΑ ΙΒ");
             case 18: return seq("ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ ᛁ ᛃ");
             case 19: return seq("• •• ••• :: ⁙ ⠿ ⁘ ⁂ ⁜ ⁞ ⁝ ⁑");
@@ -100,6 +100,14 @@ public final class Names {
             default: return null;
         }
     }
+
+    /** Adds the "text style" selector so symbols draw as glyphs, not colour emoji. */
+    static String[] text(String[] a) {
+        for (int i = 0; i < a.length; i++) if (a[i] != null) a[i] = a[i] + "\uFE0E";
+        return a;
+    }
+
+    public static String glyph(int logo) { return LOGOS[logo] + "\uFE0E"; }
 
     private static String[] seq(String s) {
         String[] a = s.split(" ");
