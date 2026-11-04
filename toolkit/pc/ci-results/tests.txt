@@ -88,8 +88,8 @@ PASS  reverse plays backwards from the slice end
 PASS  tuned up an octave finishes in half the time   (2560)
 PASS  loop keeps going past the slice end
 PASS  the old copy-and-play call still works
-PASS  the Video page has the visualizer's styles   (50)
-PASS  exports an MP4 from inside the Toolkit   (214650 bytes)
+PASS  the Video page has all 80 of the visualizer's styles   (80)
+PASS  exports an MP4 from inside the Toolkit   (742831 bytes)
 PASS  the Video page is in the Toolkit
 PASS  a take sent from Record opens the Video page
 PASS  and the chop station still takes audio the same way
