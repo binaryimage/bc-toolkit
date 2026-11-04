@@ -1,0 +1,81 @@
+Sans
+Sans Light
+Sans Thin
+Sans Medium
+Sans Black
+Condensed
+Condensed Light
+Serif
+Mono
+Serif Mono
+Casual
+Cursive
+Small Caps
+Abril Fatface
+Anton
+Audiowide
+Bebas Neue
+Black Ops One
+Bodoni Moda
+Bowlby One SC
+Bungee
+Cinzel Decorative
+Cinzel
+Codystar
+Comfortaa
+Cormorant Garamond
+Creepster
+DM Serif Display
+Dancing Script
+Diplomata
+Ewert
+Exo 2
+Faster One
+Federo
+Forum
+Fredericka the Great
+Great Vibes
+Gruppo
+Iceland
+Italiana
+Josefin Sans
+Julius Sans One
+Kanit
+Limelight
+Lobster
+Major Mono Display
+Marcellus
+Megrim
+Metal Mania
+Michroma
+Monoton
+New Rocker
+Nosifer
+Orbitron
+Oswald
+Pacifico
+Pinyon Script
+Pirata One
+Playfair Display
+Poiret One
+Press Start 2P
+Quantico
+Rajdhani
+Righteous
+Rubik Mono One
+Rye
+Sancreek
+Satisfy
+Share Tech Mono
+Shrikhand
+Silkscreen
+Space Grotesk
+Staatliches
+Syncopate
+Teko
+Turret Road
+Unifraktur Maguntia
+VT323
+Wallpoet
+Yellowtail
+Zen Dots
