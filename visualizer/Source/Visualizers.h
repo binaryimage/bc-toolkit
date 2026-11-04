@@ -31,4 +31,6 @@ namespace bcv
 
     /** Every style, in menu order. */
     std::vector<std::unique_ptr<Viz>> makeAll();
+    /** styles 51-80 (Trippy.cpp) */
+    void addTrippyStyles (std::vector<std::unique_ptr<Viz>>& v);
 }

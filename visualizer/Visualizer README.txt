@@ -1,7 +1,7 @@
 BC Visualizer
 =============
 
-Turns a track into a music video for YouTube: 50 audio-reactive styles, your title and
+Turns a track into a music video for YouTube: 80 audio-reactive styles, your title and
 artist name, optional cover art, exported as an MP4 (H.264 video, AAC audio).
 
 Quick start
@@ -25,7 +25,19 @@ Tips
 - 1440p uploads get YouTube's better encoder even for 1080p viewers, so they look sharper.
 - 60 fps looks smoother on fast styles (Warp Field, Tunnel, Glitch) but takes twice as long
   to render.
-- Colour changes the ink: White, Ice, Amber, Red, Phosphor green, Violet, Multi-colour or Ice multi-colour.
+- Reactions (Off / Subtle / Wild) is a layer on top of every style that listens to 32 frequency ranges
+  and to the character of the sound, and gives each its own job:
+    sub: the picture breathes        bass hits: punch and shake      low mids: slow sway
+    mid hits: kaleidoscope flicker   presence hits: glitch slices     highs: glints
+    air: shimmer                     noise and hiss: static           crunch/distortion: colour split
+    rising pitch: zoom in            falling pitch: zoom out           panning: slide and lean
+    wide stereo: left/right ghosts   busy parts: echoes               drones: slow sway
+    reverb tails and gaps: trails    silence: dissolves               swells: everything intensifies
+    drops: flash and slam            a new section: the picture flips to a new mirror mode and the
+                                     colours jump
+  Nothing needs a steady beat; ranges that aren't in a track just don't fire.
+- Colour changes the ink: White, Ice, Amber, Red, Phosphor green, Violet, Multi-colour, Ice multi-colour,
+  or one of 40 mixed palettes (Toxic Bloom, Blood Moon, Thermal, Oil Slick, Nebula, Hellfire...).
   Multi-colour paints any style in a rainbow that spirals out from the centre and turns with
   the music; Ice multi-colour does the same in cold cyans, blues and violets. Try them on Moth (the newest style), Kaleidoscope or Mandala.
   Background "Paper" gives you black ink on off-white.

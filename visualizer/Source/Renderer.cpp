@@ -3,17 +3,104 @@
 
 namespace bcv
 {
-juce::StringArray tintNames() { return { "White", "Ice", "Amber", "Red", "Phosphor green", "Violet", "Multi-colour", "Ice multi-colour" }; }
+
+namespace
+{
+    /** A mixed palette: colour stops round a loop, read by where a pixel is (field) and how bright it is. */
+    struct Mix { const char* name; std::vector<juce::uint32> stops; int field; float spatial, bright; };
+    // fields: 0 spiral wheel, 1 rings out from the centre, 2 top to bottom, 3 diagonal, 4 angle round the centre
+    const std::vector<Mix>& mixes()
+    {
+        static const std::vector<Mix> m {
+            { "Toxic Bloom",     { 0xff0b3d0b, 0xff7cff2e, 0xfff2ff3d, 0xffff2ed1 }, 1, 0.7f, 0.5f },
+            { "Blood Moon",      { 0xff3a0006, 0xffc4001d, 0xffff6a1a, 0xfff3e6d0 }, 1, 0.5f, 0.7f },
+            { "Acid Rain",       { 0xffb6ff00, 0xff00ffd5, 0xff0047ff, 0xff00ff6a }, 2, 0.8f, 0.3f },
+            { "Ultraviolet",     { 0xff2a00ff, 0xff8f00ff, 0xffff2bd6, 0xfff5e6ff }, 0, 0.7f, 0.4f },
+            { "Ember Rot",       { 0xff4a0500, 0xffd43a00, 0xffffb300, 0xff7a1c00 }, 1, 0.4f, 0.8f },
+            { "Deep Sea",        { 0xff001a4d, 0xff006d77, 0xff00e5ff, 0xff7affd4 }, 2, 0.6f, 0.5f },
+            { "Bruise",          { 0xff3b0a57, 0xff8a2b8a, 0xffc7d34a, 0xff2b4bd6 }, 4, 0.8f, 0.3f },
+            { "Witch Light",     { 0xff00ff7b, 0xff00b3a6, 0xff7a3dff, 0xff2bff00 }, 0, 0.8f, 0.3f },
+            { "Synth Dusk",      { 0xff3d0f6b, 0xffb5179e, 0xffff5f3d, 0xffffb347 }, 2, 0.9f, 0.2f },
+            { "Oil Slick",       { 0xff5a189a, 0xff00a6a6, 0xffd4a017, 0xffd6246e, 0xff2ec22e }, 3, 1.2f, 0.4f },
+            { "Thermal",         { 0xff0a0a40, 0xff6a00a8, 0xffe0003c, 0xffff8c00, 0xffffef5c, 0xffffffff }, 1, 0.1f, 1.0f },
+            { "Night Vision",    { 0xff031a03, 0xff19c419, 0xff9dff9d, 0xfff0fff0 }, 1, 0.1f, 0.9f },
+            { "Cyanotype",       { 0xff0b2a6f, 0xff2a6fdb, 0xffbfe3ff, 0xffffffff }, 1, 0.2f, 0.9f },
+            { "Sepia Ghost",     { 0xff3b2412, 0xff8a6239, 0xffd9c19a, 0xfffff4e0 }, 2, 0.2f, 0.9f },
+            { "Absinthe",        { 0xff2f6b00, 0xff8fd400, 0xffd9ff7a, 0xff00d48f }, 4, 0.7f, 0.4f },
+            { "Venom",           { 0xff00330d, 0xff7aff00, 0xff6a00d4, 0xffc4ff4d }, 0, 0.8f, 0.4f },
+            { "Magma",           { 0xff1a0000, 0xff9e0000, 0xffff4d00, 0xffffc400, 0xfffff4b0 }, 1, 0.2f, 1.0f },
+            { "Nebula",          { 0xff0b0b5c, 0xff6a2bd6, 0xffff4fa8, 0xff3dd6ff }, 0, 0.9f, 0.3f },
+            { "Fungal",          { 0xff4a2f1a, 0xffc49a3d, 0xffd8b8ff, 0xff3da69e }, 3, 0.8f, 0.4f },
+            { "Bioluminescent",  { 0xff001233, 0xff00b4d8, 0xff38ff8a, 0xff00f5d4 }, 1, 0.6f, 0.6f },
+            { "Static Storm",    { 0xff5c6b80, 0xffffffff, 0xff1f8fff, 0xffb3d9ff }, 2, 0.8f, 0.6f },
+            { "Haunted VHS",     { 0xffff00c8, 0xff00e5ff, 0xfffff200, 0xff7a00ff }, 2, 1.4f, 0.2f },
+            { "Graveyard Mist",  { 0xff4d5c4d, 0xff9fb3a6, 0xffc9dcf0, 0xfff4f8f6 }, 2, 0.4f, 0.7f },
+            { "Lava Lamp",       { 0xffe0001b, 0xffff7b00, 0xffff4fd8, 0xff8a00d4 }, 1, 0.9f, 0.4f },
+            { "Ectoplasm",       { 0xff7affc4, 0xffc8ff3d, 0xfff4fff0, 0xff3dffa8 }, 4, 0.6f, 0.5f },
+            { "Chrome",          { 0xff2b2f36, 0xff9aa5b1, 0xffffffff, 0xff5c7a99 }, 2, 0.5f, 0.9f },
+            { "Moth Wing",       { 0xff4a3220, 0xffa8763e, 0xffeedcb3, 0xffb5521c }, 4, 0.6f, 0.6f },
+            { "Electric Eel",    { 0xfffff200, 0xff00f0ff, 0xff0040ff, 0xff9dff00 }, 3, 1.0f, 0.3f },
+            { "Infrared",        { 0xff1a0010, 0xffff0066, 0xffff7aa8, 0xffffffff }, 2, 0.5f, 0.8f },
+            { "Sulphur",         { 0xff6b6b00, 0xffd4c400, 0xfffff36b, 0xff8f7a00 }, 1, 0.6f, 0.5f },
+            { "Cobalt Flame",    { 0xff00137a, 0xff0057ff, 0xff4dc4ff, 0xffe6f7ff }, 1, 0.3f, 0.9f },
+            { "Rust and Patina", { 0xff8a3300, 0xffc26a2b, 0xff3d8f7a, 0xff5c2a12 }, 3, 0.8f, 0.4f },
+            { "Poison Ivy",      { 0xff0f4d12, 0xff2bd43d, 0xffd40f2b, 0xff7aff8a }, 0, 0.8f, 0.4f },
+            { "Plasma Arc",      { 0xff4b00a8, 0xff1f6bff, 0xffa8e6ff, 0xffffffff }, 4, 0.6f, 0.7f },
+            { "Hellfire",        { 0xff200000, 0xffb30000, 0xffff5500, 0xffffd000 }, 2, 0.4f, 0.9f },
+            { "Glacier",         { 0xff005f73, 0xff94d2bd, 0xfff0fbff, 0xff3f5f7a }, 3, 0.7f, 0.5f },
+            { "Gasoline",        { 0xff3d0066, 0xff007a5c, 0xff1f3dff, 0xffa8742b }, 0, 1.2f, 0.3f },
+            { "Ritual",          { 0xff5c0010, 0xffd4a017, 0xff1f0029, 0xffff3d3d }, 4, 0.7f, 0.5f },
+            { "Mercury",         { 0xff3d4247, 0xffc0c8d0, 0xfff7fbff, 0xff8fa8c4 }, 1, 0.4f, 0.8f },
+            { "Neon Grave",      { 0xffff1fa8, 0xff7a1fff, 0xffa8ff1f, 0xff1fd4ff }, 0, 1.0f, 0.3f },
+        };
+        return m;
+    }
+
+    void buildLut (int tint, bool paper, juce::uint8* lr, juce::uint8* lg, juce::uint8* lb, int n)
+    {
+        for (int i = 0; i < n; ++i)
+        {
+            const float x = (float) i / n;
+            juce::Colour c;
+            if (tint == kMultiColour) c = juce::Colour::fromHSV (x, paper ? 1.0f : 0.85f, paper ? 0.72f : 1.0f, 1.0f);
+            else if (tint == kIceColour)
+            {
+                // cyan -> blue -> violet and back (no seam), with frosty near-white streaks running through it
+                float hue = 0.48f + 0.27f * (0.5f - 0.5f * std::cos (x * juce::MathConstants<float>::twoPi));
+                float sat = 0.5f + 0.35f * std::sin (x * juce::MathConstants<float>::twoPi * 3.0f);
+                c = juce::Colour::fromHSV (hue, paper ? juce::jmin (1.0f, sat + 0.3f) : sat, paper ? 0.6f : 1.0f, 1.0f);
+            }
+            else
+            {
+                const auto& st = mixes()[(size_t) juce::jlimit (0, (int) mixes().size() - 1, tint - kFirstMix)].stops;
+                const float pos = x * (float) st.size();
+                const int a = (int) pos % (int) st.size(), b = (a + 1) % (int) st.size();
+                const float u = pos - std::floor (pos), su = u * u * (3 - 2 * u);
+                c = juce::Colour (st[(size_t) a]).interpolatedWith (juce::Colour (st[(size_t) b]), su);
+                if (paper) c = c.withMultipliedBrightness (0.7f).withMultipliedSaturation (1.2f);
+            }
+            lr[i] = c.getRed(); lg[i] = c.getGreen(); lb[i] = c.getBlue();
+        }
+    }
+}
+
+juce::StringArray tintNames()
+{
+    juce::StringArray s { "White", "Ice", "Amber", "Red", "Phosphor green", "Violet", "Multi-colour", "Ice multi-colour" };
+    for (auto& m : mixes()) s.add (m.name);
+    return s;
+}
+juce::StringArray reactionNames() { return { "Off", "Subtle", "Wild" }; }
 juce::StringArray backgroundNames() { return { "Black", "Cover art (dimmed)", "Paper" }; }
 juce::StringArray textNames() { return { "Bottom left", "Centred", "Hidden" }; }
 
 Palette paletteFor (const Look& l)
 {
     static const juce::Colour tints[] = { juce::Colour (0xffffffff), juce::Colour (0xffcfe6ff), juce::Colour (0xffffc46e),
-                                          juce::Colour (0xffff4a3d), juce::Colour (0xff86ffa6), juce::Colour (0xffcaa6ff), juce::Colour (0xffffffff), juce::Colour (0xffffffff) };
+                                          juce::Colour (0xffff4a3d), juce::Colour (0xff86ffa6), juce::Colour (0xffcaa6ff) };
     Palette p;
-    p.fg = tints[juce::jlimit (0, kIceColour, l.tint)];
-    if (l.background == 2) { p.bg = juce::Colour (0xffe8e4dc); p.fg = juce::Colour (0xff141414); }
+    p.fg = l.tint < kMultiColour ? tints[juce::jmax (0, l.tint)] : juce::Colour (0xffffffff);
+    if (l.background == 2) { p.bg = juce::Colour (0xffe8e4dc); p.fg = l.tint < kMultiColour && l.tint > 0 ? tints[l.tint].withMultipliedBrightness (0.45f) : juce::Colour (0xff141414); }
     return p;
 }
 
@@ -59,17 +146,26 @@ void Renderer::render (juce::Graphics& g, juce::Rectangle<float> r, const Frame&
         g.setColour (p.bg); g.fillRect (r);
     }
 
-    if (look.tint == kMultiColour || look.tint == kIceColour)
+    const float react = look.reactions <= 0 ? 0.0f : look.reactions == 1 ? 0.5f : 1.0f;
+    if (look.tint >= kMultiColour || react > 0)
     {
         auto size = r.toNearestInt().withZeroOrigin();
-        if (! layer.isValid() || layer.getBounds() != size) layer = juce::Image (juce::Image::ARGB, juce::jmax (1, size.getWidth()), juce::jmax (1, size.getHeight()), true);
+        if (! layer.isValid() || layer.getBounds() != size)
+        {
+            layer = juce::Image (juce::Image::ARGB, juce::jmax (1, size.getWidth()), juce::jmax (1, size.getHeight()), true);
+            scratch = juce::Image (juce::Image::ARGB, layer.getWidth(), layer.getHeight(), true);
+            prevLum.assign ((size_t) layer.getWidth() * (size_t) layer.getHeight(), 0);
+        }
         {
             juce::Graphics gl (layer);
             gl.fillAll (juce::Colours::black);
             Palette vp;   // white on black; the colour comes afterwards
-            viz.draw (gl, size.toFloat(), f, vp, look.intensity);
+            if (react > 0) gl.addTransform (reactTransform (f, size.toFloat(), react));
+            const float kk = look.intensity * (1 + react * (0.8f * f.swell + 0.6f * f.drop));
+            viz.draw (gl, size.toFloat(), f, vp, kk);
         }
-        colourise (f, look.background == 2, look.tint == kIceColour);
+        if (react > 0) postFx (f, react);
+        colourise (f, look, react);
         g.drawImageAt (layer, (int) r.getX(), (int) r.getY());
     }
     else
@@ -151,53 +247,251 @@ void Renderer::render (juce::Graphics& g, juce::Rectangle<float> r, const Frame&
     }
 }
 
-void Renderer::colourise (const Frame& f, bool paper, bool icy)
+void Renderer::reset()
+{
+    std::fill (prevLum.begin(), prevLum.end(), (juce::uint8) 0);
+    sway = slide = offset = sectionShift = 0; zoomS = 1; lastSection = 0; mirrorMode = 0;
+}
+
+static float zoneAvg (const Frame& f, int a, int z, bool hits)
+{
+    float s = 0;
+    for (int i = a; i <= z; ++i) s += hits ? f.zoneHit[(size_t) i] : f.zones[(size_t) i];
+    return s / (float) (z - a + 1);
+}
+static float zoneMax (const Frame& f, int a, int z) { float s = 0; for (int i = a; i <= z; ++i) s = juce::jmax (s, f.zoneHit[(size_t) i]); return s; }
+
+// Ranges used below (of 32): 0-2 sub, 3-6 bass, 7-11 low mids, 12-17 mids, 18-21 upper mids, 22-25 presence, 26-28 highs, 29-31 air
+juce::AffineTransform Renderer::reactTransform (const Frame& f, juce::Rectangle<float> r, float react)
+{
+    const float dt = (float) f.dt;
+    const auto c = r.getCentre();
+    // sub breathes the picture, bass hits punch it, rising pitch pulls in, falling pitch pushes out, drops slam
+    const float target = 1 + react * (0.07f * zoneAvg (f, 0, 2, false) + 0.06f * zoneMax (f, 3, 6)
+                                      + 0.10f * juce::jmax (0.0f, f.pitchMove) - 0.07f * juce::jmax (0.0f, -f.pitchMove) + 0.08f * f.drop);
+    zoomS += (target - zoomS) * juce::jmin (1.0f, dt * (6 + 14 * f.attack));    // sharp sounds snap, swells glide
+    // low mids and drones sway it round; mid hits flick it
+    sway += dt * (0.4f + 1.6f * zoneAvg (f, 7, 11, false) + 1.2f * f.drone);
+    const float rot = react * (0.10f * std::sin (sway) * (0.3f + zoneAvg (f, 7, 11, false) + f.drone) + 0.035f * zoneMax (f, 12, 17) * (f.section % 2 ? 1 : -1));
+    // panning slides and leans it; bass hits shake it
+    slide += (f.pan - slide) * juce::jmin (1.0f, dt * 4);
+    const float shake = react * zoneMax (f, 3, 6) * (0.5f + f.attack) * 0.012f * r.getHeight();
+    const float sx = (rnd.nextFloat() - 0.5f) * shake, sy = (rnd.nextFloat() - 0.5f) * shake;
+    const float z = zoomS * (1 + std::abs (rot) * 0.6f);                      // never show the corners
+    return juce::AffineTransform::translation (-c.x, -c.y)
+        .scaled (z)
+        .sheared (react * slide * 0.08f, 0)
+        .rotated (rot)
+        .translated (c.x + react * slide * 0.05f * r.getWidth() + sx, c.y + sy);
+}
+
+void Renderer::postFx (const Frame& f, float react)
 {
     const int w = layer.getWidth(), h = layer.getHeight();
-    if (fieldSize != layer.getBounds())
+    const float t = (float) f.t;
+
+    // a new section of the song: flip to the next mirror mode
+    if (f.section != lastSection) { lastSection = f.section; mirrorMode = (mirrorMode + 1 + rnd.nextInt (3)) % 5; }
+    int mode = react >= 1 ? mirrorMode : 0;
+    if (zoneMax (f, 12, 17) > 0.75f && react >= 0.5f) mode = mode == 0 ? (f.section % 2 ? 1 : 3) : mode;   // mid hits flicker a kaleidoscope
+
     {
-        // hue = angle round the centre + distance out from it: a rainbow wheel with a spiral twist
-        fieldSize = layer.getBounds();
-        hueField.assign ((size_t) w * (size_t) h, 0.0f);
-        const float cx = w * 0.5f, cy = h * 0.5f, norm = 1.0f / (float) juce::jmax (1, h);
-        for (int y = 0; y < h; ++y)
-            for (int x = 0; x < w; ++x)
-            {
-                float dx = x - cx, dy = y - cy;
-                hueField[(size_t) y * (size_t) w + (size_t) x] = std::atan2 (dy, dx) / juce::MathConstants<float>::twoPi
-                                                                 + std::sqrt (dx * dx + dy * dy) * norm * 0.9f;
-            }
+        juce::Graphics gs (scratch);
+        gs.fillAll (juce::Colours::transparentBlack);
+        gs.drawImageAt (layer, 0, 0);
     }
-    constexpr int kLut = 1024;
-    juce::uint8 lr[kLut], lg[kLut], lb[kLut];
-    for (int i = 0; i < kLut; ++i)
     {
-        const float x = (float) i / kLut;
-        juce::Colour c;
-        if (icy)
+        juce::Graphics gl (layer);
+        if (mode != 0)
         {
-            // cyan -> blue -> violet and back (no seam), with frosty near-white streaks running through it
-            float hue = 0.48f + 0.27f * (0.5f - 0.5f * std::cos (x * juce::MathConstants<float>::twoPi));
-            float sat = 0.5f + 0.35f * std::sin (x * juce::MathConstants<float>::twoPi * 3.0f);
-            c = juce::Colour::fromHSV (hue, paper ? juce::jmin (1.0f, sat + 0.3f) : sat, paper ? 0.6f : 1.0f, 1.0f);
+            // 1 mirror left onto right, 2 top onto bottom, 3 both, 4 flipped
+            if (mode == 1 || mode == 3) { gl.saveState(); gl.reduceClipRegion (w / 2, 0, w - w / 2, h); gl.drawImageTransformed (scratch, juce::AffineTransform::scale (-1, 1).translated ((float) w, 0)); gl.restoreState(); }
+            if (mode == 2 || mode == 3)
+            {
+                juce::Graphics gs (scratch); gs.drawImageAt (layer, 0, 0);
+                gl.saveState(); gl.reduceClipRegion (0, h / 2, w, h - h / 2); gl.drawImageTransformed (scratch, juce::AffineTransform::scale (1, -1).translated (0, (float) h)); gl.restoreState();
+            }
+            if (mode == 4) { gl.fillAll (juce::Colours::black); gl.drawImageTransformed (scratch, juce::AffineTransform::scale (-1, 1).translated ((float) w, 0)); }
+            juce::Graphics gs (scratch); gs.drawImageAt (layer, 0, 0);
         }
-        else c = juce::Colour::fromHSV (x, paper ? 1.0f : 0.85f, paper ? 0.72f : 1.0f, 1.0f);
-        lr[i] = c.getRed(); lg[i] = c.getGreen(); lb[i] = c.getBlue();
+        // busy sections: echoes; wide stereo: left/right ghosts
+        if (f.density > 0.15f)
+        {
+            float a = react * f.density * 0.35f;
+            for (float s : { 1.05f, 0.95f })
+            {
+                gl.setOpacity (a);
+                gl.drawImageTransformed (scratch, juce::AffineTransform::scale (s, s, w * 0.5f, h * 0.5f));
+            }
+            gl.setOpacity (1);
+        }
+        if (f.width > 0.1f)
+        {
+            float off = f.width * 0.04f * w * react;
+            gl.setOpacity (react * f.width * 0.4f);
+            gl.drawImageAt (scratch, (int) off, 0); gl.drawImageAt (scratch, (int) -off, 0);
+            gl.setOpacity (1);
+        }
+        // highs: sparkles
+        const float highs = zoneAvg (f, 26, 28, true);
+        const int sparks = (int) (react * highs * 70);
+        for (int i = 0; i < sparks; ++i)
+        {
+            // soft glints: a bright dot with a faint halo
+            float x = rnd.nextFloat() * w, y = rnd.nextFloat() * h, s = (1.5f + rnd.nextFloat() * 2.5f) * h / 1080.0f;
+            gl.setColour (juce::Colours::white.withAlpha (0.15f)); gl.fillEllipse (x - s * 2.5f, y - s * 2.5f, s * 5, s * 5);
+            gl.setColour (juce::Colours::white.withAlpha (0.6f + rnd.nextFloat() * 0.4f)); gl.fillEllipse (x - s * 0.6f, y - s * 0.6f, s * 1.2f, s * 1.2f);
+        }
     }
-    // the wheel turns slowly, kicks forward on beats, and drifts faster when the track is loud
-    const float offset = (float) std::fmod (f.t * (0.04 + 0.05 * f.energy) + f.beat * 0.07, 1.0);
+
+    // pixel passes: glitch slices (presence hits), shimmer (air), trails / reverb / dissolve, static (noise), flash (drops)
     juce::Image::BitmapData bd (layer, juce::Image::BitmapData::readWrite);
+    const size_t N = (size_t) w * (size_t) h;
+    if (lum.size() != N) lum.assign (N, 0);
+    if (prevLum.size() != N) prevLum.assign (N, 0);
     for (int y = 0; y < h; ++y)
     {
         auto* line = bd.getLinePointer (y);
-        const float* hf = hueField.data() + (size_t) y * (size_t) w;
         for (int x = 0; x < w; ++x)
         {
             auto* px = reinterpret_cast<juce::PixelARGB*> (line + (size_t) x * (size_t) bd.pixelStride);
-            const juce::uint32 lum = juce::jmax (px->getRed(), px->getGreen(), px->getBlue());
-            float hv = hf[x] + offset;
-            const int i = (int) ((hv - std::floor (hv)) * kLut) & (kLut - 1);
-            px->setARGB ((juce::uint8) lum, (juce::uint8) (lr[i] * lum / 255), (juce::uint8) (lg[i] * lum / 255), (juce::uint8) (lb[i] * lum / 255));
+            lum[(size_t) y * (size_t) w + (size_t) x] = juce::jmax (px->getRed(), px->getGreen(), px->getBlue());
+        }
+    }
+    const float presence = zoneMax (f, 22, 25), air = zoneAvg (f, 29, 31, false);
+    std::vector<int> shift ((size_t) h, 0);
+    if (presence > 0.5f)
+    {
+        int slices = 1 + (int) (presence * 4);
+        for (int s = 0; s < slices; ++s)
+        {
+            int y0 = rnd.nextInt (h), hh = 2 + rnd.nextInt (juce::jmax (3, h / 12));
+            int dx = (int) ((rnd.nextFloat() - 0.5f) * 0.1f * w * presence * react);
+            for (int y = y0; y < juce::jmin (h, y0 + hh); ++y) shift[(size_t) y] += dx;
+        }
+    }
+    if (air > 0.25f) for (int y = 0; y < h; ++y) shift[(size_t) y] += (int) std::lround (react * (air - 0.25f) * 4 * h / 1080.0f * std::sin (y * 0.15f + t * 30));
+
+    const float decay = juce::jlimit (0.0f, 0.93f, react * (0.55f * f.tail + 0.3f * f.sparse + 0.5f * f.silence));
+    const float dissolve = f.silence * react;
+    const int drift = f.silence > 0.2f ? 1 : 0;
+    const int noiseAmp = (int) (react * f.noisiness * 70);
+    const int flash = (int) (react * f.drop * f.drop * 90);
+    juce::uint32 seed = (juce::uint32) (f.index * 2654435761u + 1);
+    for (int y = 0; y < h; ++y)
+    {
+        auto* line = bd.getLinePointer (y);
+        const int sh = shift[(size_t) y];
+        const juce::uint8* src = lum.data() + (size_t) y * (size_t) w;
+        const juce::uint8* prv = prevLum.data() + (size_t) juce::jmax (0, y - drift) * (size_t) w;
+        for (int x = 0; x < w; ++x)
+        {
+            int sx = x - sh;
+            int v = (sx >= 0 && sx < w) ? src[sx] : 0;
+            if (decay > 0)
+            {
+                seed = seed * 1664525u + 1013904223u;
+                const bool gone = dissolve > 0 && ((seed >> 24) & 255) < (juce::uint32) (dissolve * 90);
+                const int p = gone ? 0 : (int) (prv[x] * decay);
+                if (p > v) v = p;
+            }
+            if (noiseAmp > 0) { seed = seed * 1664525u + 1013904223u; v += (int) ((seed >> 25) % (juce::uint32) (noiseAmp + 1)) - noiseAmp / 3; }
+            v = juce::jlimit (0, 255, v + flash);
+            auto* px = reinterpret_cast<juce::PixelARGB*> (line + (size_t) x * (size_t) bd.pixelStride);
+            px->setARGB (255, (juce::uint8) v, (juce::uint8) v, (juce::uint8) v);
+        }
+    }
+    // remember this frame for the trails
+    for (int y = 0; y < h; ++y)
+    {
+        auto* line = bd.getLinePointer (y);
+        for (int x = 0; x < w; ++x) prevLum[(size_t) y * (size_t) w + (size_t) x] = reinterpret_cast<juce::PixelARGB*> (line + (size_t) x * (size_t) bd.pixelStride)->getRed();
+    }
+}
+
+const std::vector<float>& Renderer::field (int kind)
+{
+    const int w = layer.getWidth(), h = layer.getHeight();
+    if (fieldSize != layer.getBounds()) { fields.clear(); fieldSize = layer.getBounds(); }
+    auto it = fields.find (kind);
+    if (it != fields.end()) return it->second;
+    std::vector<float> v ((size_t) w * (size_t) h, 0.0f);
+    const float cx = w * 0.5f, cy = h * 0.5f, norm = 1.0f / (float) juce::jmax (1, h);
+    const float tau = juce::MathConstants<float>::twoPi;
+    for (int y = 0; y < h; ++y)
+        for (int x = 0; x < w; ++x)
+        {
+            float dx = x - cx, dy = y - cy, d = std::sqrt (dx * dx + dy * dy) * norm, a = std::atan2 (dy, dx) / tau;
+            float val = kind == 0 ? a + d * 0.9f : kind == 1 ? d * 1.4f : kind == 2 ? y * norm : kind == 3 ? (x + y) * norm * 0.6f : a;
+            v[(size_t) y * (size_t) w + (size_t) x] = val;
+        }
+    return fields.emplace (kind, std::move (v)).first->second;
+}
+
+void Renderer::colourise (const Frame& f, const Look& look, float react)
+{
+    const int w = layer.getWidth(), h = layer.getHeight();
+    const bool paper = look.background == 2;
+    constexpr int kLut = 1024;
+    juce::uint8 lr[kLut], lg[kLut], lb[kLut];
+    int kind = 0; float spatial = 1, bright = 0;
+    const bool single = look.tint < kMultiColour;
+    if (single)
+    {
+        auto c = paletteFor (look).fg;
+        for (int i = 0; i < kLut; ++i) { lr[i] = c.getRed(); lg[i] = c.getGreen(); lb[i] = c.getBlue(); }
+        spatial = 0;
+    }
+    else
+    {
+        buildLut (look.tint, paper, lr, lg, lb, kLut);
+        if (look.tint >= kFirstMix)
+        {
+            const auto& m = mixes()[(size_t) juce::jlimit (0, (int) mixes().size() - 1, look.tint - kFirstMix)];
+            kind = m.field; spatial = m.spatial; bright = m.bright;
+        }
+    }
+    // the palette turns slowly, kicks on beats, slides with brightness, and jumps a third when the section changes
+    const float target = (float) f.section * 0.33f;
+    sectionShift += (target - sectionShift) * juce::jmin (1.0f, (float) f.dt * 6);
+    offset = (float) std::fmod (f.t * (0.04 + 0.05 * f.energy) + f.beat * 0.07 + f.brightness * 0.3f * (react > 0 ? 1 : 0) + sectionShift * (react > 0 ? 1 : 0), 1000.0);
+    const std::vector<float>* fv = spatial > 0 ? &field (kind) : nullptr;
+
+    juce::Image::BitmapData bd (layer, juce::Image::BitmapData::readWrite);
+    const size_t N = (size_t) w * (size_t) h;
+    if (lum.size() != N) lum.assign (N, 0);
+    for (int y = 0; y < h; ++y)
+    {
+        auto* line = bd.getLinePointer (y);
+        for (int x = 0; x < w; ++x)
+        {
+            auto* px = reinterpret_cast<juce::PixelARGB*> (line + (size_t) x * (size_t) bd.pixelStride);
+            lum[(size_t) y * (size_t) w + (size_t) x] = juce::jmax (px->getRed(), px->getGreen(), px->getBlue());
+        }
+    }
+    // crunch splits the colour channels apart
+    const int split = (int) std::lround (react * juce::jmax (0.0f, f.crunch - 0.3f) / 0.7f * 0.01f * w);
+    std::vector<juce::uint8> cr ((size_t) w), cg ((size_t) w), cb ((size_t) w), ca ((size_t) w);
+    for (int y = 0; y < h; ++y)
+    {
+        const juce::uint8* L = lum.data() + (size_t) y * (size_t) w;
+        const float* F = fv != nullptr ? fv->data() + (size_t) y * (size_t) w : nullptr;
+        for (int x = 0; x < w; ++x)
+        {
+            const juce::uint32 v = L[x];
+            float idx = offset + (F != nullptr ? F[x] * spatial : 0.0f) + bright * v / 255.0f;
+            const int i = (int) ((idx - std::floor (idx)) * kLut) & (kLut - 1);
+            cr[(size_t) x] = (juce::uint8) (lr[i] * v / 255); cg[(size_t) x] = (juce::uint8) (lg[i] * v / 255); cb[(size_t) x] = (juce::uint8) (lb[i] * v / 255);
+            ca[(size_t) x] = (juce::uint8) v;
+        }
+        auto* line = bd.getLinePointer (y);
+        for (int x = 0; x < w; ++x)
+        {
+            const int xr = juce::jlimit (0, w - 1, x - split), xb = juce::jlimit (0, w - 1, x + split);
+            juce::uint8 r = cr[(size_t) xr], g = cg[(size_t) x], b = cb[(size_t) xb];
+            juce::uint8 a = juce::jmax (ca[(size_t) xr], ca[(size_t) x], ca[(size_t) xb]);
+            r = juce::jmin (r, a); g = juce::jmin (g, a); b = juce::jmin (b, a);
+            reinterpret_cast<juce::PixelARGB*> (line + (size_t) x * (size_t) bd.pixelStride)->setARGB (a, r, g, b);
         }
     }
 }

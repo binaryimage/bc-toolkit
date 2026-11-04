@@ -116,6 +116,8 @@ public:
         juce::StringArray sizes; for (auto& s : videoSizes()) sizes.add (s.label);
         combo (sizeBox, sizes, sizeIndex, [this] (int i) { sizeIndex = i; });
         combo (fpsBox, { "30 fps", "60 fps" }, fps60 ? 1 : 0, [this] (int i) { fps60 = i == 1; });
+        combo (reactBox, reactionNames(), look.reactions, [this] (int i) { look.reactions = i; renderer.reset(); });
+        reactLbl = makeLabel ("Reactions", 12, col::text3, 1); addAndMakeVisible (*reactLbl);
         intensity.setSliderStyle (juce::Slider::LinearHorizontal);
         intensity.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
         intensity.setRange (0.25, 2.0, 0.01);
@@ -193,7 +195,12 @@ public:
         int li = 0;
         auto row = [&] (juce::Component& c, int h = 30) { labels[(size_t) li++]->setBounds (s.removeFromTop (18)); c.setBounds (s.removeFromTop (h)); s.removeFromTop (8); };
         blurb->setBounds (s.removeFromTop (54)); s.removeFromTop (6);
-        row (titleEd); row (artistEd); row (tintBox); row (bgBox); row (textBox); row (intensity, 26);
+        row (titleEd); row (artistEd); row (tintBox); row (bgBox); row (textBox);
+        {
+            auto lab = s.removeFromTop (18); labels[(size_t) li++]->setBounds (lab.removeFromLeft (lab.getWidth() * 55 / 100)); reactLbl->setBounds (lab.withTrimmedLeft (8));
+            auto rr = s.removeFromTop (28); intensity.setBounds (rr.removeFromLeft (rr.getWidth() * 55 / 100)); reactBox.setBounds (rr.withTrimmedLeft (8));
+            s.removeFromTop (8);
+        }
         auto cov = s.removeFromTop (30); coverBtn->setBounds (cov.removeFromLeft (cov.getWidth() * 2 / 3 - 4)); cov.removeFromLeft (8); clearCoverBtn->setBounds (cov);
         s.removeFromTop (6);
         fadesBtn.setBounds (s.removeFromTop (26)); vignetteBtn.setBounds (s.removeFromTop (26)); progressBtn.setBounds (s.removeFromTop (26)); badgeBtn.setBounds (s.removeFromTop (26));
@@ -271,7 +278,8 @@ private:
     std::vector<std::unique_ptr<juce::Label>> labels;
     juce::Slider position, intensity;
     juce::TextEditor titleEd, artistEd;
-    juce::ComboBox tintBox, bgBox, textBox, sizeBox, fpsBox;
+    juce::ComboBox tintBox, bgBox, textBox, sizeBox, fpsBox, reactBox;
+    std::unique_ptr<juce::Label> reactLbl;
     juce::ToggleButton fadesBtn, vignetteBtn, progressBtn, badgeBtn;
     ProgressPill progress;
     std::unique_ptr<juce::FileChooser> chooser;
@@ -310,7 +318,7 @@ private:
     {
         clockT = juce::jlimit (0.0, juce::jmax (0.0, track.seconds()), t);
         transport.setPosition (clockT);
-        analyzer.reset(); all[(size_t) look.style]->reset();
+        analyzer.reset(); all[(size_t) look.style]->reset(); renderer.reset();
         frameDirty = true;
     }
     void redrawIfPaused() { frameDirty = true; }
@@ -399,6 +407,8 @@ private:
         look.vignette = p.getBoolValue ("vignette", true);
         look.progress = p.getBoolValue ("progress", false);
         look.coverBadge = p.getBoolValue ("coverBadge", true);
+        look.reactions = juce::jlimit (0, 2, p.getIntValue ("reactions", 2));
+        look.tint = juce::jlimit (0, tintNames().size() - 1, look.tint);
         look.intensity = (float) p.getDoubleValue ("intensity", 1.0);
         sizeIndex = juce::jlimit (0, (int) videoSizes().size() - 1, p.getIntValue ("size", 0));
         fps60 = p.getBoolValue ("fps60", false);
@@ -410,7 +420,7 @@ private:
         auto& p = prefs();
         p.setValue ("style", look.style); p.setValue ("artist", look.artist); p.setValue ("tint", look.tint);
         p.setValue ("background", look.background); p.setValue ("text", look.text); p.setValue ("fades", look.fades);
-        p.setValue ("vignette", look.vignette); p.setValue ("progress", look.progress); p.setValue ("coverBadge", look.coverBadge); p.setValue ("intensity", (double) look.intensity);
+        p.setValue ("vignette", look.vignette); p.setValue ("progress", look.progress); p.setValue ("coverBadge", look.coverBadge); p.setValue ("reactions", look.reactions); p.setValue ("intensity", (double) look.intensity);
         p.setValue ("size", sizeIndex); p.setValue ("fps60", fps60);
     }
 
@@ -448,10 +458,14 @@ static int runGallery (const juce::File& dir)
     juce::Graphics gs (sheet);
     gs.fillAll (juce::Colours::black);
     juce::String index;
+    const juce::String only = juce::SystemStats::getEnvironmentVariable ("BCV_ONLY", {});
+    const int onlyA = only.upToFirstOccurrenceOf ("-", false, false).getIntValue(), onlyB = only.fromFirstOccurrenceOf ("-", false, false).getIntValue();
     for (size_t i = 0; i < all.size(); ++i)
     {
+        if (only.isNotEmpty() && ((int) i + 1 < onlyA || (int) i + 1 > onlyB)) continue;
         Analyzer an; Renderer rr; Frame fr; Look look;
         look.title = all[i]->name(); look.fades = false;
+        look.tint = juce::SystemStats::getEnvironmentVariable ("BCV_TINT", "0").getIntValue();
         all[i]->reset();
         juce::Image img (juce::Image::ARGB, W, H, true, juce::SoftwareImageType());
         for (int f = 0; f <= 120; ++f)          // 4 s at 30 fps so trails and particles build up
@@ -462,15 +476,18 @@ static int runGallery (const juce::File& dir)
             rr.render (g, img.getBounds().toFloat(), fr, *all[i], look);
         }
         writePng (img, dir.getChildFile (juce::String ((int) i + 1).paddedLeft ('0', 2) + "-" + all[i]->name().removeCharacters (" &/").toLowerCase() + ".png"));
+        gs.setOpacity (1.0f);   // (drawImage uses the current colour's alpha)
         gs.drawImage (img, juce::Rectangle<float> ((float) ((int) i % cols * tw), (float) ((int) i / cols * th), (float) tw, (float) th));
         gs.setColour (juce::Colours::white.withAlpha (0.25f));
         gs.drawRect (juce::Rectangle<int> ((int) i % cols * tw, (int) i / cols * th, tw, th), 1);
         index << juce::String ((int) i + 1) << ". " << all[i]->name() << " - " << all[i]->blurb() << "\n";
     }
+    if (only.isNotEmpty()) return 0;
     writePng (sheet, dir.getChildFile ("00-all-styles.png"));
     dir.getChildFile ("styles.txt").replaceWithText (index);
 
-    // the same contact sheet in Multi-colour, plus the newest style full size in it
+    // the same contact sheet in Multi-colour (smaller renders, it's only a sheet)
+    auto sheetIn = [&] (int tint, const juce::String& file)
     {
         juce::Image multi (juce::Image::RGB, cols * tw, rows * th, true, juce::SoftwareImageType());
         juce::Graphics gm (multi);
@@ -479,34 +496,47 @@ static int runGallery (const juce::File& dir)
         for (size_t i = 0; i < fresh.size(); ++i)
         {
             Analyzer an; Renderer rr; Frame fr; Look look;
-            look.title = fresh[i]->name(); look.fades = false; look.tint = kMultiColour;
-            juce::Image img (juce::Image::ARGB, W, H, true, juce::SoftwareImageType());
-            for (int f = 0; f <= 120; ++f)
+            look.title = fresh[i]->name(); look.fades = false; look.tint = tint;
+            juce::Image img (juce::Image::ARGB, 640, 360, true, juce::SoftwareImageType());
+            for (int f = 0; f <= 90; ++f)
             {
                 an.analyse (t.audio, Track::rate, f / 30.0, 30, fr);
                 fr.duration = t.seconds(); fr.index = f;
                 juce::Graphics g (img);
                 rr.render (g, img.getBounds().toFloat(), fr, *fresh[i], look);
             }
-            if (i + 1 == fresh.size())
-            {
-                writePng (img, dir.getChildFile (fresh[i]->name().removeCharacters (" &/").toLowerCase() + "-multicolour.png"));
-                // and the newest style in Ice multi-colour
-                Analyzer an2; Renderer rr2; Frame fr2; Look icy = look; icy.tint = kIceColour;
-                auto again = makeAll();
-                juce::Image ice (juce::Image::ARGB, W, H, true, juce::SoftwareImageType());
-                for (int f = 0; f <= 120; ++f)
-                {
-                    an2.analyse (t.audio, Track::rate, f / 30.0, 30, fr2);
-                    fr2.duration = t.seconds(); fr2.index = f;
-                    juce::Graphics g (ice);
-                    rr2.render (g, ice.getBounds().toFloat(), fr2, *again[i], icy);
-                }
-                writePng (ice, dir.getChildFile (fresh[i]->name().removeCharacters (" &/").toLowerCase() + "-ice.png"));
-            }
             gm.drawImage (img, juce::Rectangle<float> ((float) ((int) i % cols * tw), (float) ((int) i / cols * th), (float) tw, (float) th));
         }
-        writePng (multi, dir.getChildFile ("00-all-styles-multicolour.png"));
+        writePng (multi, dir.getChildFile (file));
+    };
+    sheetIn (kMultiColour, "00-all-styles-multicolour.png");
+
+    // every colour on one style, so it's easy to pick
+    {
+        const auto names = tintNames();
+        const int n = names.size(), ccols = 6, crows = (n + ccols - 1) / ccols;
+        juce::Image sw (juce::Image::RGB, ccols * tw, crows * th, true, juce::SoftwareImageType());
+        juce::Graphics gc (sw);
+        gc.fillAll (juce::Colours::black);
+        int kali = 0;
+        auto fresh = makeAll();
+        for (size_t i = 0; i < fresh.size(); ++i) if (fresh[i]->name() == "Kaliset") kali = (int) i;
+        for (int c = 0; c < n; ++c)
+        {
+            auto styles = makeAll();
+            Analyzer an; Renderer rr; Frame fr; Look look;
+            look.title = names[c]; look.artist = {}; look.fades = false; look.tint = c; look.vignette = false;
+            juce::Image img (juce::Image::ARGB, 640, 360, true, juce::SoftwareImageType());
+            for (int f = 0; f <= 45; ++f)
+            {
+                an.analyse (t.audio, Track::rate, f / 30.0, 30, fr);
+                fr.duration = t.seconds(); fr.index = f;
+                juce::Graphics g (img);
+                rr.render (g, img.getBounds().toFloat(), fr, *styles[(size_t) kali], look);
+            }
+            gc.drawImage (img, juce::Rectangle<float> ((float) (c % ccols * tw), (float) (c / ccols * th), (float) tw, (float) th));
+        }
+        writePng (sw, dir.getChildFile ("00-colours.png"));
     }
 
     // the app itself
@@ -534,7 +564,7 @@ static int runExport (const juce::StringArray& args, int at)
     juce::String err;
     if (ai >= 0 && ai + 1 < args.size()) { if (! loadTrack (juce::File (args[ai + 1].unquoted()), t, err)) { juce::Logger::writeToLog (err); return 2; } }
     else setDemoTrack (t, secs);
-    Look look; look.style = style; look.tint = juce::jlimit (0, kIceColour, tint);
+    Look look; look.style = style; look.tint = juce::jlimit (0, tintNames().size() - 1, tint);
     look.title = style < 0 ? juce::String() : makeAll()[(size_t) juce::jlimit (0, (int) makeAll().size() - 1, style)]->name();
     ExportJob job (t, look, out, w, h, fps, cycle);
     bool ok = job.runNow();
@@ -543,6 +573,25 @@ static int runExport (const juce::StringArray& args, int at)
     juce::Logger::writeToLog (report);
     out.getSiblingFile (out.getFileNameWithoutExtension() + ".log").replaceWithText (report + "\n");
     return ok ? 0 : 1;
+}
+
+/** Prints what the analyser hears, a few times a second (for checking the reactions against a track). */
+static int runAnalyse (const juce::String& path)
+{
+    Track t; juce::String err;
+    if (! loadTrack (juce::File (path), t, err)) { std::printf ("%s\n", err.toRawUTF8()); return 2; }
+    Analyzer an; Frame f;
+    std::printf ("t     sec chg  drop swell pitch pan   width noise crunch tail sil  dens drone att  bright hits(sub..air)\n");
+    for (int i = 0; i < (int) (t.seconds() * 30); ++i)
+    {
+        an.analyse (t.audio, Track::rate, i / 30.0, 30, f);
+        if (i % 8 != 0) continue;
+        juce::String hits;
+        for (int z = 0; z < kZones; ++z) hits << (f.zoneHit[(size_t) z] > 0.5f ? "#" : f.zones[(size_t) z] > 0.5f ? "." : " ");
+        std::printf ("%5.1f %3d %4.2f %4.2f %5.2f %5.2f %5.2f %5.2f %5.2f %5.2f  %4.2f %4.2f %4.2f %5.2f %4.2f %5.2f |%s|\n", f.t, f.section, f.change, f.drop, f.swell,
+                     f.pitchMove, f.pan, f.width, f.noisiness, f.crunch, f.tail, f.silence, f.density, f.drone, f.attack, f.brightness, hits.toRawUTF8());
+    }
+    return 0;
 }
 
 class MainWindow : public juce::DocumentWindow
@@ -572,7 +621,8 @@ public:
     {
         juce::LookAndFeel::setDefaultLookAndFeel (&look);
         auto args = juce::StringArray::fromTokens (cmd, true);
-        int g = args.indexOf ("--gallery"), e = args.indexOf ("--test-export");
+        int g = args.indexOf ("--gallery"), e = args.indexOf ("--test-export"), an = args.indexOf ("--analyse");
+        if (an >= 0 && an + 1 < args.size()) { setApplicationReturnValue (runAnalyse (args[an + 1].unquoted())); quit(); return; }
         if (g >= 0 && g + 1 < args.size()) { setApplicationReturnValue (runGallery (juce::File::getCurrentWorkingDirectory().getChildFile (args[g + 1].unquoted()))); quit(); return; }
         if (e >= 0 && e + 1 < args.size()) { setApplicationReturnValue (runExport (args, e)); quit(); return; }
         window = std::make_unique<MainWindow>();

@@ -565,7 +565,7 @@ void testVideo (const juce::File& dir)
 {
     // the Video page uses the BC Visualizer's own styles and MP4 writer: make a short clip through them from inside the Toolkit
     auto styles = bcv::makeAll();
-    check (styles.size() >= 40, "the Video page has the visualizer's styles", juce::String ((int) styles.size()));
+    check (styles.size() >= 80, "the Video page has all 80 of the visualizer's styles", juce::String ((int) styles.size()));
     bcv::Track t; bcv::setDemoTrack (t, 2.0);
     bcv::Look look; look.style = 5; look.title = "Toolkit video test";
     auto out = dir.getChildFile ("toolkit-video.mp4");

@@ -100,6 +100,8 @@ public:
         juce::StringArray sizes; for (auto& s : bcv::videoSizes()) sizes.add (s.label);
         combo (sizeBox, sizes, sizeIndex, [this] (int i) { sizeIndex = i; });
         combo (fpsBox, { "30 fps", "60 fps" }, fps60 ? 1 : 0, [this] (int i) { fps60 = i == 1; });
+        combo (reactBox, bcv::reactionNames(), look.reactions, [this] (int i) { look.reactions = i; renderer.reset(); });
+        reactLbl = makeLabel ("Reactions", 12, col::text3, 1); settingsSlab.addAndMakeVisible (*reactLbl);
         intensity.setSliderStyle (juce::Slider::LinearHorizontal);
         intensity.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
         intensity.setRange (0.25, 2.0, 0.01);
@@ -171,7 +173,12 @@ public:
         size_t li = 0;
         auto row = [&] (juce::Component& c, int h = 30) { labels[li++]->setBounds (s.removeFromTop (18)); c.setBounds (s.removeFromTop (h)); s.removeFromTop (6); };
         blurb->setBounds (s.removeFromTop (50)); s.removeFromTop (4);
-        row (titleEd); row (artistEd); row (tintBox); row (bgBox); row (textBox); row (intensity, 26);
+        row (titleEd); row (artistEd); row (tintBox); row (bgBox); row (textBox);
+        {
+            auto lab = s.removeFromTop (18); labels[li++]->setBounds (lab.removeFromLeft (lab.getWidth() * 55 / 100)); reactLbl->setBounds (lab.withTrimmedLeft (8));
+            auto rr = s.removeFromTop (28); intensity.setBounds (rr.removeFromLeft (rr.getWidth() * 55 / 100)); reactBox.setBounds (rr.withTrimmedLeft (8));
+            s.removeFromTop (6);
+        }
         auto cov = s.removeFromTop (30); coverBtn->setBounds (cov.removeFromLeft (cov.getWidth() * 2 / 3 - 4)); cov.removeFromLeft (8); clearCoverBtn->setBounds (cov);
         s.removeFromTop (4);
         fadesBtn.setBounds (s.removeFromTop (24)); vignetteBtn.setBounds (s.removeFromTop (24)); progressBtn.setBounds (s.removeFromTop (24)); badgeBtn.setBounds (s.removeFromTop (24));
@@ -308,7 +315,7 @@ public:
     void seek (double t)
     {
         clockT = juce::jlimit (0.0, juce::jmax (0.0, track->seconds()), t);
-        analyzer.reset(); all[(size_t) look.style]->reset();
+        analyzer.reset(); all[(size_t) look.style]->reset(); renderer.reset();
         if (playing) startVoice();
         frameDirty = true;
     }
@@ -396,6 +403,8 @@ public:
         look.vignette = p.flag ("videoVignette", true);
         look.progress = p.flag ("videoProgress", false);
         look.coverBadge = p.flag ("videoCoverBadge", true);
+        look.reactions = juce::jlimit (0, 2, p.num ("videoReactions", 2));
+        look.tint = juce::jlimit (0, bcv::tintNames().size() - 1, look.tint);
         look.intensity = (float) p.dbl ("videoIntensity", 1.0);
         sizeIndex = juce::jlimit (0, (int) bcv::videoSizes().size() - 1, p.num ("videoSize", 0));
         fps60 = p.flag ("videoFps60", false);
@@ -407,7 +416,7 @@ public:
         auto& p = Settings::get().props();
         p.setValue ("videoStyle", look.style); p.setValue ("videoArtist", look.artist); p.setValue ("videoTint", look.tint);
         p.setValue ("videoBackground", look.background); p.setValue ("videoText", look.text); p.setValue ("videoFades", look.fades);
-        p.setValue ("videoVignette", look.vignette); p.setValue ("videoProgress", look.progress); p.setValue ("videoCoverBadge", look.coverBadge); p.setValue ("videoIntensity", (double) look.intensity);
+        p.setValue ("videoVignette", look.vignette); p.setValue ("videoProgress", look.progress); p.setValue ("videoCoverBadge", look.coverBadge); p.setValue ("videoReactions", look.reactions); p.setValue ("videoIntensity", (double) look.intensity);
         p.setValue ("videoSize", sizeIndex); p.setValue ("videoFps60", fps60);
         p.saveIfNeeded();
     }
@@ -448,7 +457,8 @@ public:
     std::vector<std::unique_ptr<juce::Label>> labels;
     juce::Slider position, intensity;
     juce::TextEditor titleEd, artistEd;
-    juce::ComboBox tintBox, bgBox, textBox, sizeBox, fpsBox;
+    juce::ComboBox tintBox, bgBox, textBox, sizeBox, fpsBox, reactBox;
+    std::unique_ptr<juce::Label> reactLbl;
     juce::ToggleButton fadesBtn, vignetteBtn, progressBtn, badgeBtn;
     ProgressPill progress;
     std::unique_ptr<juce::FileChooser> chooser;

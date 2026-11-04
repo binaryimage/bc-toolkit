@@ -16,7 +16,7 @@ jobs:
   windows:
     name: Windows app, MP4 export, installer
     runs-on: windows-latest
-    timeout-minutes: 90
+    timeout-minutes: 180
     defaults:
       run:
         shell: bash
@@ -66,11 +66,11 @@ jobs:
         run: |
           $dir = "$PWD\gallery"
           $p = Start-Process -FilePath "$PWD\stage\BC Visualizer.exe" -ArgumentList '--gallery', "`"$dir`"" -PassThru
-          if (-not $p.WaitForExit(600000)) { $p.Kill(); throw "gallery run did not finish" }
+          if (-not $p.WaitForExit(3600000)) { $p.Kill(); throw "gallery run did not finish" }
           $n = (Get-ChildItem $dir -Filter *.png | Where-Object { $_.Name -match '^\d\d-' }).Count
           "gallery: $n images, exit $($p.ExitCode)" | Tee-Object visualizer/ci-results/gallery.txt
-          Copy-Item "$dir\00-all-styles.png", "$dir\00-all-styles-multicolour.png", "$dir\moth-multicolour.png", "$dir\moth-ice.png", "$dir\app.png", "$dir\styles.txt" visualizer/ci-results/
-          if ($n -lt 52) { throw "expected 50 styles + 2 contact sheets, got $n" }
+          Copy-Item "$dir\00-all-styles.png", "$dir\00-all-styles-multicolour.png", "$dir\00-colours.png", "$dir\app.png", "$dir\styles.txt" visualizer/ci-results/
+          if ($n -lt 83) { throw "expected 80 styles + 3 contact sheets, got $n" }
           exit 0
 
       - name: MP4 export tests (Media Foundation H.264 + AAC)
@@ -85,10 +85,11 @@ jobs:
             @{ name = "test-1080p30.mp4"; args = @('--seconds', '10', '--style', '0') },
             @{ name = "test-1440p60.mp4"; args = @('--seconds', '4', '--style', '6', '--width', '2560', '--height', '1440', '--fps', '60') },
             @{ name = "test-2160p30.mp4"; args = @('--seconds', '3', '--style', '10', '--width', '3840', '--height', '2160') },
-            @{ name = "BC-Visualizer-all-50-styles.mp4"; args = @('--seconds', '150', '--style', '-1', '--cycle', '3') },
+            @{ name = "BC-Visualizer-all-80-styles.mp4"; args = @('--seconds', '240', '--style', '-1', '--cycle', '3') },
             @{ name = "BC-Visualizer-moth-multicolour.mp4"; args = @('--seconds', '20', '--style', '48', '--tint', '6') },
             @{ name = "BC-Visualizer-moth-ice.mp4"; args = @('--seconds', '20', '--style', '48', '--tint', '7') },
             @{ name = "BC-Visualizer-wormhole-multicolour.mp4"; args = @('--seconds', '20', '--style', '49', '--tint', '6') },
+            @{ name = "BC-Visualizer-weird-test.mp4"; args = @('--seconds', '40', '--style', '53', '--tint', '8', '--audio', "`"$PWD\visualizer\test-audio\weird.flac`"") },
             @{ name = "check-640x360.mp4"; args = @('--seconds', '3', '--style', '0', '--width', '640', '--height', '360') }
           )
           foreach ($r in $runs) {
@@ -163,18 +164,20 @@ jobs:
           TAG="visualizer-v$VZ_VERSION"
           SETUP=$(ls dist/BC-Visualizer-Setup*.exe)
           ZIP="dist/BC-Visualizer-$VZ_VERSION-portable.zip"
-          REEL="dist/BC-Visualizer-all-50-styles.mp4"
+          REEL="dist/BC-Visualizer-all-80-styles.mp4"
           MOTH="dist/BC-Visualizer-moth-multicolour.mp4"
           ICE="dist/BC-Visualizer-moth-ice.mp4"
           WORM="dist/BC-Visualizer-wormhole-multicolour.mp4"
+          WEIRD="dist/BC-Visualizer-weird-test.mp4"
+          COLOURS="visualizer/ci-results/00-colours.png"
           SHEET="visualizer/ci-results/00-all-styles.png"
           MULTI="visualizer/ci-results/00-all-styles-multicolour.png"
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
-            gh release upload "$TAG" "$SETUP" "$ZIP" "$REEL" "$MOTH" "$ICE" "$WORM" "$SHEET" "$MULTI" --clobber --repo "$GITHUB_REPOSITORY"
+            gh release upload "$TAG" "$SETUP" "$ZIP" "$REEL" "$MOTH" "$ICE" "$WORM" "$WEIRD" "$SHEET" "$MULTI" "$COLOURS" --clobber --repo "$GITHUB_REPOSITORY"
           else
-            gh release create "$TAG" "$SETUP" "$ZIP" "$REEL" "$MOTH" "$ICE" "$WORM" "$SHEET" "$MULTI" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest=false \
+            gh release create "$TAG" "$SETUP" "$ZIP" "$REEL" "$MOTH" "$ICE" "$WORM" "$WEIRD" "$SHEET" "$MULTI" "$COLOURS" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest=false \
               --title "BC Visualizer $VZ_VERSION" \
-              --notes "Audio-reactive music videos for YouTube: 50 styles (new: Wormhole, and Moth, a swarm that crumbles into dust), 8 colours including Multi-colour and Ice multi-colour, title + artist + cover art, MP4 export at 1080p/1440p/4K, 30 or 60 fps. BC-Visualizer-Setup installs it; the portable zip runs without installing. BC-Visualizer-all-50-styles.mp4 shows every style for 3 seconds each; BC-Visualizer-moth-multicolour.mp4 and BC-Visualizer-moth-ice.mp4 show the Moth swarm in the two multi-colour options; BC-Visualizer-wormhole-multicolour.mp4 is the Wormhole."
+              --notes "Audio-reactive music videos for YouTube: 80 styles (30 new fractal and trippy ones), 48 colours (40 new mixed palettes), and Reactions: 32 frequency ranges plus pitch, panning, noise, crunch, drones, silence and section changes, each doing something different on top of every style. MP4 export at 1080p/1440p/4K, 30 or 60 fps. BC-Visualizer-all-80-styles.mp4 shows every style; BC-Visualizer-weird-test.mp4 runs a 40-second test track (drones, clicks, a riser, a drop, a dive) to show the reactions; 00-colours.png shows all 48 colours."
           fi
 
       - name: Commit test results back to the branch

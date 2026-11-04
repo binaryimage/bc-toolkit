@@ -27,6 +27,8 @@ inline float noise (float x, float y, float z = 0)
     float b = L (L (hash (xi, yi, zi + 1), hash (xi + 1, yi, zi + 1), u), L (hash (xi, yi + 1, zi + 1), hash (xi + 1, yi + 1, zi + 1), u), v);
     return L (a, b, w);
 }
+inline float zoneLvl (const Frame& f, int a, int b) { float s = 0; for (int i = a; i <= b; ++i) s += f.zones[(size_t) i]; return s / (float) (b - a + 1); }
+inline float zoneHitMax (const Frame& f, int a, int b) { float s = 0; for (int i = a; i <= b; ++i) s = juce::jmax (s, f.zoneHit[(size_t) i]); return s; }
 inline float band (const Frame& f, float pos) { return f.smooth[(size_t) juce::jlimit (0, kBands - 1, (int) (pos * (kBands - 1)))]; }
 
 struct P3 { float x, y, z; };
@@ -1475,7 +1477,7 @@ struct Moth : Viz   // a swarm of moths flying all over, each one crumbling into
         // the light they're all drawn to
         {
             const auto c = lr.getCentre();
-            float rad = (50 + 120 * f.bass * k + 60 * punch) * u;
+            float rad = (50 + 120 * f.bass * k + 90 * zoneLvl (f, 0, 2) * k + 60 * punch) * u;
             juce::ColourGradient glow (p.fgA (0.06f + 0.06f * punch), c.x, c.y, p.fgA (0.0f), c.x + rad * 2, c.y, true);
             gi.setGradientFill (glow); gi.fillEllipse (c.x - rad * 2, c.y - rad * 2, rad * 4, rad * 4);
         }
@@ -1490,7 +1492,7 @@ struct Moth : Viz   // a swarm of moths flying all over, each one crumbling into
         for (auto& b : bugs)
         {
             b.age += dt;
-            b.phase += dt * b.flap * (0.7f + 1.2f * f.bass * k) + punch * dt * 10;
+            b.phase += dt * b.flap * (0.7f + 1.2f * f.bass * k + 1.0f * zoneLvl (f, 12, 17) * k) + punch * dt * 10;
             // erratic moth flight: wander through a noise field, dart on the kick, get pulled back toward the light
             float wander = (noise (b.x * 0.003f / u, b.y * 0.003f / u, t * 0.4f + b.seed) - 0.5f) * 9.0f;
             float toLight = std::atan2 (lr.getCentreY() - b.y, lr.getCentreX() - b.x);
@@ -1501,7 +1503,7 @@ struct Moth : Viz   // a swarm of moths flying all over, each one crumbling into
             float sp = b.speed * (0.8f + 0.6f * f.energy * k + 1.6f * punch);
             b.x += std::cos (b.heading) * sp * dt;
             b.y += std::sin (b.heading) * sp * dt;
-            if (! b.dying && (b.age > b.life || (f.onset && rnd.nextFloat() < 0.12f)))
+            if (! b.dying && (b.age > b.life || (f.onset && rnd.nextFloat() < 0.12f) || rnd.nextFloat() < zoneHitMax (f, 26, 28) * 0.05f * k))
             {
                 b.dying = true;
                 crumble (b, u, (int) (60 + 260 * b.scale));
@@ -1558,13 +1560,13 @@ struct Wormhole : Viz   // fly down an endless tube that swings up, down and all
         t += dt;
         if (f.onset) { punch = 1; waves.push_back (z + 0.8); }
         punch = juce::jmax (0.0f, punch - dt * 3.2f);
-        const float speed = 7.0f + 16.0f * f.energy * k + 22.0f * punch;
+        const float speed = 7.0f + 16.0f * f.energy * k + 22.0f * punch + 10.0f * f.pitchMove * k;
         z += speed * dt;
         for (auto& w : waves) w += (speed + 40.0) * dt;
         waves.erase (std::remove_if (waves.begin(), waves.end(), [this] (double w) { return w > z + 44; }), waves.end());
 
         // roll: a slow corkscrew, leaning into the bends, jolted by the kick
-        spin += dt * (0.12f + 0.35f * f.mid * k);
+        spin += dt * (0.12f + 0.35f * f.mid * k) + 0.25f * zoneHitMax (f, 22, 25) * k * dt * 30 * 0.1f;
         const float lean = (ox (z + 4) - ox (z)) * 0.25f;
         roll += ((lean + spin) - roll) * juce::jmin (1.0f, dt * 2);
         const float rot = roll + punch * 0.25f * std::sin (t * 23);
@@ -1600,7 +1602,7 @@ struct Wormhole : Viz   // fly down an endless tube that swings up, down and all
             const float d = (float) (rz - zc);
             const int id = (int) rz;
             // the wall: breathes with the bass, bulges on the kick, ripples with the spectrum round the ring
-            const float bulge = 1 + 0.35f * f.bass * k + 0.55f * punch * std::exp (-d * 0.12f);
+            const float bulge = 1 + 0.35f * f.bass * k + 0.3f * zoneLvl (f, 0, 2) * k + 0.55f * punch * std::exp (-d * 0.12f);
             float wave = 0;
             for (double w : waves) wave = juce::jmax (wave, (float) std::exp (-std::pow ((rz - w) * 0.9, 2.0)));
             std::array<Point<float>, 56> pts;
@@ -1640,7 +1642,8 @@ struct Wormhole : Viz   // fly down an endless tube that swings up, down and all
         for (int i = 0; i < far; ++i)
         {
             const double rz = first + i;
-            for (int s = 0; s < 3; ++s)
+            const int streaks = 2 + (int) (4 * zoneLvl (f, 29, 31) * k);
+            for (int s = 0; s < streaks; ++s)
             {
                 float a = hash ((int) rz, s, 7) * kTau, len = 0.5f + hash ((int) rz, s, 9) * 1.5f;
                 float rad = 0.97f;
@@ -1649,7 +1652,7 @@ struct Wormhole : Viz   // fly down an endless tube that swings up, down and all
                 auto p2 = project (ox (rz + len) + std::cos (a) * rad, oy (rz + len) + std::sin (a) * rad, rz + len, o2);
                 if (! o1 || ! o2) continue;
                 float fog = 1 - (float) (rz - zc) / far;
-                gi.setColour (p.fgA (fog * (0.3f + f.treble * k)));
+                gi.setColour (p.fgA (fog * (0.3f + f.treble * k + zoneLvl (f, 29, 31) * k)));
                 gi.drawLine ({ p1, p2 }, px (r, 1.5f + 2.5f * fog));
             }
         }
@@ -1719,6 +1722,7 @@ std::vector<std::unique_ptr<Viz>> makeAll()
     v.push_back (std::make_unique<Aurora>());
     v.push_back (std::make_unique<Moth>());
     v.push_back (std::make_unique<Wormhole>());
+    addTrippyStyles (v);
     return v;
 }
 }

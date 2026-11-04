@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(BinaryimageToolkit VERSION 1.3.1)
+project(BinaryimageToolkit VERSION 1.4.0)
 
 if(MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
@@ -74,6 +74,7 @@ set(VISUALIZER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../visualizer/Source)
 list(APPEND TOOLKIT_APP_SOURCES
     ${VISUALIZER_DIR}/Analysis.cpp
     ${VISUALIZER_DIR}/Visualizers.cpp
+    ${VISUALIZER_DIR}/Trippy.cpp
     ${VISUALIZER_DIR}/Renderer.cpp
     ${VISUALIZER_DIR}/Session.cpp
     ${VISUALIZER_DIR}/Video.cpp)

@@ -258,7 +258,7 @@ The patch books contain 147 patches: 37 for the Behringer 2600, 25 for the Moog 
 
 ## Video
 
-The Video page is BC Visualizer built into Toolkit. It turns a track into a music video for YouTube: one of 50 audio-reactive styles, your title and artist name, and optional cover art, exported as an MP4 (H.264 video, AAC audio).
+The Video page is BC Visualizer built into Toolkit. It turns a track into a music video for YouTube: one of 80 audio-reactive styles, your title and artist name, and optional cover art, exported as an MP4 (H.264 video, AAC audio).
 
 1. Select **Open track...**, drop a WAV, AIFF, FLAC, MP3 or OGG file on the page, or send a take from Record or a file from the sample library with **To video**.
 2. Choose a style on the left. Press Space to preview it with sound; the up and down arrow keys step through the styles.
@@ -271,7 +271,8 @@ Videos are saved to Music\BC Visualizer. You can keep previewing, or use other p
 - **Intensity** sets how strongly the visuals react. Lower it for ambient tracks; raise it for quiet masters.
 - Upload at 1440p even for 1080p viewers: YouTube uses its better encoder for 1440p uploads.
 - 60 fps looks smoother on fast styles (Warp Field, Tunnel, Glitch) but takes twice as long to render.
-- **Colour** changes the ink: White, Ice, Amber, Red, Phosphor green, Violet, **Multi-colour** or **Ice multi-colour**. Multi-colour paints any style in a rainbow that spirals out from the centre and turns with the music, and Ice multi-colour does the same in cold cyans, blues and violets; try it on **Moth**, Kaleidoscope or Mandala. The **Paper** background gives black ink on off-white.
+- **Reactions** (Off, Subtle or Wild) adds a layer on top of every style that listens to 32 frequency ranges and to the character of the sound. Each gets its own job: the sub makes the picture breathe, bass hits punch and shake it, mid hits flicker a kaleidoscope, presence hits slice it, the highs add glints, the air shimmers, noise adds static, distortion splits the colours, rising and falling pitch zoom in and out, panning slides it, wide stereo adds ghosts, reverb tails and gaps leave trails, silence dissolves it, drops flash, and every new section of the song flips it into a new mirror mode and shifts the colours. Nothing needs a steady beat.
+- **Colour** changes the ink: White, Ice, Amber, Red, Phosphor green, Violet, **Multi-colour**, **Ice multi-colour**, or one of 40 mixed palettes (Toxic Bloom, Blood Moon, Thermal, Oil Slick, Nebula, Hellfire and more). Multi-colour paints any style in a rainbow that spirals out from the centre and turns with the music, and Ice multi-colour does the same in cold cyans, blues and violets; try it on **Moth**, Kaleidoscope or Mandala. The **Paper** background gives black ink on off-white.
 
 The standalone BC Visualizer app still works and shares the same styles.
 

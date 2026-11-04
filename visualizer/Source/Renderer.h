@@ -1,5 +1,6 @@
 #pragma once
 #include "Visualizers.h"
+#include <map>
 
 namespace bcv
 {
@@ -17,31 +18,44 @@ namespace bcv
         bool progress = false;      // thin progress line along the bottom
         bool coverBadge = true;     // the cover art next to the title (bottom-left text only)
         float intensity = 1.0f;     // 0.25 .. 2
+        int reactions = 2;          // 0 off, 1 subtle, 2 wild: the frequency-driven layer on top of every style
     };
 
     constexpr int kMultiColour = 6;   // rainbow
     constexpr int kIceColour = 7;     // the same idea in cold colours: cyan, blue, violet, frost
+    constexpr int kFirstMix = 8;      // from here on: the mixed palettes (gradients that move with the music)
     juce::StringArray tintNames();
+    juce::StringArray reactionNames();
     juce::StringArray backgroundNames();
     juce::StringArray textNames();
     Palette paletteFor (const Look&);
 
-    /** Draws one finished video frame: background, visualizer, titles, fades. */
+    /** Draws one finished video frame: background, visualizer, reactions, colour, titles, fades.
+        Keeps state between frames (reactions), so frames should come in order; reset() after a seek. */
     class Renderer
     {
     public:
         void render (juce::Graphics& g, juce::Rectangle<float> r, const Frame& f, Viz& viz, const Look& look);
+        void reset();
     private:
         juce::Image backdrop;               // blurred, dimmed cover sized to the frame
         juce::Rectangle<int> backdropSize;
         juce::Image backdropSource;
         void makeBackdrop (juce::Rectangle<int> size, const juce::Image& cover);
-        // multi-colour: the style is drawn white on black into a layer, then each pixel's brightness picks up
-        // a colour from a rainbow that spirals out from the centre and turns with the music
-        juce::Image layer;
-        std::vector<float> hueField;
+
+        // the style is drawn white on black into a layer, the reactions work on it, then it's coloured
+        juce::Image layer, scratch;
+        std::vector<juce::uint8> lum, prevLum;
+        std::map<int, std::vector<float>> fields;          // spatial colour fields, by kind
         juce::Rectangle<int> fieldSize;
-        void colourise (const Frame& f, bool paper, bool icy);
+        const std::vector<float>& field (int kind);
+        juce::AffineTransform reactTransform (const Frame& f, juce::Rectangle<float> r, float react);
+        void postFx (const Frame& f, float react);
+        void colourise (const Frame& f, const Look& look, float react);
+        // reaction state
+        float sway = 0, slide = 0, zoomS = 1, offset = 0, sectionShift = 0;
+        int lastSection = 0, mirrorMode = 0;
+        juce::Random rnd { 77 };
     };
 
     /** Synthetic stereo demo track (kick, snare, hats, bass, pad) used for galleries and tests. */
