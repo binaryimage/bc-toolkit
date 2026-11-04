@@ -3,16 +3,16 @@
 
 namespace bcv
 {
-juce::StringArray tintNames() { return { "White", "Ice", "Amber", "Red", "Phosphor green", "Violet", "Multi-colour" }; }
+juce::StringArray tintNames() { return { "White", "Ice", "Amber", "Red", "Phosphor green", "Violet", "Multi-colour", "Ice multi-colour" }; }
 juce::StringArray backgroundNames() { return { "Black", "Cover art (dimmed)", "Paper" }; }
 juce::StringArray textNames() { return { "Bottom left", "Centred", "Hidden" }; }
 
 Palette paletteFor (const Look& l)
 {
     static const juce::Colour tints[] = { juce::Colour (0xffffffff), juce::Colour (0xffcfe6ff), juce::Colour (0xffffc46e),
-                                          juce::Colour (0xffff4a3d), juce::Colour (0xff86ffa6), juce::Colour (0xffcaa6ff), juce::Colour (0xffffffff) };
+                                          juce::Colour (0xffff4a3d), juce::Colour (0xff86ffa6), juce::Colour (0xffcaa6ff), juce::Colour (0xffffffff), juce::Colour (0xffffffff) };
     Palette p;
-    p.fg = tints[juce::jlimit (0, kMultiColour, l.tint)];
+    p.fg = tints[juce::jlimit (0, kIceColour, l.tint)];
     if (l.background == 2) { p.bg = juce::Colour (0xffe8e4dc); p.fg = juce::Colour (0xff141414); }
     return p;
 }
@@ -59,7 +59,7 @@ void Renderer::render (juce::Graphics& g, juce::Rectangle<float> r, const Frame&
         g.setColour (p.bg); g.fillRect (r);
     }
 
-    if (look.tint == kMultiColour)
+    if (look.tint == kMultiColour || look.tint == kIceColour)
     {
         auto size = r.toNearestInt().withZeroOrigin();
         if (! layer.isValid() || layer.getBounds() != size) layer = juce::Image (juce::Image::ARGB, juce::jmax (1, size.getWidth()), juce::jmax (1, size.getHeight()), true);
@@ -69,7 +69,7 @@ void Renderer::render (juce::Graphics& g, juce::Rectangle<float> r, const Frame&
             Palette vp;   // white on black; the colour comes afterwards
             viz.draw (gl, size.toFloat(), f, vp, look.intensity);
         }
-        colourise (f, look.background == 2);
+        colourise (f, look.background == 2, look.tint == kIceColour);
         g.drawImageAt (layer, (int) r.getX(), (int) r.getY());
     }
     else
@@ -151,7 +151,7 @@ void Renderer::render (juce::Graphics& g, juce::Rectangle<float> r, const Frame&
     }
 }
 
-void Renderer::colourise (const Frame& f, bool paper)
+void Renderer::colourise (const Frame& f, bool paper, bool icy)
 {
     const int w = layer.getWidth(), h = layer.getHeight();
     if (fieldSize != layer.getBounds())
@@ -172,7 +172,16 @@ void Renderer::colourise (const Frame& f, bool paper)
     juce::uint8 lr[kLut], lg[kLut], lb[kLut];
     for (int i = 0; i < kLut; ++i)
     {
-        auto c = juce::Colour::fromHSV ((float) i / kLut, paper ? 1.0f : 0.85f, paper ? 0.72f : 1.0f, 1.0f);
+        const float x = (float) i / kLut;
+        juce::Colour c;
+        if (icy)
+        {
+            // cyan -> blue -> violet and back (no seam), with frosty near-white streaks running through it
+            float hue = 0.48f + 0.27f * (0.5f - 0.5f * std::cos (x * juce::MathConstants<float>::twoPi));
+            float sat = 0.5f + 0.35f * std::sin (x * juce::MathConstants<float>::twoPi * 3.0f);
+            c = juce::Colour::fromHSV (hue, paper ? juce::jmin (1.0f, sat + 0.3f) : sat, paper ? 0.6f : 1.0f, 1.0f);
+        }
+        else c = juce::Colour::fromHSV (x, paper ? 1.0f : 0.85f, paper ? 0.72f : 1.0f, 1.0f);
         lr[i] = c.getRed(); lg[i] = c.getGreen(); lb[i] = c.getBlue();
     }
     // the wheel turns slowly, kicks forward on beats, and drifts faster when the track is loud

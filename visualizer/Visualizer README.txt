@@ -24,7 +24,7 @@ Tips
 - 1440p uploads get YouTube's better encoder even for 1080p viewers, so they look sharper.
 - 60 fps looks smoother on fast styles (Warp Field, Tunnel, Glitch) but takes twice as long
   to render.
-- Colour changes the ink: White, Ice, Amber, Red, Phosphor green, Violet or Multi-colour.
+- Colour changes the ink: White, Ice, Amber, Red, Phosphor green, Violet, Multi-colour or Ice multi-colour.
   Multi-colour paints any style in a rainbow that spirals out from the centre and turns with
-  the music. Try it on Moth (the newest style), Kaleidoscope or Mandala.
+  the music; Ice multi-colour does the same in cold cyans, blues and violets. Try them on Moth (the newest style), Kaleidoscope or Mandala.
   Background "Paper" gives you black ink on off-white.

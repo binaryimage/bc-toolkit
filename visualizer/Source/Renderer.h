@@ -18,7 +18,8 @@ namespace bcv
         float intensity = 1.0f;     // 0.25 .. 2
     };
 
-    constexpr int kMultiColour = 6;
+    constexpr int kMultiColour = 6;   // rainbow
+    constexpr int kIceColour = 7;     // the same idea in cold colours: cyan, blue, violet, frost
     juce::StringArray tintNames();
     juce::StringArray backgroundNames();
     juce::StringArray textNames();
@@ -39,7 +40,7 @@ namespace bcv
         juce::Image layer;
         std::vector<float> hueField;
         juce::Rectangle<int> fieldSize;
-        void colourise (const Frame& f, bool paper);
+        void colourise (const Frame& f, bool paper, bool icy);
     };
 
     /** Synthetic stereo demo track (kick, snare, hats, bass, pad) used for galleries and tests. */

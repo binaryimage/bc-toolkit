@@ -486,7 +486,22 @@ static int runGallery (const juce::File& dir)
                 juce::Graphics g (img);
                 rr.render (g, img.getBounds().toFloat(), fr, *fresh[i], look);
             }
-            if (i + 1 == fresh.size()) writePng (img, dir.getChildFile (fresh[i]->name().removeCharacters (" &/").toLowerCase() + "-multicolour.png"));
+            if (i + 1 == fresh.size())
+            {
+                writePng (img, dir.getChildFile (fresh[i]->name().removeCharacters (" &/").toLowerCase() + "-multicolour.png"));
+                // and the newest style in Ice multi-colour
+                Analyzer an2; Renderer rr2; Frame fr2; Look icy = look; icy.tint = kIceColour;
+                auto again = makeAll();
+                juce::Image ice (juce::Image::ARGB, W, H, true, juce::SoftwareImageType());
+                for (int f = 0; f <= 120; ++f)
+                {
+                    an2.analyse (t.audio, Track::rate, f / 30.0, 30, fr2);
+                    fr2.duration = t.seconds(); fr2.index = f;
+                    juce::Graphics g (ice);
+                    rr2.render (g, ice.getBounds().toFloat(), fr2, *again[i], icy);
+                }
+                writePng (ice, dir.getChildFile (fresh[i]->name().removeCharacters (" &/").toLowerCase() + "-ice.png"));
+            }
             gm.drawImage (img, juce::Rectangle<float> ((float) ((int) i % cols * tw), (float) ((int) i / cols * th), (float) tw, (float) th));
         }
         writePng (multi, dir.getChildFile ("00-all-styles-multicolour.png"));
@@ -517,7 +532,7 @@ static int runExport (const juce::StringArray& args, int at)
     juce::String err;
     if (ai >= 0 && ai + 1 < args.size()) { if (! loadTrack (juce::File (args[ai + 1].unquoted()), t, err)) { juce::Logger::writeToLog (err); return 2; } }
     else setDemoTrack (t, secs);
-    Look look; look.style = style; look.tint = juce::jlimit (0, kMultiColour, tint);
+    Look look; look.style = style; look.tint = juce::jlimit (0, kIceColour, tint);
     look.title = style < 0 ? juce::String() : makeAll()[(size_t) juce::jlimit (0, (int) makeAll().size() - 1, style)]->name();
     ExportJob job (t, look, out, w, h, fps, cycle);
     bool ok = job.runNow();

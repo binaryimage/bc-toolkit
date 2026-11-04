@@ -271,7 +271,7 @@ Videos are saved to Music\BC Visualizer. You can keep previewing, or use other p
 - **Intensity** sets how strongly the visuals react. Lower it for ambient tracks; raise it for quiet masters.
 - Upload at 1440p even for 1080p viewers: YouTube uses its better encoder for 1440p uploads.
 - 60 fps looks smoother on fast styles (Warp Field, Tunnel, Glitch) but takes twice as long to render.
-- **Colour** changes the ink: White, Ice, Amber, Red, Phosphor green, Violet or **Multi-colour**. Multi-colour paints any style in a rainbow that spirals out from the centre and turns with the music; try it on **Moth**, Kaleidoscope or Mandala. The **Paper** background gives black ink on off-white.
+- **Colour** changes the ink: White, Ice, Amber, Red, Phosphor green, Violet, **Multi-colour** or **Ice multi-colour**. Multi-colour paints any style in a rainbow that spirals out from the centre and turns with the music, and Ice multi-colour does the same in cold cyans, blues and violets; try it on **Moth**, Kaleidoscope or Mandala. The **Paper** background gives black ink on off-white.
 
 The standalone BC Visualizer app still works and shares the same styles.
 
