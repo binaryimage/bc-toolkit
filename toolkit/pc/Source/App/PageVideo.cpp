@@ -21,7 +21,8 @@ public:
     }
     void paintScreen (juce::Graphics& g, juce::Rectangle<float>) override
     {
-        if (frame.isValid()) g.drawImageAt (frame, videoArea().getX(), videoArea().getY());
+        // the preview renders at a lighter resolution and is scaled up here (the export renders at full size)
+        if (frame.isValid()) { g.setImageResamplingQuality (juce::Graphics::mediumResamplingQuality); g.drawImage (frame, videoArea().toFloat()); }
     }
 };
 
@@ -352,8 +353,10 @@ public:
         frameDirty = false;
         auto area = preview.videoArea();
         if (area.isEmpty()) return;
-        if (! preview.frame.isValid() || preview.frame.getBounds() != area.withZeroOrigin())
-            preview.frame = juce::Image (juce::Image::ARGB, area.getWidth(), area.getHeight(), true, juce::SoftwareImageType());
+        const float shrink = juce::jmin (1.0f, 800.0f / (float) juce::jmax (1, area.getWidth()));
+        const auto size = juce::Rectangle<int> (juce::jmax (16, juce::roundToInt (area.getWidth() * shrink)), juce::jmax (9, juce::roundToInt (area.getHeight() * shrink)));
+        if (! preview.frame.isValid() || preview.frame.getBounds() != size)
+            preview.frame = juce::Image (juce::Image::ARGB, size.getWidth(), size.getHeight(), true, juce::SoftwareImageType());
         if (playing || analyzerT != clockT) analyzer.analyse (track->audio, bcv::Track::rate, clockT, 30, frame);
         analyzerT = clockT;
         frame.duration = track->seconds();

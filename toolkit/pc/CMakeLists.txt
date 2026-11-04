@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(BinaryimageToolkit VERSION 1.4.0)
+project(BinaryimageToolkit VERSION 1.4.1)
 
 if(MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")

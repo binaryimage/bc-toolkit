@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include <cstring>
 #include "Common/Look.h"
 
 namespace bcv
@@ -153,7 +154,6 @@ void Renderer::render (juce::Graphics& g, juce::Rectangle<float> r, const Frame&
         if (! layer.isValid() || layer.getBounds() != size)
         {
             layer = juce::Image (juce::Image::ARGB, juce::jmax (1, size.getWidth()), juce::jmax (1, size.getHeight()), true);
-            scratch = juce::Image (juce::Image::ARGB, layer.getWidth(), layer.getHeight(), true);
             prevLum.assign ((size_t) layer.getWidth() * (size_t) layer.getHeight(), 0);
         }
         {
@@ -287,79 +287,63 @@ juce::AffineTransform Renderer::reactTransform (const Frame& f, juce::Rectangle<
 
 void Renderer::postFx (const Frame& f, float react)
 {
+    // Everything here works on a one-byte-per-pixel brightness buffer (the layer is white on black at this point),
+    // so it's a handful of cheap passes instead of full image draws. The result stays in lum for colourise().
     const int w = layer.getWidth(), h = layer.getHeight();
-    const float t = (float) f.t;
-
-    // a new section of the song: flip to the next mirror mode
-    if (f.section != lastSection) { lastSection = f.section; mirrorMode = (mirrorMode + 1 + rnd.nextInt (3)) % 5; }
-    int mode = react >= 1 ? mirrorMode : 0;
-    if (zoneMax (f, 12, 17) > 0.75f && react >= 0.5f) mode = mode == 0 ? (f.section % 2 ? 1 : 3) : mode;   // mid hits flicker a kaleidoscope
-
-    {
-        juce::Graphics gs (scratch);
-        gs.fillAll (juce::Colours::transparentBlack);
-        gs.drawImageAt (layer, 0, 0);
-    }
-    {
-        juce::Graphics gl (layer);
-        if (mode != 0)
-        {
-            // 1 mirror left onto right, 2 top onto bottom, 3 both, 4 flipped
-            if (mode == 1 || mode == 3) { gl.saveState(); gl.reduceClipRegion (w / 2, 0, w - w / 2, h); gl.drawImageTransformed (scratch, juce::AffineTransform::scale (-1, 1).translated ((float) w, 0)); gl.restoreState(); }
-            if (mode == 2 || mode == 3)
-            {
-                juce::Graphics gs (scratch); gs.drawImageAt (layer, 0, 0);
-                gl.saveState(); gl.reduceClipRegion (0, h / 2, w, h - h / 2); gl.drawImageTransformed (scratch, juce::AffineTransform::scale (1, -1).translated (0, (float) h)); gl.restoreState();
-            }
-            if (mode == 4) { gl.fillAll (juce::Colours::black); gl.drawImageTransformed (scratch, juce::AffineTransform::scale (-1, 1).translated ((float) w, 0)); }
-            juce::Graphics gs (scratch); gs.drawImageAt (layer, 0, 0);
-        }
-        // busy sections: echoes; wide stereo: left/right ghosts
-        if (f.density > 0.15f)
-        {
-            float a = react * f.density * 0.35f;
-            for (float s : { 1.05f, 0.95f })
-            {
-                gl.setOpacity (a);
-                gl.drawImageTransformed (scratch, juce::AffineTransform::scale (s, s, w * 0.5f, h * 0.5f));
-            }
-            gl.setOpacity (1);
-        }
-        if (f.width > 0.1f)
-        {
-            float off = f.width * 0.04f * w * react;
-            gl.setOpacity (react * f.width * 0.4f);
-            gl.drawImageAt (scratch, (int) off, 0); gl.drawImageAt (scratch, (int) -off, 0);
-            gl.setOpacity (1);
-        }
-        // highs: sparkles
-        const float highs = zoneAvg (f, 26, 28, true);
-        const int sparks = (int) (react * highs * 70);
-        for (int i = 0; i < sparks; ++i)
-        {
-            // soft glints: a bright dot with a faint halo
-            float x = rnd.nextFloat() * w, y = rnd.nextFloat() * h, s = (1.5f + rnd.nextFloat() * 2.5f) * h / 1080.0f;
-            gl.setColour (juce::Colours::white.withAlpha (0.15f)); gl.fillEllipse (x - s * 2.5f, y - s * 2.5f, s * 5, s * 5);
-            gl.setColour (juce::Colours::white.withAlpha (0.6f + rnd.nextFloat() * 0.4f)); gl.fillEllipse (x - s * 0.6f, y - s * 0.6f, s * 1.2f, s * 1.2f);
-        }
-    }
-
-    // pixel passes: glitch slices (presence hits), shimmer (air), trails / reverb / dissolve, static (noise), flash (drops)
-    juce::Image::BitmapData bd (layer, juce::Image::BitmapData::readWrite);
     const size_t N = (size_t) w * (size_t) h;
+    const float t = (float) f.t;
     if (lum.size() != N) lum.assign (N, 0);
     if (prevLum.size() != N) prevLum.assign (N, 0);
-    for (int y = 0; y < h; ++y)
-    {
-        auto* line = bd.getLinePointer (y);
-        for (int x = 0; x < w; ++x)
+    if (cpy.size() != N) cpy.assign (N, 0);
+
+    {   // 1. brightness out of the layer
+        juce::Image::BitmapData bd (layer, juce::Image::BitmapData::readOnly);
+        for (int y = 0; y < h; ++y)
         {
-            auto* px = reinterpret_cast<juce::PixelARGB*> (line + (size_t) x * (size_t) bd.pixelStride);
-            lum[(size_t) y * (size_t) w + (size_t) x] = juce::jmax (px->getRed(), px->getGreen(), px->getBlue());
+            const auto* line = bd.getLinePointer (y);
+            juce::uint8* out = lum.data() + (size_t) y * (size_t) w;
+            for (int x = 0; x < w; ++x)
+            {
+                const auto* px = reinterpret_cast<const juce::PixelARGB*> (line + (size_t) x * (size_t) bd.pixelStride);
+                out[x] = juce::jmax (px->getRed(), px->getGreen(), px->getBlue());
+            }
         }
     }
+
+    // 2. mirror modes: a new section flips to the next one, mid hits flicker a kaleidoscope
+    if (f.section != lastSection) { lastSection = f.section; mirrorMode = (mirrorMode + 1 + rnd.nextInt (3)) % 5; }
+    int mode = react >= 1 ? mirrorMode : 0;
+    if (zoneMax (f, 12, 17) > 0.75f && react >= 0.5f) mode = mode == 0 ? (f.section % 2 ? 1 : 3) : mode;
+    if (mode == 1 || mode == 3)
+        for (int y = 0; y < h; ++y) { juce::uint8* row = lum.data() + (size_t) y * (size_t) w; for (int x = 0; x < w / 2; ++x) row[w - 1 - x] = row[x]; }
+    if (mode == 2 || mode == 3)
+        for (int y = 0; y < h / 2; ++y) std::memcpy (lum.data() + (size_t) (h - 1 - y) * (size_t) w, lum.data() + (size_t) y * (size_t) w, (size_t) w);
+    if (mode == 4)
+        for (int y = 0; y < h; ++y) { juce::uint8* row = lum.data() + (size_t) y * (size_t) w; std::reverse (row, row + w); }
+
+    // 3. sparkles on the highs: soft dots stamped in
+    const float highs = zoneAvg (f, 26, 28, true);
+    const int sparks = (int) (react * highs * 70);
+    for (int i = 0; i < sparks; ++i)
+    {
+        const int cx = rnd.nextInt (w), cy = rnd.nextInt (h), rad = juce::jmax (1, (int) ((1.5f + rnd.nextFloat() * 2.5f) * h / 1080.0f * 2.5f));
+        for (int dy = -rad; dy <= rad; ++dy)
+            for (int dx = -rad; dx <= rad; ++dx)
+            {
+                const int x = cx + dx, y = cy + dy;
+                if (x < 0 || y < 0 || x >= w || y >= h) continue;
+                const float d = std::sqrt ((float) (dx * dx + dy * dy)) / rad;
+                if (d > 1) continue;
+                juce::uint8& v = lum[(size_t) y * (size_t) w + (size_t) x];
+                v = (juce::uint8) juce::jmax ((int) v, (int) (d < 0.25f ? 255 : 40 * (1 - d)));
+            }
+    }
+
+    // 4. one pass for the rest: glitch slices (presence), shimmer (air), echoes (busy), ghosts (wide),
+    //    trails / reverb / dissolve (tails, gaps, silence), static (noise), flash (drops)
+    std::memcpy (cpy.data(), lum.data(), N);
     const float presence = zoneMax (f, 22, 25), air = zoneAvg (f, 29, 31, false);
-    std::vector<int> shift ((size_t) h, 0);
+    shift.assign ((size_t) h, 0);
     if (presence > 0.5f)
     {
         int slices = 1 + (int) (presence * 4);
@@ -372,41 +356,61 @@ void Renderer::postFx (const Frame& f, float react)
     }
     if (air > 0.25f) for (int y = 0; y < h; ++y) shift[(size_t) y] += (int) std::lround (react * (air - 0.25f) * 4 * h / 1080.0f * std::sin (y * 0.15f + t * 30));
 
-    const float decay = juce::jlimit (0.0f, 0.93f, react * (0.55f * f.tail + 0.3f * f.sparse + 0.5f * f.silence));
-    const float dissolve = f.silence * react;
+    const int echoA = f.density > 0.15f ? (int) (react * f.density * 0.35f * 256) : 0;
+    const int ghostA = f.width > 0.1f ? (int) (react * f.width * 0.4f * 256) : 0;
+    const int ghostOff = (int) (f.width * 0.04f * w * react);
+    if (echoA > 0)
+    {
+        // where each pixel of the 105% and 95% copies comes from
+        const float cxf = w * 0.5f, cyf = h * 0.5f;
+        ex1.resize ((size_t) w); ex2.resize ((size_t) w); ey1.resize ((size_t) h); ey2.resize ((size_t) h);
+        for (int x = 0; x < w; ++x) { ex1[(size_t) x] = juce::jlimit (0, w - 1, (int) (cxf + (x - cxf) / 1.05f)); ex2[(size_t) x] = (int) (cxf + (x - cxf) / 0.95f); }
+        for (int y = 0; y < h; ++y) { ey1[(size_t) y] = juce::jlimit (0, h - 1, (int) (cyf + (y - cyf) / 1.05f)); ey2[(size_t) y] = (int) (cyf + (y - cyf) / 0.95f); }
+    }
+    const int decay = (int) (juce::jlimit (0.0f, 0.93f, react * (0.55f * f.tail + 0.3f * f.sparse + 0.5f * f.silence)) * 256);
+    const juce::uint32 dissolve = (juce::uint32) (f.silence * react * 90);
     const int drift = f.silence > 0.2f ? 1 : 0;
     const int noiseAmp = (int) (react * f.noisiness * 70);
     const int flash = (int) (react * f.drop * f.drop * 90);
     juce::uint32 seed = (juce::uint32) (f.index * 2654435761u + 1);
     for (int y = 0; y < h; ++y)
     {
-        auto* line = bd.getLinePointer (y);
         const int sh = shift[(size_t) y];
-        const juce::uint8* src = lum.data() + (size_t) y * (size_t) w;
+        const juce::uint8* src = cpy.data() + (size_t) y * (size_t) w;
         const juce::uint8* prv = prevLum.data() + (size_t) juce::jmax (0, y - drift) * (size_t) w;
+        const juce::uint8* e1 = echoA > 0 ? cpy.data() + (size_t) ey1[(size_t) y] * (size_t) w : nullptr;
+        const int y2 = echoA > 0 ? ey2[(size_t) y] : -1;
+        const juce::uint8* e2 = (y2 >= 0 && y2 < h) ? cpy.data() + (size_t) y2 * (size_t) w : nullptr;
+        juce::uint8* out = lum.data() + (size_t) y * (size_t) w;
         for (int x = 0; x < w; ++x)
         {
-            int sx = x - sh;
+            const int sx = x - sh;
             int v = (sx >= 0 && sx < w) ? src[sx] : 0;
+            if (echoA > 0)
+            {
+                const int a1 = e1[ex1[(size_t) x]];
+                const int x2 = ex2[(size_t) x];
+                const int a2 = (e2 != nullptr && x2 >= 0 && x2 < w) ? e2[x2] : 0;
+                v += ((a1 + a2) * echoA) >> 9;
+            }
+            if (ghostA > 0)
+            {
+                const int l = x - ghostOff >= 0 ? src[x - ghostOff] : 0, r = x + ghostOff < w ? src[x + ghostOff] : 0;
+                v += ((l + r) * ghostA) >> 9;
+            }
             if (decay > 0)
             {
                 seed = seed * 1664525u + 1013904223u;
-                const bool gone = dissolve > 0 && ((seed >> 24) & 255) < (juce::uint32) (dissolve * 90);
-                const int p = gone ? 0 : (int) (prv[x] * decay);
+                const int p = (dissolve > 0 && ((seed >> 24) & 255) < dissolve) ? 0 : (prv[x] * decay) >> 8;
                 if (p > v) v = p;
             }
             if (noiseAmp > 0) { seed = seed * 1664525u + 1013904223u; v += (int) ((seed >> 25) % (juce::uint32) (noiseAmp + 1)) - noiseAmp / 3; }
-            v = juce::jlimit (0, 255, v + flash);
-            auto* px = reinterpret_cast<juce::PixelARGB*> (line + (size_t) x * (size_t) bd.pixelStride);
-            px->setARGB (255, (juce::uint8) v, (juce::uint8) v, (juce::uint8) v);
+            v += flash;
+            out[x] = (juce::uint8) (v < 0 ? 0 : v > 255 ? 255 : v);
         }
     }
-    // remember this frame for the trails
-    for (int y = 0; y < h; ++y)
-    {
-        auto* line = bd.getLinePointer (y);
-        for (int x = 0; x < w; ++x) prevLum[(size_t) y * (size_t) w + (size_t) x] = reinterpret_cast<juce::PixelARGB*> (line + (size_t) x * (size_t) bd.pixelStride)->getRed();
-    }
+    std::memcpy (prevLum.data(), lum.data(), N);   // for next frame's trails
+    lumReady = true;
 }
 
 const std::vector<float>& Renderer::field (int kind)
@@ -460,18 +464,20 @@ void Renderer::colourise (const Frame& f, const Look& look, float react)
     juce::Image::BitmapData bd (layer, juce::Image::BitmapData::readWrite);
     const size_t N = (size_t) w * (size_t) h;
     if (lum.size() != N) lum.assign (N, 0);
-    for (int y = 0; y < h; ++y)
-    {
-        auto* line = bd.getLinePointer (y);
-        for (int x = 0; x < w; ++x)
+    if (! lumReady)
+        for (int y = 0; y < h; ++y)
         {
-            auto* px = reinterpret_cast<juce::PixelARGB*> (line + (size_t) x * (size_t) bd.pixelStride);
-            lum[(size_t) y * (size_t) w + (size_t) x] = juce::jmax (px->getRed(), px->getGreen(), px->getBlue());
+            auto* line = bd.getLinePointer (y);
+            for (int x = 0; x < w; ++x)
+            {
+                auto* px = reinterpret_cast<juce::PixelARGB*> (line + (size_t) x * (size_t) bd.pixelStride);
+                lum[(size_t) y * (size_t) w + (size_t) x] = juce::jmax (px->getRed(), px->getGreen(), px->getBlue());
+            }
         }
-    }
+    lumReady = false;
     // crunch splits the colour channels apart
     const int split = (int) std::lround (react * juce::jmax (0.0f, f.crunch - 0.3f) / 0.7f * 0.01f * w);
-    std::vector<juce::uint8> cr ((size_t) w), cg ((size_t) w), cb ((size_t) w), ca ((size_t) w);
+    cr.resize ((size_t) w); cg.resize ((size_t) w); cb.resize ((size_t) w); ca.resize ((size_t) w);
     for (int y = 0; y < h; ++y)
     {
         const juce::uint8* L = lum.data() + (size_t) y * (size_t) w;
@@ -481,7 +487,8 @@ void Renderer::colourise (const Frame& f, const Look& look, float react)
             const juce::uint32 v = L[x];
             float idx = offset + (F != nullptr ? F[x] * spatial : 0.0f) + bright * v / 255.0f;
             const int i = (int) ((idx - std::floor (idx)) * kLut) & (kLut - 1);
-            cr[(size_t) x] = (juce::uint8) (lr[i] * v / 255); cg[(size_t) x] = (juce::uint8) (lg[i] * v / 255); cb[(size_t) x] = (juce::uint8) (lb[i] * v / 255);
+            const juce::uint32 m = v * 257u;   // x * v / 255 without the divisions
+            cr[(size_t) x] = (juce::uint8) ((lr[i] * m + 32768u) >> 16); cg[(size_t) x] = (juce::uint8) ((lg[i] * m + 32768u) >> 16); cb[(size_t) x] = (juce::uint8) ((lb[i] * m + 32768u) >> 16);
             ca[(size_t) x] = (juce::uint8) v;
         }
         auto* line = bd.getLinePointer (y);

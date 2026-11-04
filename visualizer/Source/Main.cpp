@@ -36,7 +36,8 @@ public:
     }
     void paintScreen (juce::Graphics& g, juce::Rectangle<float>) override
     {
-        if (frame.isValid()) g.drawImageAt (frame, videoArea().getX(), videoArea().getY());
+        // the preview renders at a lighter resolution and is scaled up here (the export renders at full size)
+        if (frame.isValid()) { g.setImageResamplingQuality (juce::Graphics::mediumResamplingQuality); g.drawImage (frame, videoArea().toFloat()); }
     }
 };
 
@@ -154,7 +155,7 @@ public:
 
         styles.selectRow (juce::jlimit (0, (int) all.size() - 1, look.style));
         if (track.loaded() == false) { setDemoTrack (track, 32); attachTrack(); trackLabel->setText ("Demo loop. Open a track or drop one here.", juce::dontSendNotification); titleEd.setText ("Demo loop", true); }
-        startTimerHz (60);
+        startTimerHz (30);   // the videos are 30 or 60 fps; 30 keeps the preview steady
         setSize (1480, 900);
     }
 
@@ -356,9 +357,11 @@ private:
         frameDirty = false;
         auto area = preview.videoArea();
         if (area.isEmpty()) return;
-        if (! preview.frame.isValid() || preview.frame.getBounds() != area.withZeroOrigin())
-            preview.frame = juce::Image (juce::Image::ARGB, area.getWidth(), area.getHeight(), true, juce::SoftwareImageType());
-        const double fps = 60;
+        const float shrink = juce::jmin (1.0f, 800.0f / (float) juce::jmax (1, area.getWidth()));
+        const auto size = juce::Rectangle<int> (juce::jmax (16, juce::roundToInt (area.getWidth() * shrink)), juce::jmax (9, juce::roundToInt (area.getHeight() * shrink)));
+        if (! preview.frame.isValid() || preview.frame.getBounds() != size)
+            preview.frame = juce::Image (juce::Image::ARGB, size.getWidth(), size.getHeight(), true, juce::SoftwareImageType());
+        const double fps = 30;
         if (playing || analyzerT != clockT) analyzer.analyse (track.audio, Track::rate, clockT, fps, frame);
         analyzerT = clockT;
         frame.duration = track.seconds();
@@ -594,6 +597,37 @@ static int runAnalyse (const juce::String& path)
     return 0;
 }
 
+/** Times each style at preview size (ms per frame), with and without Reactions. */
+static int runBench (int w, int h)
+{
+    Track t; setDemoTrack (t, 8);
+    auto all = makeAll();
+    double totalOff = 0, totalWild = 0;
+    for (size_t i = 0; i < all.size(); ++i)
+    {
+        double ms[2] {};
+        for (int react = 0; react < 2; ++react)
+        {
+            all[i]->reset();
+            Analyzer an; Renderer rr; Frame fr; Look look; look.title = all[i]->name(); look.reactions = react ? 2 : 0;
+            juce::Image img (juce::Image::ARGB, w, h, true, juce::SoftwareImageType());
+            for (int f = 0; f < 75; ++f)
+            {
+                an.analyse (t.audio, Track::rate, 2.0 + f / 30.0, 30, fr);
+                fr.duration = t.seconds(); fr.index = f;
+                auto t0 = juce::Time::getMillisecondCounterHiRes();
+                { juce::Graphics g (img); rr.render (g, img.getBounds().toFloat(), fr, *all[i], look); }
+                if (f >= 15) ms[react] += juce::Time::getMillisecondCounterHiRes() - t0;
+            }
+            ms[react] /= 60.0;
+        }
+        totalOff += ms[0]; totalWild += ms[1];
+        std::printf ("%2d %-20s off %6.1f ms   wild %6.1f ms\n", (int) i + 1, all[i]->name().toRawUTF8(), ms[0], ms[1]);
+    }
+    std::printf ("average: off %.1f ms, wild %.1f ms\n", totalOff / all.size(), totalWild / all.size());
+    return 0;
+}
+
 class MainWindow : public juce::DocumentWindow
 {
 public:
@@ -623,6 +657,8 @@ public:
         auto args = juce::StringArray::fromTokens (cmd, true);
         int g = args.indexOf ("--gallery"), e = args.indexOf ("--test-export"), an = args.indexOf ("--analyse");
         if (an >= 0 && an + 1 < args.size()) { setApplicationReturnValue (runAnalyse (args[an + 1].unquoted())); quit(); return; }
+        int bn = args.indexOf ("--bench");
+        if (bn >= 0) { setApplicationReturnValue (runBench (args[bn + 1].getIntValue() > 0 ? args[bn + 1].getIntValue() : 1100, args[bn + 2].getIntValue() > 0 ? args[bn + 2].getIntValue() : 620)); quit(); return; }
         if (g >= 0 && g + 1 < args.size()) { setApplicationReturnValue (runGallery (juce::File::getCurrentWorkingDirectory().getChildFile (args[g + 1].unquoted()))); quit(); return; }
         if (e >= 0 && e + 1 < args.size()) { setApplicationReturnValue (runExport (args, e)); quit(); return; }
         window = std::make_unique<MainWindow>();

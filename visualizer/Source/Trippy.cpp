@@ -847,15 +847,16 @@ struct Maurer : Viz
         for (int layer = 0; layer < 2; ++layer)
         {
             const float nn = layer == 0 ? n : n2, dd = layer == 0 ? d : d2, R = r.getHeight() * (layer == 0 ? 0.45f : 0.3f);
-            Path path;
+            // separate short lines: one long self-crossing path is very slow to fill
+            g.setColour (p.fgA (layer == 0 ? 0.45f : 0.7f));
+            Point<float> prev;
             for (int i = 0; i <= 360; ++i)
             {
                 float th = i * dd * kPi / 180, rad = R * std::sin (nn * th);
                 Point<float> pt (c.x + rad * std::cos (th + rot * (layer ? -1 : 1)), c.y + rad * std::sin (th + rot * (layer ? -1 : 1)));
-                if (i == 0) path.startNewSubPath (pt); else path.lineTo (pt);
+                if (i > 0) g.drawLine ({ prev, pt }, pxw (r, 0.9f));
+                prev = pt;
             }
-            g.setColour (p.fgA (layer == 0 ? 0.45f : 0.7f));
-            g.strokePath (path, PathStrokeType (pxw (r, 0.9f)));
         }
     }
 };

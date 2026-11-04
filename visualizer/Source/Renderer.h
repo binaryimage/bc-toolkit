@@ -44,8 +44,10 @@ namespace bcv
         void makeBackdrop (juce::Rectangle<int> size, const juce::Image& cover);
 
         // the style is drawn white on black into a layer, the reactions work on it, then it's coloured
-        juce::Image layer, scratch;
-        std::vector<juce::uint8> lum, prevLum;
+        juce::Image layer;
+        std::vector<juce::uint8> lum, prevLum, cpy, cr, cg, cb, ca;
+        std::vector<int> shift, ex1, ex2, ey1, ey2;
+        bool lumReady = false;
         std::map<int, std::vector<float>> fields;          // spatial colour fields, by kind
         juce::Rectangle<int> fieldSize;
         const std::vector<float>& field (int kind);
