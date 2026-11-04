@@ -258,12 +258,12 @@ The patch books contain 147 patches: 37 for the Behringer 2600, 25 for the Moog 
 
 ## Video
 
-The Video page is BC Visualizer built into Toolkit. It turns a track into a music video for YouTube: one of 49 audio-reactive styles, your title and artist name, and optional cover art, exported as an MP4 (H.264 video, AAC audio).
+The Video page is BC Visualizer built into Toolkit. It turns a track into a music video for YouTube: one of 50 audio-reactive styles, your title and artist name, and optional cover art, exported as an MP4 (H.264 video, AAC audio).
 
 1. Select **Open track...**, drop a WAV, AIFF, FLAC, MP3 or OGG file on the page, or send a take from Record or a file from the sample library with **To video**.
 2. Choose a style on the left. Press Space to preview it with sound; the up and down arrow keys step through the styles.
 3. Set the title (it defaults to the file name) and the artist (binaryimage).
-4. Optional: **Cover art...** adds artwork next to the title. With **Background** set to **Cover art (dimmed)**, the artwork also appears behind the visuals. You can also drop an image on the page.
+4. Optional: **Cover art...** adds artwork next to the title. With **Background** set to **Cover art (dimmed)**, the artwork also appears behind the visuals. You can also drop an image on the page. Turn off **Cover next to title** to keep the artwork as the background without the small copy beside your name.
 5. Choose the size (1080p, 1440p or 4K) and frame rate, then select **Export MP4**.
 
 Videos are saved to Music\BC Visualizer. You can keep previewing, or use other pages, while a video renders; **Cancel** stops it.

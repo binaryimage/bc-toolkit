@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(BCVisualizer VERSION 1.2.0)
+project(BCVisualizer VERSION 1.3.0)
 
 if(MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")

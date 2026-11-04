@@ -102,7 +102,7 @@ void Renderer::render (juce::Graphics& g, juce::Rectangle<float> r, const Frame&
         if (! look.fades) a = 1;
         auto ink = p.fg.withMultipliedAlpha (a);
         const float titleH = 64 * s, artistH = 30 * s;
-        float badge = look.cover.isValid() ? 150 * s : 0;
+        float badge = look.cover.isValid() && look.coverBadge ? 150 * s : 0;
         if (look.text == 0)
         {
             float margin = 80 * s;

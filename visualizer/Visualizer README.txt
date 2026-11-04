@@ -1,7 +1,7 @@
 BC Visualizer
 =============
 
-Turns a track into a music video for YouTube: 49 audio-reactive styles, your title and
+Turns a track into a music video for YouTube: 50 audio-reactive styles, your title and
 artist name, optional cover art, exported as an MP4 (H.264 video, AAC audio).
 
 Quick start
@@ -12,6 +12,7 @@ Quick start
 3. On the right, set the title (it defaults to the file name) and artist (binaryimage).
 4. Optional: Cover art... adds your artwork next to the title and, with Background set
    to "Cover art (dimmed)", behind the visuals too. You can also drop an image on the window.
+   Turn off "Cover next to title" to keep it as the background without the small copy by your name.
 5. Choose the size (1080p, 1440p or 4K) and frame rate, then Export MP4.
 
 Videos are saved to Music\BC Visualizer. You can keep previewing while one renders, and

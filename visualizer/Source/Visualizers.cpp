@@ -1535,6 +1535,137 @@ struct Moth : Viz   // a swarm of moths flying all over, each one crumbling into
     }
 };
 
+// ============================================================ 50
+
+struct Wormhole : Viz   // fly down an endless tube that swings up, down and all around, pulsing hard on every kick
+{
+    Trails tr;
+    double z = 0;                       // how far we've flown
+    float t = 0, punch = 0, roll = 0, spin = 0;
+    std::vector<double> waves;          // pulse fronts racing away down the tube (their z)
+    juce::String name() const override { return "Wormhole"; }
+    juce::String blurb() const override { return "Fly down an endless tube that swings up, down and all around. Every kick bulges it, flashes it and sends a wave of light racing ahead."; }
+    void reset() override { tr.clear(); z = 0; t = punch = roll = spin = 0; waves.clear(); }
+
+    // the tube's centre line: slow overlapping swings, so it never repeats the same bend
+    static float ox (double zz) { return (float) (4.2 * std::sin (zz * 0.061) + 2.4 * std::sin (zz * 0.0233 + 1.7) + 1.1 * std::sin (zz * 0.17 + 0.3)); }
+    static float oy (double zz) { return (float) (3.6 * std::sin (zz * 0.047 + 0.6) + 2.2 * std::cos (zz * 0.029) + 1.0 * std::sin (zz * 0.15 + 2.1)); }
+
+    void draw (Graphics& g, Rectangle<float> r, const Frame& f, const Palette& p, float k) override
+    {
+        tr.prepare (r, p, 0.42f);
+        const float dt = juce::jmin (0.1f, (float) f.dt);
+        t += dt;
+        if (f.onset) { punch = 1; waves.push_back (z + 0.8); }
+        punch = juce::jmax (0.0f, punch - dt * 3.2f);
+        const float speed = 7.0f + 16.0f * f.energy * k + 22.0f * punch;
+        z += speed * dt;
+        for (auto& w : waves) w += (speed + 40.0) * dt;
+        waves.erase (std::remove_if (waves.begin(), waves.end(), [this] (double w) { return w > z + 44; }), waves.end());
+
+        // roll: a slow corkscrew, leaning into the bends, jolted by the kick
+        spin += dt * (0.12f + 0.35f * f.mid * k);
+        const float lean = (ox (z + 4) - ox (z)) * 0.25f;
+        roll += ((lean + spin) - roll) * juce::jmin (1.0f, dt * 2);
+        const float rot = roll + punch * 0.25f * std::sin (t * 23);
+
+        Graphics gi (tr.img);
+        auto lr = r.withPosition (0, 0);
+        const auto c = lr.getCentre();
+        const float fov = lr.getHeight() * (0.62f + 0.22f * punch);       // the view lurches in on the kick
+        const float shakeX = (noise (t * 9, 1) - 0.5f) * 30 * punch * lr.getHeight() / 1080.0f;
+        const float shakeY = (noise (t * 9, 2) - 0.5f) * 30 * punch * lr.getHeight() / 1080.0f;
+        const double zc = z;
+        const float cx = ox (zc), cy = oy (zc);
+        const float aimX = (ox (zc + 2.5) - cx) / 2.5f, aimY = (oy (zc + 2.5) - cy) / 2.5f;   // the camera looks just ahead, so the far end swings round the screen
+        const float cr = std::cos (rot), sr = std::sin (rot);
+
+        auto project = [&] (float wx, float wy, double wz, bool& ok) {
+            float dz = (float) (wz - zc);
+            ok = dz > 0.35f;
+            float rx = wx - cx - aimX * dz, ry = wy - cy - aimY * dz;
+            float x = rx * cr - ry * sr, y = rx * sr + ry * cr;
+            float sc = fov / juce::jmax (0.35f, dz);
+            return Point<float> (c.x + shakeX + x * sc, c.y + shakeY + y * sc);
+        };
+
+        const int N = 56, far = 44;
+        const double first = std::floor (zc) + 1;
+        std::vector<std::array<Point<float>, 56>> rings;
+        std::vector<float> fade;
+        std::vector<bool> valid;
+        for (int i = far; i >= 0; --i)
+        {
+            const double rz = first + i;
+            const float d = (float) (rz - zc);
+            const int id = (int) rz;
+            // the wall: breathes with the bass, bulges on the kick, ripples with the spectrum round the ring
+            const float bulge = 1 + 0.35f * f.bass * k + 0.55f * punch * std::exp (-d * 0.12f);
+            float wave = 0;
+            for (double w : waves) wave = juce::jmax (wave, (float) std::exp (-std::pow ((rz - w) * 0.9, 2.0)));
+            std::array<Point<float>, 56> pts;
+            bool ok = true;
+            for (int j = 0; j < N; ++j)
+            {
+                float a = j * kTau / N;
+                float rip = 0.18f * band (f, (float) j / N) * k * std::sin (a * 3 + t * 2 + id * 0.4f);
+                float rad = bulge * (1 + rip + 0.25f * wave);
+                bool okj; pts[(size_t) j] = project (ox (rz) + std::cos (a) * rad, oy (rz) + std::sin (a) * rad, rz, okj);
+                ok = ok && okj;
+            }
+            float fog = std::pow (juce::jmax (0.0f, 1 - d / far), 1.4f);
+            float stripe = (id % 4 == 0) ? 1.0f : 0.45f;
+            float lit = juce::jmin (1.0f, fog * (stripe * (0.35f + 0.9f * band (f, d / far) * k) + wave * 1.2f + punch * 0.5f));
+            rings.push_back (pts); fade.push_back (lit); valid.push_back (ok);
+            if (! ok) continue;
+            Path ring;
+            ring.startNewSubPath (pts[0]);
+            for (int j = 1; j < N; ++j) ring.lineTo (pts[(size_t) j]);
+            ring.closeSubPath();
+            if (wave > 0.3f) { gi.setColour (p.fgA (0.12f * wave * fog)); gi.fillPath (ring); }
+            gi.setColour (p.fgA (lit));
+            gi.strokePath (ring, PathStrokeType (px (r, 1.0f + 3.5f * fog * (0.6f + wave + punch))));
+        }
+        // ribs running along the tube, drawn between neighbouring rings
+        for (size_t i = 1; i < rings.size(); ++i)
+        {
+            if (! valid[i] || ! valid[i - 1]) continue;
+            for (int j = 0; j < N; j += 4)
+            {
+                gi.setColour (p.fgA (fade[i] * 0.55f));
+                gi.drawLine ({ rings[i - 1][(size_t) j], rings[i][(size_t) j] }, px (r, 1.0f + fade[i] * 1.5f));
+            }
+        }
+        // streaks of light on the walls rushing past
+        for (int i = 0; i < far; ++i)
+        {
+            const double rz = first + i;
+            for (int s = 0; s < 3; ++s)
+            {
+                float a = hash ((int) rz, s, 7) * kTau, len = 0.5f + hash ((int) rz, s, 9) * 1.5f;
+                float rad = 0.97f;
+                bool o1, o2;
+                auto p1 = project (ox (rz) + std::cos (a) * rad, oy (rz) + std::sin (a) * rad, rz, o1);
+                auto p2 = project (ox (rz + len) + std::cos (a) * rad, oy (rz + len) + std::sin (a) * rad, rz + len, o2);
+                if (! o1 || ! o2) continue;
+                float fog = 1 - (float) (rz - zc) / far;
+                gi.setColour (p.fgA (fog * (0.3f + f.treble * k)));
+                gi.drawLine ({ p1, p2 }, px (r, 1.5f + 2.5f * fog));
+            }
+        }
+        // the light at the end of it, throbbing
+        {
+            bool ok; auto end = project (ox (zc + far), oy (zc + far), zc + far, ok);
+            float rad = (30 + 80 * f.bass * k + 120 * punch) * lr.getHeight() / 1080.0f;
+            juce::ColourGradient glow (p.fgA (0.5f + 0.5f * punch), end.x, end.y, p.fgA (0.0f), end.x + rad, end.y, true);
+            gi.setGradientFill (glow); gi.fillEllipse (end.x - rad, end.y - rad, rad * 2, rad * 2);
+        }
+        // a white-out flash on the hardest hits
+        if (punch > 0.7f) { gi.setColour (p.fgA ((punch - 0.7f) * 0.5f)); gi.fillAll(); }
+        tr.blit (g, r);
+    }
+};
+
 std::vector<std::unique_ptr<Viz>> makeAll()
 {
     std::vector<std::unique_ptr<Viz>> v;
@@ -1587,6 +1718,7 @@ std::vector<std::unique_ptr<Viz>> makeAll()
     v.push_back (std::make_unique<Clockwork>());
     v.push_back (std::make_unique<Aurora>());
     v.push_back (std::make_unique<Moth>());
+    v.push_back (std::make_unique<Wormhole>());
     return v;
 }
 }

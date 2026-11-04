@@ -115,6 +115,7 @@ public:
         toggle (fadesBtn, "Fade in and out", look.fades, [this] (bool b) { look.fades = b; });
         toggle (vignetteBtn, "Vignette and grain", look.vignette, [this] (bool b) { look.vignette = b; });
         toggle (progressBtn, "Progress line", look.progress, [this] (bool b) { look.progress = b; });
+        toggle (badgeBtn, "Cover next to title", look.coverBadge, [this] (bool b) { look.coverBadge = b; });
         coverBtn = makeButton ("Cover art...", [this] { chooseCover(); });
         clearCoverBtn = makeButton ("Clear", [this] { look.cover = {}; Settings::get().set ("videoCover", juce::String()); frameDirty = true; });
         exportBtn = makeButton ("Export MP4", [this] { startExport(); });
@@ -173,7 +174,7 @@ public:
         row (titleEd); row (artistEd); row (tintBox); row (bgBox); row (textBox); row (intensity, 26);
         auto cov = s.removeFromTop (30); coverBtn->setBounds (cov.removeFromLeft (cov.getWidth() * 2 / 3 - 4)); cov.removeFromLeft (8); clearCoverBtn->setBounds (cov);
         s.removeFromTop (4);
-        fadesBtn.setBounds (s.removeFromTop (24)); vignetteBtn.setBounds (s.removeFromTop (24)); progressBtn.setBounds (s.removeFromTop (24));
+        fadesBtn.setBounds (s.removeFromTop (24)); vignetteBtn.setBounds (s.removeFromTop (24)); progressBtn.setBounds (s.removeFromTop (24)); badgeBtn.setBounds (s.removeFromTop (24));
         s.removeFromTop (6);
         auto two = s.removeFromTop (18);
         labels[li]->setBounds (two.removeFromLeft (two.getWidth() / 2)); labels[li + 1]->setBounds (two.withTrimmedLeft (8));
@@ -394,6 +395,7 @@ public:
         look.fades = p.flag ("videoFades", true);
         look.vignette = p.flag ("videoVignette", true);
         look.progress = p.flag ("videoProgress", false);
+        look.coverBadge = p.flag ("videoCoverBadge", true);
         look.intensity = (float) p.dbl ("videoIntensity", 1.0);
         sizeIndex = juce::jlimit (0, (int) bcv::videoSizes().size() - 1, p.num ("videoSize", 0));
         fps60 = p.flag ("videoFps60", false);
@@ -405,7 +407,7 @@ public:
         auto& p = Settings::get().props();
         p.setValue ("videoStyle", look.style); p.setValue ("videoArtist", look.artist); p.setValue ("videoTint", look.tint);
         p.setValue ("videoBackground", look.background); p.setValue ("videoText", look.text); p.setValue ("videoFades", look.fades);
-        p.setValue ("videoVignette", look.vignette); p.setValue ("videoProgress", look.progress); p.setValue ("videoIntensity", (double) look.intensity);
+        p.setValue ("videoVignette", look.vignette); p.setValue ("videoProgress", look.progress); p.setValue ("videoCoverBadge", look.coverBadge); p.setValue ("videoIntensity", (double) look.intensity);
         p.setValue ("videoSize", sizeIndex); p.setValue ("videoFps60", fps60);
         p.saveIfNeeded();
     }
@@ -447,7 +449,7 @@ public:
     juce::Slider position, intensity;
     juce::TextEditor titleEd, artistEd;
     juce::ComboBox tintBox, bgBox, textBox, sizeBox, fpsBox;
-    juce::ToggleButton fadesBtn, vignetteBtn, progressBtn;
+    juce::ToggleButton fadesBtn, vignetteBtn, progressBtn, badgeBtn;
     ProgressPill progress;
     std::unique_ptr<juce::FileChooser> chooser;
     bool playing = false, scrubbing = false, frameDirty = true;

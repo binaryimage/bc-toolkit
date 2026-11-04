@@ -15,6 +15,7 @@ namespace bcv
         bool fades = true;          // fade in from black and out at the end
         bool vignette = true;       // darker corners + light film grain
         bool progress = false;      // thin progress line along the bottom
+        bool coverBadge = true;     // the cover art next to the title (bottom-left text only)
         float intensity = 1.0f;     // 0.25 .. 2
     };
 

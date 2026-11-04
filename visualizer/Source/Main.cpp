@@ -131,6 +131,7 @@ public:
         toggle (fadesBtn, "Fade in and out", look.fades, [this] (bool b) { look.fades = b; });
         toggle (vignetteBtn, "Vignette and grain", look.vignette, [this] (bool b) { look.vignette = b; });
         toggle (progressBtn, "Progress line", look.progress, [this] (bool b) { look.progress = b; });
+        toggle (badgeBtn, "Cover next to title", look.coverBadge, [this] (bool b) { look.coverBadge = b; });
         coverBtn = makeButton ("Cover art...", [this] { chooseCover(); });
         clearCoverBtn = makeButton ("Clear", [this] { look.cover = {}; prefs().setValue ("cover", juce::String()); redrawIfPaused(); });
         exportBtn = makeButton ("Export MP4", [this] { startExport(); });
@@ -195,7 +196,7 @@ public:
         row (titleEd); row (artistEd); row (tintBox); row (bgBox); row (textBox); row (intensity, 26);
         auto cov = s.removeFromTop (30); coverBtn->setBounds (cov.removeFromLeft (cov.getWidth() * 2 / 3 - 4)); cov.removeFromLeft (8); clearCoverBtn->setBounds (cov);
         s.removeFromTop (6);
-        fadesBtn.setBounds (s.removeFromTop (26)); vignetteBtn.setBounds (s.removeFromTop (26)); progressBtn.setBounds (s.removeFromTop (26));
+        fadesBtn.setBounds (s.removeFromTop (26)); vignetteBtn.setBounds (s.removeFromTop (26)); progressBtn.setBounds (s.removeFromTop (26)); badgeBtn.setBounds (s.removeFromTop (26));
         s.removeFromTop (8);
         auto two = s.removeFromTop (18);
         labels[(size_t) li]->setBounds (two.removeFromLeft (two.getWidth() / 2)); labels[(size_t) li + 1]->setBounds (two.withTrimmedLeft (8));
@@ -271,7 +272,7 @@ private:
     juce::Slider position, intensity;
     juce::TextEditor titleEd, artistEd;
     juce::ComboBox tintBox, bgBox, textBox, sizeBox, fpsBox;
-    juce::ToggleButton fadesBtn, vignetteBtn, progressBtn;
+    juce::ToggleButton fadesBtn, vignetteBtn, progressBtn, badgeBtn;
     ProgressPill progress;
     std::unique_ptr<juce::FileChooser> chooser;
 
@@ -397,6 +398,7 @@ private:
         look.fades = p.getBoolValue ("fades", true);
         look.vignette = p.getBoolValue ("vignette", true);
         look.progress = p.getBoolValue ("progress", false);
+        look.coverBadge = p.getBoolValue ("coverBadge", true);
         look.intensity = (float) p.getDoubleValue ("intensity", 1.0);
         sizeIndex = juce::jlimit (0, (int) videoSizes().size() - 1, p.getIntValue ("size", 0));
         fps60 = p.getBoolValue ("fps60", false);
@@ -408,7 +410,7 @@ private:
         auto& p = prefs();
         p.setValue ("style", look.style); p.setValue ("artist", look.artist); p.setValue ("tint", look.tint);
         p.setValue ("background", look.background); p.setValue ("text", look.text); p.setValue ("fades", look.fades);
-        p.setValue ("vignette", look.vignette); p.setValue ("progress", look.progress); p.setValue ("intensity", (double) look.intensity);
+        p.setValue ("vignette", look.vignette); p.setValue ("progress", look.progress); p.setValue ("coverBadge", look.coverBadge); p.setValue ("intensity", (double) look.intensity);
         p.setValue ("size", sizeIndex); p.setValue ("fps60", fps60);
     }
 
