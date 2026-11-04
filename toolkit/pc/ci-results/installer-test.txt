@@ -22,8 +22,8 @@ PASS  [64-bit] channel names come from the real interface   (Test sine 1)
 PASS  [64-bit] both create 8+8 buffers
 PASS  [64-bit] a different buffer size is refused
 PASS  [64-bit] both start
-PASS  [64-bit] both get callbacks (time-info host and plain host)   (282 / 282)
-PASS  [64-bit] app A hears input 1   (0.499989)
+PASS  [64-bit] both get callbacks (time-info host and plain host)   (281 / 281)
+PASS  [64-bit] app A hears input 1   (0.500000)
 PASS  [64-bit] app B hears app A's output through the mix   (0.250000)
 PASS  [64-bit] reported output latency includes Split's two extra buffers   (768)
 PASS  [64-bit] can't change the rate under another app
@@ -41,8 +41,8 @@ PASS  [32-bit] channel names come from the real interface   (Test sine 1)
 PASS  [32-bit] both create 8+8 buffers
 PASS  [32-bit] a different buffer size is refused
 PASS  [32-bit] both start
-PASS  [32-bit] both get callbacks (time-info host and plain host)   (282 / 282)
-PASS  [32-bit] app A hears input 1   (0.499996)
+PASS  [32-bit] both get callbacks (time-info host and plain host)   (281 / 282)
+PASS  [32-bit] app A hears input 1   (0.499989)
 PASS  [32-bit] app B hears app A's output through the mix   (0.250000)
 PASS  [32-bit] reported output latency includes Split's two extra buffers   (768)
 PASS  [32-bit] can't change the rate under another app
