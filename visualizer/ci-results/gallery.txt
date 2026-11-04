@@ -1,1 +1,1 @@
-gallery: 52 images, exit 0
+gallery: 83 images, exit 0

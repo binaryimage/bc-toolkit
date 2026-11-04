@@ -47,3 +47,34 @@
 47. Clockwork - Meshing gears driven by the low end.
 48. Aurora - Curtains of light that ripple with the high end.
 49. Moth - A swarm of moths flying all over, each one crumbling into dust. The kick scatters them and makes them flap; the highs shake the dust loose.
+50. Wormhole - Fly down an endless tube that swings up, down and all around. Every kick bulges it, flashes it and sends a wave of light racing ahead.
+51. Julia Bloom - A Julia set that blooms and folds: the low mids steer its shape, the sub breathes it, mid hits twist it.
+52. Mandelbrot Dive - An endless dive into the Mandelbrot set. Loudness sets the speed; the bands ripple with the bass.
+53. Burning Ship - The Burning Ship fractal, drifting and zooming with the sub; presence hits jolt the view.
+54. Kaliset - The Kali fractal: endless filaments and cells. The sub and bass push it apart, the highs bring out the fine threads.
+55. Fold Crystal - A kaleidoscopic fold fractal that grows crystals. Mids and upper mids set the folds, the low mids twist every layer.
+56. Feedback Loop - Video feedback: each frame falls back into itself, turning and zooming. The waveform feeds it; tails stretch the echo.
+57. Hyper Tunnel - A checkered tunnel rushing at you. Bass hits bulge it, the low mids twist it, the number of panels follows the busyness.
+58. Hypno Spiral - A log spiral that pulls you in forever. More arms when it's busy; the sub throbs the zoom.
+59. Kaleido Smoke - Smoke folded through a kaleidoscope. Each ring outward follows a higher range; sections change the number of mirrors.
+60. Liquid Marble - Noise warped through itself twice, like oil and marble. The mids stir it, the low mids twist it deeper.
+61. Plasma - Old-school plasma made of four waves, one each for the bass, mids, upper mids and highs.
+62. Moire - Three sets of rings interfering. The bass, mids and highs each move one centre; the upper mids tighten the rings.
+63. Coral Growth - Reaction-diffusion: patterns grow like coral or skin. Every range that jumps seeds new growth at its own height.
+64. Lava - 32 blobs, one for each range, melting into each other. Each one swells with its range and flares when it jumps.
+65. Cells - 32 living cells, one per range. Each glows with its range and flashes when it jumps; the walls shiver with the highs.
+66. Cymatics - Sand on a vibrating plate. The loudest range picks the pattern, so it reshapes itself as the sound moves around.
+67. Clifford Silk - A Clifford attractor drawn from 60,000 points like silk. Each quarter of the ranges bends one of its four controls.
+68. Fractal Flame - A fractal flame from four drifting maps with swirl and sine twists. Each map listens to a different part of the spectrum.
+69. Strange Attractor - The Lorenz attractor tracing its butterfly. The sub and bass push its chaos, the presence range bends its shape.
+70. Fractal Bloom - Six fractal trees grown from the centre into a flower. The mids open the branches, the low mids sway them, the air lights the tips.
+71. Sierpinski Pulse - Sierpinski triangles where every level turns and pulses with its own band of ranges.
+72. Snowflake - Nested Koch snowflakes spinning against each other, each breathing with a different part of the sound.
+73. Dragon Fold - The dragon curve folding and unfolding like paper. The bass bends the folds, sections flip which way it grows.
+74. Pythagoras Tree - A tree of squares leaning in the wind of the mids, its crown shivering with the highs.
+75. Flower of Life - Rings of overlapping circles turning in opposite directions; each ring outward follows a higher range.
+76. Maurer Rose - Two Maurer roses: string-art petals whose counts shift with the low and the high ranges.
+77. Droste - Frames inside frames inside frames, zooming in forever. The low mids twist each level; sections swap squares and circles.
+78. Tesseract - A four-dimensional cube turning through itself. Bass, mids and highs each spin a different pair of axes.
+79. Third Eye - An eye with an iris of 128 spectrum fibres. It glances with the panning and pitch, dilates in silence, blinks on big changes; six small eyes orbit it.
+80. Mycelium - A fungal network spreading through the dark. Every range that jumps sprouts new threads from its own height; the highs make them branch.
