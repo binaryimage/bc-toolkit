@@ -1,8 +1,9 @@
 
-test-1080p30.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-1080p30.mp4 14559815 bytes, 15.3 s
-test-1440p60.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-1440p60.mp4 14100830 bytes, 12.1 s
-test-2160p30.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-2160p30.mp4 5675819 bytes, 10.8 s
-BC-Visualizer-all-49-styles.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-all-49-styles.mp4 164365787 bytes, 131.2 s
-BC-Visualizer-moth-multicolour.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-moth-multicolour.mp4 29113846 bytes, 44.3 s
-BC-Visualizer-moth-ice.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-moth-ice.mp4 28763456 bytes, 43.5 s
+test-1080p30.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-1080p30.mp4 14559815 bytes, 15.8 s
+test-1440p60.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-1440p60.mp4 14100830 bytes, 12.0 s
+test-2160p30.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-2160p30.mp4 5675819 bytes, 11.1 s
+BC-Visualizer-all-50-styles.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-all-50-styles.mp4 168067106 bytes, 129.5 s
+BC-Visualizer-moth-multicolour.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-moth-multicolour.mp4 29113846 bytes, 42.1 s
+BC-Visualizer-moth-ice.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-moth-ice.mp4 28763456 bytes, 43.6 s
+BC-Visualizer-wormhole-multicolour.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-wormhole-multicolour.mp4 29660884 bytes, 32.1 s
 check-640x360.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\check-640x360.mp4 1049452 bytes, 0.7 s
