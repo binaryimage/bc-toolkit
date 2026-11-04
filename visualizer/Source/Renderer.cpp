@@ -3,16 +3,16 @@
 
 namespace bcv
 {
-juce::StringArray tintNames() { return { "White", "Ice", "Amber", "Red", "Phosphor green", "Violet" }; }
+juce::StringArray tintNames() { return { "White", "Ice", "Amber", "Red", "Phosphor green", "Violet", "Multi-colour" }; }
 juce::StringArray backgroundNames() { return { "Black", "Cover art (dimmed)", "Paper" }; }
 juce::StringArray textNames() { return { "Bottom left", "Centred", "Hidden" }; }
 
 Palette paletteFor (const Look& l)
 {
     static const juce::Colour tints[] = { juce::Colour (0xffffffff), juce::Colour (0xffcfe6ff), juce::Colour (0xffffc46e),
-                                          juce::Colour (0xffff4a3d), juce::Colour (0xff86ffa6), juce::Colour (0xffcaa6ff) };
+                                          juce::Colour (0xffff4a3d), juce::Colour (0xff86ffa6), juce::Colour (0xffcaa6ff), juce::Colour (0xffffffff) };
     Palette p;
-    p.fg = tints[juce::jlimit (0, 5, l.tint)];
+    p.fg = tints[juce::jlimit (0, kMultiColour, l.tint)];
     if (l.background == 2) { p.bg = juce::Colour (0xffe8e4dc); p.fg = juce::Colour (0xff141414); }
     return p;
 }
@@ -59,6 +59,20 @@ void Renderer::render (juce::Graphics& g, juce::Rectangle<float> r, const Frame&
         g.setColour (p.bg); g.fillRect (r);
     }
 
+    if (look.tint == kMultiColour)
+    {
+        auto size = r.toNearestInt().withZeroOrigin();
+        if (! layer.isValid() || layer.getBounds() != size) layer = juce::Image (juce::Image::ARGB, juce::jmax (1, size.getWidth()), juce::jmax (1, size.getHeight()), true);
+        {
+            juce::Graphics gl (layer);
+            gl.fillAll (juce::Colours::black);
+            Palette vp;   // white on black; the colour comes afterwards
+            viz.draw (gl, size.toFloat(), f, vp, look.intensity);
+        }
+        colourise (f, look.background == 2);
+        g.drawImageAt (layer, (int) r.getX(), (int) r.getY());
+    }
+    else
     {
         juce::Graphics::ScopedSaveState ss (g);
         g.reduceClipRegion (r.toNearestInt());
@@ -134,6 +148,48 @@ void Renderer::render (juce::Graphics& g, juce::Rectangle<float> r, const Frame&
     {
         double fade = juce::jmin (1.0, f.t / 1.5, (f.duration - f.t) / 2.0);
         if (fade < 1) { g.setColour (juce::Colours::black.withAlpha ((float) juce::jlimit (0.0, 1.0, 1 - fade))); g.fillRect (r); }
+    }
+}
+
+void Renderer::colourise (const Frame& f, bool paper)
+{
+    const int w = layer.getWidth(), h = layer.getHeight();
+    if (fieldSize != layer.getBounds())
+    {
+        // hue = angle round the centre + distance out from it: a rainbow wheel with a spiral twist
+        fieldSize = layer.getBounds();
+        hueField.assign ((size_t) w * (size_t) h, 0.0f);
+        const float cx = w * 0.5f, cy = h * 0.5f, norm = 1.0f / (float) juce::jmax (1, h);
+        for (int y = 0; y < h; ++y)
+            for (int x = 0; x < w; ++x)
+            {
+                float dx = x - cx, dy = y - cy;
+                hueField[(size_t) y * (size_t) w + (size_t) x] = std::atan2 (dy, dx) / juce::MathConstants<float>::twoPi
+                                                                 + std::sqrt (dx * dx + dy * dy) * norm * 0.9f;
+            }
+    }
+    constexpr int kLut = 1024;
+    juce::uint8 lr[kLut], lg[kLut], lb[kLut];
+    for (int i = 0; i < kLut; ++i)
+    {
+        auto c = juce::Colour::fromHSV ((float) i / kLut, paper ? 1.0f : 0.85f, paper ? 0.72f : 1.0f, 1.0f);
+        lr[i] = c.getRed(); lg[i] = c.getGreen(); lb[i] = c.getBlue();
+    }
+    // the wheel turns slowly, kicks forward on beats, and drifts faster when the track is loud
+    const float offset = (float) std::fmod (f.t * (0.04 + 0.05 * f.energy) + f.beat * 0.07, 1.0);
+    juce::Image::BitmapData bd (layer, juce::Image::BitmapData::readWrite);
+    for (int y = 0; y < h; ++y)
+    {
+        auto* line = bd.getLinePointer (y);
+        const float* hf = hueField.data() + (size_t) y * (size_t) w;
+        for (int x = 0; x < w; ++x)
+        {
+            auto* px = reinterpret_cast<juce::PixelARGB*> (line + (size_t) x * (size_t) bd.pixelStride);
+            const juce::uint32 lum = juce::jmax (px->getRed(), px->getGreen(), px->getBlue());
+            float hv = hf[x] + offset;
+            const int i = (int) ((hv - std::floor (hv)) * kLut) & (kLut - 1);
+            px->setARGB ((juce::uint8) lum, (juce::uint8) (lr[i] * lum / 255), (juce::uint8) (lg[i] * lum / 255), (juce::uint8) (lb[i] * lum / 255));
+        }
     }
 }
 

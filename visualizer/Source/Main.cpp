@@ -1,4 +1,4 @@
-// BC Visualizer: turn a track into a YouTube-ready MP4 with one of 48 audio-reactive styles.
+// BC Visualizer: turn a track into a YouTube-ready MP4 with one of its audio-reactive styles.
 #include "Session.h"
 #include "Common/Look.h"
 #include "Common/Widgets.h"
@@ -468,6 +468,30 @@ static int runGallery (const juce::File& dir)
     writePng (sheet, dir.getChildFile ("00-all-styles.png"));
     dir.getChildFile ("styles.txt").replaceWithText (index);
 
+    // the same contact sheet in Multi-colour, plus the newest style full size in it
+    {
+        juce::Image multi (juce::Image::RGB, cols * tw, rows * th, true, juce::SoftwareImageType());
+        juce::Graphics gm (multi);
+        gm.fillAll (juce::Colours::black);
+        auto fresh = makeAll();
+        for (size_t i = 0; i < fresh.size(); ++i)
+        {
+            Analyzer an; Renderer rr; Frame fr; Look look;
+            look.title = fresh[i]->name(); look.fades = false; look.tint = kMultiColour;
+            juce::Image img (juce::Image::ARGB, W, H, true, juce::SoftwareImageType());
+            for (int f = 0; f <= 120; ++f)
+            {
+                an.analyse (t.audio, Track::rate, f / 30.0, 30, fr);
+                fr.duration = t.seconds(); fr.index = f;
+                juce::Graphics g (img);
+                rr.render (g, img.getBounds().toFloat(), fr, *fresh[i], look);
+            }
+            if (i + 1 == fresh.size()) writePng (img, dir.getChildFile (fresh[i]->name().removeCharacters (" &/").toLowerCase() + "-multicolour.png"));
+            gm.drawImage (img, juce::Rectangle<float> ((float) ((int) i % cols * tw), (float) ((int) i / cols * th), (float) tw, (float) th));
+        }
+        writePng (multi, dir.getChildFile ("00-all-styles-multicolour.png"));
+    }
+
     // the app itself
     {
         MainComponent mc;
@@ -485,7 +509,7 @@ static int runExport (const juce::StringArray& args, int at)
     auto opt = [&] (const char* name, int def) { int i = args.indexOf (name); return i >= 0 && i + 1 < args.size() ? args[i + 1].getIntValue() : def; };
     int si = args.indexOf ("--seconds");
     double secs = juce::jmax (1.0, si >= 0 && si + 1 < args.size() ? args[si + 1].getDoubleValue() : 12.0);
-    int style = opt ("--style", 0), w = opt ("--width", 1920), h = opt ("--height", 1080), fps = opt ("--fps", 30);
+    int style = opt ("--style", 0), w = opt ("--width", 1920), h = opt ("--height", 1080), fps = opt ("--fps", 30), tint = opt ("--tint", 0);
     int ci = args.indexOf ("--cycle");
     double cycle = juce::jmax (0.25, ci >= 0 && ci + 1 < args.size() ? args[ci + 1].getDoubleValue() : 4.0);
     Track t;
@@ -493,8 +517,8 @@ static int runExport (const juce::StringArray& args, int at)
     juce::String err;
     if (ai >= 0 && ai + 1 < args.size()) { if (! loadTrack (juce::File (args[ai + 1].unquoted()), t, err)) { juce::Logger::writeToLog (err); return 2; } }
     else setDemoTrack (t, secs);
-    Look look; look.style = style;
-    look.title = style < 0 ? juce::String() : makeAll()[(size_t) juce::jlimit (0, 47, style)]->name();
+    Look look; look.style = style; look.tint = juce::jlimit (0, kMultiColour, tint);
+    look.title = style < 0 ? juce::String() : makeAll()[(size_t) juce::jlimit (0, (int) makeAll().size() - 1, style)]->name();
     ExportJob job (t, look, out, w, h, fps, cycle);
     bool ok = job.runNow();
     juce::String report = (ok ? "OK " : "FAILED ") + out.getFullPathName() + " " + juce::String (out.getSize()) + " bytes, "

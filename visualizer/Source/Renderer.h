@@ -8,7 +8,7 @@ namespace bcv
     {
         int style = 0;
         juce::String title, artist { "binaryimage" };
-        int tint = 0;               // see tintNames()
+        int tint = 0;               // see tintNames(); kMultiColour paints each style in a turning rainbow
         int background = 0;         // 0 black, 1 cover image (dimmed), 2 paper
         juce::Image cover;          // optional artwork
         int text = 0;               // 0 bottom left, 1 centred, 2 hidden
@@ -18,6 +18,7 @@ namespace bcv
         float intensity = 1.0f;     // 0.25 .. 2
     };
 
+    constexpr int kMultiColour = 6;
     juce::StringArray tintNames();
     juce::StringArray backgroundNames();
     juce::StringArray textNames();
@@ -33,6 +34,12 @@ namespace bcv
         juce::Rectangle<int> backdropSize;
         juce::Image backdropSource;
         void makeBackdrop (juce::Rectangle<int> size, const juce::Image& cover);
+        // multi-colour: the style is drawn white on black into a layer, then each pixel's brightness picks up
+        // a colour from a rainbow that spirals out from the centre and turns with the music
+        juce::Image layer;
+        std::vector<float> hueField;
+        juce::Rectangle<int> fieldSize;
+        void colourise (const Frame& f, bool paper);
     };
 
     /** Synthetic stereo demo track (kick, snare, hats, bass, pad) used for galleries and tests. */

@@ -1,7 +1,7 @@
 BC Visualizer
 =============
 
-Turns a track into a music video for YouTube: 48 audio-reactive styles, your title and
+Turns a track into a music video for YouTube: 49 audio-reactive styles, your title and
 artist name, optional cover art, exported as an MP4 (H.264 video, AAC audio).
 
 Quick start
@@ -24,5 +24,7 @@ Tips
 - 1440p uploads get YouTube's better encoder even for 1080p viewers, so they look sharper.
 - 60 fps looks smoother on fast styles (Warp Field, Tunnel, Glitch) but takes twice as long
   to render.
-- Colour changes the ink: White, Ice, Amber, Red, Phosphor green or Violet.
+- Colour changes the ink: White, Ice, Amber, Red, Phosphor green, Violet or Multi-colour.
+  Multi-colour paints any style in a rainbow that spirals out from the centre and turns with
+  the music. Try it on Moth (the newest style), Kaleidoscope or Mandala.
   Background "Paper" gives you black ink on off-white.

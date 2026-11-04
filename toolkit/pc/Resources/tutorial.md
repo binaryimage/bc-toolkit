@@ -258,7 +258,7 @@ The patch books contain 147 patches: 37 for the Behringer 2600, 25 for the Moog 
 
 ## Video
 
-The Video page is BC Visualizer built into Toolkit. It turns a track into a music video for YouTube: one of 48 audio-reactive styles, your title and artist name, and optional cover art, exported as an MP4 (H.264 video, AAC audio).
+The Video page is BC Visualizer built into Toolkit. It turns a track into a music video for YouTube: one of 49 audio-reactive styles, your title and artist name, and optional cover art, exported as an MP4 (H.264 video, AAC audio).
 
 1. Select **Open track...**, drop a WAV, AIFF, FLAC, MP3 or OGG file on the page, or send a take from Record or a file from the sample library with **To video**.
 2. Choose a style on the left. Press Space to preview it with sound; the up and down arrow keys step through the styles.
@@ -271,7 +271,7 @@ Videos are saved to Music\BC Visualizer. You can keep previewing, or use other p
 - **Intensity** sets how strongly the visuals react. Lower it for ambient tracks; raise it for quiet masters.
 - Upload at 1440p even for 1080p viewers: YouTube uses its better encoder for 1440p uploads.
 - 60 fps looks smoother on fast styles (Warp Field, Tunnel, Glitch) but takes twice as long to render.
-- **Colour** changes the ink: White, Ice, Amber, Red, Phosphor green or Violet. The **Paper** background gives black ink on off-white.
+- **Colour** changes the ink: White, Ice, Amber, Red, Phosphor green, Violet or **Multi-colour**. Multi-colour paints any style in a rainbow that spirals out from the centre and turns with the music; try it on **Moth**, Kaleidoscope or Mandala. The **Paper** background gives black ink on off-white.
 
 The standalone BC Visualizer app still works and shares the same styles.
 

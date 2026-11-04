@@ -1,4 +1,4 @@
-// The 40 BC Visualizer styles. Each one is a small class: state it needs between frames, and draw().
+// The BC Visualizer styles. Each one is a small class: state it needs between frames, and draw().
 #include "Visualizers.h"
 
 namespace bcv
@@ -1353,6 +1353,214 @@ struct Aurora : Viz
 };
 }
 
+// ============================================================ 49
+
+struct Moth : Viz   // a moth drawn in light, flapping on the kick, shedding dust, with echoes tunnelling out behind it
+{
+    Trails tr;
+    struct Mote { float x, y, vx, vy, life, size; };
+    std::vector<Mote> dust;
+    juce::Random rnd { 1999 };
+    float t = 0, phase = 0, punch = 0;
+    juce::String name() const override { return "Moth"; }
+    juce::String blurb() const override { return "A moth drawn in light: wings beat with the kick, patterns flow out of its body, dust and echoes trail off it."; }
+    void reset() override { tr.clear(); dust.clear(); t = phase = punch = 0; }
+
+    static Path forewing()
+    {
+        Path w;   // long and triangular, the way a moth holds them
+        w.startNewSubPath (4, -22);
+        w.cubicTo (110, -122, 250, -192, 345, -178);
+        w.cubicTo (362, -120, 322, -40, 270, -6);
+        w.cubicTo (180, 10, 70, 14, 6, 4);
+        w.closeSubPath();
+        return w;
+    }
+    static Path hindwing()
+    {
+        Path w;
+        w.startNewSubPath (6, 4);
+        w.cubicTo (90, 10, 210, 20, 236, 70);
+        w.cubicTo (252, 130, 190, 172, 130, 166);
+        w.cubicTo (70, 160, 20, 100, 6, 30);
+        w.closeSubPath();
+        return w;
+    }
+
+    void draw (Graphics& g, Rectangle<float> r, const Frame& f, const Palette& p, float k) override
+    {
+        tr.prepare (r, p, 0.2f);
+        const float dt = (float) f.dt;
+        t += dt;
+        if (f.onset) punch = 1;
+        punch = juce::jmax (0.0f, punch - dt * 5);
+        phase += dt * (1.6f + 9.0f * f.bass * k) + punch * dt * 6;
+        Graphics gi (tr.img);
+        auto lr = r.withPosition (0, 0);
+        const float u = lr.getHeight() / 1080.0f;
+        const float sc = u * (1.12f + 0.12f * f.energy * k + 0.06f * punch);
+        const Point<float> c (lr.getCentreX() + std::sin (t * 0.6f) * 24 * u, lr.getCentreY() + 40 * u + std::cos (t * 0.9f) * 14 * u);
+        const float tilt = std::sin (t * 0.4f) * 0.07f;
+        const float open = 1.0f - 0.42f * (0.5f - 0.5f * std::cos (phase)) - 0.15f * punch;   // wings fold toward the body on the beat
+        const float lw = px (r, 2.2f);
+
+        // the lamp it's drawn to: a soft glow and faint rays behind the body (kept dim, the trails build it up)
+        {
+            const Point<float> lamp (c.x, c.y - 30 * u);
+            float rad = (60 + 110 * f.bass * k + 50 * punch) * u;
+            juce::ColourGradient glow (p.fgA (0.07f + 0.06f * punch), lamp.x, lamp.y, p.fgA (0.0f), lamp.x + rad * 1.8f, lamp.y, true);
+            gi.setGradientFill (glow);
+            gi.fillEllipse (lamp.x - rad * 1.8f, lamp.y - rad * 1.8f, rad * 3.6f, rad * 3.6f);
+            for (int i = 0; i < 24; ++i)
+            {
+                float a = i * kTau / 24 + t * 0.15f, len = (160 + 320 * band (f, i / 24.0f) * k) * u;
+                gi.setColour (p.fgA (0.03f + 0.05f * band (f, i / 24.0f)));
+                gi.drawLine (lamp.x, lamp.y, lamp.x + std::cos (a) * len, lamp.y + std::sin (a) * len, px (r, 1.2f));
+            }
+        }
+
+        auto place = [&] (float side, float s, float rot) {
+            return juce::AffineTransform::scale (side * open * s, s).rotated (tilt + rot).translated (c.x, c.y);
+        };
+        const Path fw = forewing(), hw = hindwing();
+
+        // echoes tunnelling outward, turning a little each ring
+        for (int e = 5; e >= 1; --e)
+        {
+            float grow = 1 + e * (0.22f + 0.12f * f.energy * k);
+            float rot = std::sin (t * 0.5f + e) * 0.06f * e;
+            gi.setColour (p.fgA ((0.4f - e * 0.06f) * (0.6f + f.mid)));
+            for (float side : { 1.0f, -1.0f })
+            {
+                Path a = fw, b = hw;
+                a.applyTransform (place (side, sc * grow, rot)); b.applyTransform (place (side, sc * grow, rot));
+                gi.strokePath (a, PathStrokeType (px (r, 1.4f))); gi.strokePath (b, PathStrokeType (px (r, 1.4f)));
+            }
+        }
+
+        // the wings
+        for (float side : { 1.0f, -1.0f })
+        {
+            const auto tf = place (side, sc, 0);
+            for (const Path* src : { &fw, &hw })
+            {
+                Path w = *src; w.applyTransform (tf);
+                gi.setColour (p.fgA (0.05f + 0.1f * f.treble * k));
+                gi.fillPath (w);
+                // contour bands flowing out of the body, like scale patterns that won't sit still
+                for (int band_ = 0; band_ < 5; ++band_)
+                {
+                    float q = std::fmod (t * (0.25f + 0.5f * f.mid * k) + band_ / 5.0f, 1.0f);
+                    Path cb = *src;
+                    cb.applyTransform (juce::AffineTransform::scale (q, q).translated (6 * (1 - q), 0));
+                    cb.applyTransform (tf);
+                    gi.setColour (p.fgA (0.5f * std::sin (q * kPi)));
+                    gi.strokePath (cb, PathStrokeType (px (r, 1.2f)));
+                }
+                // veins from the root to the edge
+                const float len = src->getLength();
+                for (int v = 0; v < 9; ++v)
+                {
+                    auto edge = src->getPointAlongPath (len * (0.12f + v * 0.075f));
+                    float wob = (noise (v * 1.7f, t * 1.5f, side) - 0.5f) * 30 * f.treble * k;
+                    Path vein;
+                    vein.startNewSubPath (8, src == &fw ? -4.0f : 12.0f);
+                    vein.quadraticTo (edge.x * 0.5f + wob, edge.y * 0.5f - 10, edge.x, edge.y);
+                    vein.applyTransform (tf);
+                    gi.setColour (p.fgA (0.35f));
+                    gi.strokePath (vein, PathStrokeType (px (r, 1.0f)));
+                }
+                gi.setColour (p.fg);
+                gi.strokePath (w, PathStrokeType (lw, PathStrokeType::curved, PathStrokeType::rounded));
+            }
+            // eye spots on the hindwings, swelling with the mids; a small ring on each forewing
+            auto eye = Point<float> (140, 92).transformedBy (tf);
+            for (int ring = 0; ring < 4; ++ring)
+            {
+                float rr = (10 + ring * 10) * sc * (1 + f.mid * 0.8f * k) * (ring == 3 ? 1 + 0.2f * punch : 1);
+                gi.setColour (p.fgA (ring == 0 ? 0.9f : 0.7f - ring * 0.12f));
+                if (ring == 0) gi.fillEllipse (eye.x - rr * open, eye.y - rr, rr * 2 * open, rr * 2);
+                else gi.drawEllipse (eye.x - rr * open, eye.y - rr, rr * 2 * open, rr * 2, px (r, 1.6f));
+            }
+            auto spot = Point<float> (215, -100).transformedBy (tf);
+            float sr = 16 * sc * (1 + f.treble * k);
+            gi.setColour (p.fgA (0.8f)); gi.drawEllipse (spot.x - sr * open, spot.y - sr, sr * 2 * open, sr * 2, px (r, 1.4f));
+
+            // dust shaken off the wing edges
+            int spawn = (int) (f.treble * k * 5 + punch * 10);
+            for (int i = 0; i < spawn && dust.size() < 900; ++i)
+            {
+                const Path& src = rnd.nextBool() ? fw : hw;
+                auto pt = src.getPointAlongPath (src.getLength() * rnd.nextFloat()).transformedBy (tf);
+                float dx = pt.x - c.x, dy = pt.y - c.y, d = juce::jmax (1.0f, std::sqrt (dx * dx + dy * dy));
+                float sp = (40 + rnd.nextFloat() * 160) * u;
+                dust.push_back ({ pt.x, pt.y, dx / d * sp, dy / d * sp - 20 * u, 1.0f, (1 + rnd.nextFloat() * 2.5f) * u });
+            }
+        }
+
+        // body: thorax, segmented abdomen, head and feathered antennae
+        {
+            auto bt = juce::AffineTransform::scale (sc, sc).rotated (tilt).translated (c.x, c.y);
+            Path body;
+            body.addEllipse (-24, -62, 48, 72);    // thorax
+            body.addEllipse (-17, 2, 34, 132);     // abdomen
+            body.addEllipse (-15, -86, 30, 28);    // head
+            body.applyTransform (bt);
+            gi.setColour (p.bg); gi.fillPath (body);
+            gi.setColour (p.fgA (0.22f + 0.2f * f.bass)); gi.fillPath (body);
+            gi.setColour (p.fg); gi.strokePath (body, PathStrokeType (lw));
+            // fur on the thorax, bristling with the highs
+            for (int h = 0; h < 40; ++h)
+            {
+                float a = h * kTau / 40, len = 8 + 10 * hash (h, 7) + 8 * f.treble * k;
+                Point<float> base (std::cos (a) * 22, -26 + std::sin (a) * 33);
+                Path fur; fur.startNewSubPath (base); fur.lineTo (base + Point<float> (std::cos (a), std::sin (a)) * len);
+                fur.applyTransform (bt);
+                gi.setColour (p.fgA (0.55f)); gi.strokePath (fur, PathStrokeType (px (r, 1.0f)));
+            }
+            for (int seg = 1; seg < 8; ++seg)
+            {
+                float y = 4 + seg * 16.0f, hw2 = 16 * std::sqrt (juce::jmax (0.0f, 1 - std::pow ((y - 68) / 66, 2.0f)));
+                Path line; line.startNewSubPath (-hw2, y); line.lineTo (hw2, y + 3); line.applyTransform (bt);
+                gi.setColour (p.fgA (0.6f)); gi.strokePath (line, PathStrokeType (px (r, 1.2f)));
+            }
+            for (float side : { 1.0f, -1.0f })
+            {
+                float twitch = std::sin (t * 7 + side) * 0.08f * f.treble * k + punch * 0.1f;
+                Path ant;
+                ant.startNewSubPath (side * 6, -82);
+                ant.cubicTo (side * 30, -160, side * (80 + twitch * 300), -215, side * (135 + twitch * 300), -225);
+                const float al = ant.getLength();
+                for (int fth = 1; fth < 14; ++fth)
+                {
+                    auto a = ant.getPointAlongPath (al * fth / 14.0f);
+                    auto b = ant.getPointAlongPath (juce::jmin (al, al * fth / 14.0f + 2));
+                    auto n = Point<float> (-(b.y - a.y), b.x - a.x);
+                    float nl = juce::jmax (0.01f, n.getDistanceFromOrigin());
+                    float fl = 18 * (1 - fth / 16.0f);
+                    ant.startNewSubPath (a); ant.lineTo (a + n * (fl / nl));
+                    ant.startNewSubPath (a); ant.lineTo (a - n * (fl / nl));
+                }
+                ant.applyTransform (bt);
+                gi.setColour (p.fgA (0.9f)); gi.strokePath (ant, PathStrokeType (px (r, 1.8f)));
+            }
+        }
+
+        // dust: drifts out, swirls a little, fades
+        for (auto& m : dust)
+        {
+            float sw = (noise (m.x * 0.004f, m.y * 0.004f, t * 0.3f) - 0.5f) * 120 * u;
+            m.x += (m.vx + sw) * dt; m.y += (m.vy + 30 * u) * dt;
+            m.life -= dt * 0.45f;
+            gi.setColour (p.fgA (m.life * 0.9f));
+            gi.fillEllipse (m.x - m.size, m.y - m.size, m.size * 2, m.size * 2);
+        }
+        dust.erase (std::remove_if (dust.begin(), dust.end(), [] (const Mote& m) { return m.life <= 0; }), dust.end());
+
+        tr.blit (g, r);
+    }
+};
+
 std::vector<std::unique_ptr<Viz>> makeAll()
 {
     std::vector<std::unique_ptr<Viz>> v;
@@ -1404,6 +1612,7 @@ std::vector<std::unique_ptr<Viz>> makeAll()
     v.push_back (std::make_unique<Prism>());
     v.push_back (std::make_unique<Clockwork>());
     v.push_back (std::make_unique<Aurora>());
+    v.push_back (std::make_unique<Moth>());
     return v;
 }
 }

@@ -69,8 +69,8 @@ jobs:
           if (-not $p.WaitForExit(600000)) { $p.Kill(); throw "gallery run did not finish" }
           $n = (Get-ChildItem $dir -Filter *.png | Where-Object { $_.Name -match '^\d\d-' }).Count
           "gallery: $n images, exit $($p.ExitCode)" | Tee-Object visualizer/ci-results/gallery.txt
-          Copy-Item "$dir\00-all-styles.png", "$dir\app.png", "$dir\styles.txt" visualizer/ci-results/
-          if ($n -lt 49) { throw "expected 48 styles + contact sheet, got $n" }
+          Copy-Item "$dir\00-all-styles.png", "$dir\00-all-styles-multicolour.png", "$dir\moth-multicolour.png", "$dir\app.png", "$dir\styles.txt" visualizer/ci-results/
+          if ($n -lt 51) { throw "expected 49 styles + 2 contact sheets, got $n" }
           exit 0
 
       - name: MP4 export tests (Media Foundation H.264 + AAC)
@@ -85,7 +85,8 @@ jobs:
             @{ name = "test-1080p30.mp4"; args = @('--seconds', '10', '--style', '0') },
             @{ name = "test-1440p60.mp4"; args = @('--seconds', '4', '--style', '6', '--width', '2560', '--height', '1440', '--fps', '60') },
             @{ name = "test-2160p30.mp4"; args = @('--seconds', '3', '--style', '10', '--width', '3840', '--height', '2160') },
-            @{ name = "BC-Visualizer-all-48-styles.mp4"; args = @('--seconds', '144', '--style', '-1', '--cycle', '3') },
+            @{ name = "BC-Visualizer-all-49-styles.mp4"; args = @('--seconds', '147', '--style', '-1', '--cycle', '3') },
+            @{ name = "BC-Visualizer-moth-multicolour.mp4"; args = @('--seconds', '20', '--style', '48', '--tint', '6') },
             @{ name = "check-640x360.mp4"; args = @('--seconds', '3', '--style', '0', '--width', '640', '--height', '360') }
           )
           foreach ($r in $runs) {
@@ -160,14 +161,16 @@ jobs:
           TAG="visualizer-v$VZ_VERSION"
           SETUP=$(ls dist/BC-Visualizer-Setup*.exe)
           ZIP="dist/BC-Visualizer-$VZ_VERSION-portable.zip"
-          REEL="dist/BC-Visualizer-all-48-styles.mp4"
+          REEL="dist/BC-Visualizer-all-49-styles.mp4"
+          MOTH="dist/BC-Visualizer-moth-multicolour.mp4"
           SHEET="visualizer/ci-results/00-all-styles.png"
+          MULTI="visualizer/ci-results/00-all-styles-multicolour.png"
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
-            gh release upload "$TAG" "$SETUP" "$ZIP" "$REEL" "$SHEET" --clobber --repo "$GITHUB_REPOSITORY"
+            gh release upload "$TAG" "$SETUP" "$ZIP" "$REEL" "$MOTH" "$SHEET" "$MULTI" --clobber --repo "$GITHUB_REPOSITORY"
           else
-            gh release create "$TAG" "$SETUP" "$ZIP" "$REEL" "$SHEET" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest=false \
+            gh release create "$TAG" "$SETUP" "$ZIP" "$REEL" "$MOTH" "$SHEET" "$MULTI" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest=false \
               --title "BC Visualizer $VZ_VERSION" \
-              --notes "Audio-reactive music videos for YouTube: 48 styles, title + artist + cover art, MP4 export at 1080p/1440p/4K, 30 or 60 fps. BC-Visualizer-Setup installs it; the portable zip runs without installing. BC-Visualizer-all-48-styles.mp4 shows every style for 3 seconds each."
+              --notes "Audio-reactive music videos for YouTube: 49 styles (new: Moth), 7 colours including Multi-colour, title + artist + cover art, MP4 export at 1080p/1440p/4K, 30 or 60 fps. BC-Visualizer-Setup installs it; the portable zip runs without installing. BC-Visualizer-all-49-styles.mp4 shows every style for 3 seconds each; BC-Visualizer-moth-multicolour.mp4 is the Moth in Multi-colour."
           fi
 
       - name: Commit test results back to the branch
