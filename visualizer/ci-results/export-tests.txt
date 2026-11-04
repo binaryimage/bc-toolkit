@@ -1,10 +1,10 @@
 
-test-1080p30.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-1080p30.mp4 14380525 bytes, 28.2 s
-test-1440p60.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-1440p60.mp4 16656615 bytes, 35.2 s
-test-2160p30.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-2160p30.mp4 16412694 bytes, 29.7 s
-BC-Visualizer-all-80-styles.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-all-80-styles.mp4 365626112 bytes, 617.4 s
-BC-Visualizer-moth-multicolour.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-moth-multicolour.mp4 29506280 bytes, 58.2 s
-BC-Visualizer-moth-ice.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-moth-ice.mp4 28631257 bytes, 58.3 s
-BC-Visualizer-wormhole-multicolour.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-wormhole-multicolour.mp4 29435541 bytes, 54.0 s
-BC-Visualizer-weird-test.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-weird-test.mp4 60613951 bytes, 118.6 s
-check-640x360.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\check-640x360.mp4 2470534 bytes, 1.3 s
+test-1080p30.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-1080p30.mp4 14392653 bytes, 31.3 s
+test-1440p60.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-1440p60.mp4 16873592 bytes, 36.9 s
+test-2160p30.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-2160p30.mp4 17104238 bytes, 31.8 s
+BC-Visualizer-all-80-styles.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-all-80-styles.mp4 367178114 bytes, 659.9 s
+BC-Visualizer-moth-multicolour.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-moth-multicolour.mp4 29165076 bytes, 66.3 s
+BC-Visualizer-moth-ice.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-moth-ice.mp4 29272152 bytes, 66.8 s
+BC-Visualizer-wormhole-multicolour.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-wormhole-multicolour.mp4 29804178 bytes, 59.3 s
+BC-Visualizer-weird-test.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-weird-test.mp4 60198869 bytes, 128.4 s
+check-640x360.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\check-640x360.mp4 3064103 bytes, 1.5 s
