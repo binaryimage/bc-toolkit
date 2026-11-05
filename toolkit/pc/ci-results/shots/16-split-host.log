@@ -33,3 +33,7 @@
 13:43:44  taking screenshot
 13:43:49  saved D:\a\bc-toolkit\bc-toolkit\toolkit\pc\ci-results\shots\16-split-host.png
 13:43:49  layout check: 0 problems
+14:33:59  started: --test --stay --screenshot "D:\a\bc-toolkit\bc-toolkit\toolkit\pc\ci-results\shots\16-split-host.png"
+14:33:59  apps running: 0
+14:34:02  apps running: 2
+14:34:03  taking screenshot
