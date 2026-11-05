@@ -1,0 +1,7 @@
+0 problems
+PASS  normal 1480x900  Look   (27 controls)
+PASS  normal 1480x900  Effects   (27 controls)
+PASS  smallest 1100x690  Look   (27 controls)
+PASS  smallest 1100x690  Effects   (27 controls)
+PASS  tall 1100x1500  Look   (27 controls)
+PASS  tall 1100x1500  Effects   (27 controls)
