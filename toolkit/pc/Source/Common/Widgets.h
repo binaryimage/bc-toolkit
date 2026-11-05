@@ -158,6 +158,18 @@ namespace tk
         double v = 0; juce::String text;
     };
 
+    /** A little padlock: locked settings are left alone when you press Random. Remembers itself under settingsKey. */
+    class LockToggle : public juce::Button
+    {
+    public:
+        explicit LockToggle (const juce::String& name) : juce::Button (name)
+        {
+            setClickingTogglesState (true);
+            setTooltip ("Lock " + name + ": Random leaves it alone");
+        }
+        void paintButton (juce::Graphics&, bool over, bool down) override;
+    };
+
     /** Small helpers to build pages quickly. */
     std::unique_ptr<juce::TextButton> makeButton (const juce::String& text, std::function<void()> onClick, bool toggle = false);
     std::unique_ptr<juce::Label> makeLabel (const juce::String& text, float size = 14, juce::Colour c = col::text2, int weight = 0);

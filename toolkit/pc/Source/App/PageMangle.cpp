@@ -183,10 +183,12 @@ public:
     void resized() override
     {
         auto r = getLocalBounds();
-        auto top = r.removeFromTop (230);
+        // the result panel needs ~180 for its buttons and waveform; source and effects give up height to make it
+        const int spare = r.getHeight() - 20 - 180;
+        auto top = r.removeFromTop (juce::jlimit (150, 230, spare - 290));
         src.setBounds (top);
         r.removeFromTop (10);
-        auto mid = r.removeFromTop (290);
+        auto mid = r.removeFromTop (juce::jlimit (220, 290, r.getHeight() - 10 - 180));
         fx.setBounds (mid);
         r.removeFromTop (10);
         res.setBounds (r);
@@ -205,7 +207,8 @@ public:
         pill.setBounds (left.removeFromTop (26));
         auto right = f.removeFromRight (200);
         presetLbl->setBounds (right.removeFromTop (20));
-        for (auto& b : presets) { b->setBounds (right.removeFromTop (40)); right.removeFromTop (2); }
+        const int ph = juce::jlimit (24, 40, right.getHeight() / juce::jmax (1, (int) presets.size()) - 2);   // all presets fit the panel
+        for (auto& b : presets) { b->setBounds (right.removeFromTop (ph)); right.removeFromTop (2); }
         f.removeFromLeft (10); f.removeFromRight (10);
         // two rows of knobs: stretch pair first, then the rot set
         int kw = f.getWidth() / 5, kh = f.getHeight() / 2;

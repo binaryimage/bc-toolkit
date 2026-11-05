@@ -5,6 +5,8 @@
 #include <cmath>
 #include <atomic>
 #include <cstdlib>
+#include <vector>
+#include <algorithm>
 
 using namespace split;
 static int fails = 0, passes = 0;
@@ -50,6 +52,51 @@ static int fakeApps (int seconds)
     sleepMs (seconds * 1000);
     for (auto& a : apps) a.core.disconnect();
     return 0;
+}
+
+// An app misses one block (Ableton stalling for a moment). Its sound should dip and come back
+// without a step in the waveform: a step is the tick you hear. Driven block by block, no clock.
+static void lateAppTest (int delayBlocks)
+{
+    SharedRegion::unlink (kRegionName);
+    HostCore host;
+    if (! host.create()) { check (false, "host for the late-app test"); return; }
+    host.setOutputDelay (delayBlocks);
+    const int n = 256;
+    host.publish (48000, n, { "In 1" }, { "Out 1" }, 0, 0, "test");
+    auto* sh = host.shared();
+    auto& cl = sh->clients[0];
+    cl.outChannels.store (1); cl.outSeq.store (-1); cl.late.store (0);
+    cl.state.store (clientRunning);
+
+    auto sine = [] (int64_t t) { return 0.5f * (float) std::sin (2.0 * 3.14159265358979 * 200.0 * (double) t / 48000.0); };
+    auto write = [&] (int64_t j) { for (int i = 0; i < n; ++i) cl.out[j % kSlots][0][i] = sine (j * n + i); cl.outSeq.store (j); };
+
+    std::vector<float> outBuf ((size_t) n), stream;
+    float* outs[] = { outBuf.data() };
+    const int64_t lateBlock = 40;
+    int64_t written = -1;
+    for (int64_t b = 0; b < 80; ++b)
+    {
+        // the app finishes every block it was given in time, except it stalls on lateBlock until the host has moved past it
+        const int64_t due = b - delayBlocks;
+        const int64_t upTo = (due == lateBlock) ? lateBlock - 1 : due;
+        while (written < upTo) write (++written);
+        host.process (nullptr, 0, outs, 1, n);
+        if (b >= delayBlocks) stream.insert (stream.end(), outBuf.begin(), outBuf.end());
+    }
+    float worstStep = 0;
+    for (size_t i = 1; i < stream.size(); ++i) worstStep = std::max (worstStep, std::abs (stream[i] - stream[i - 1]));
+    const float sineStep = 0.5f * 2.0f * 3.14159265f * 200.0f / 48000.0f;   // the steepest the sine itself gets
+    const std::string tag = " (" + std::to_string (delayBlocks) + " buffers)";
+    check (cl.late.load() == 1, ("one late block is counted" + tag).c_str(), std::to_string (cl.late.load()));
+    check (worstStep < sineStep * 3, ("a late block doesn't make a step in the sound" + tag).c_str(),
+           "worst step " + std::to_string (worstStep) + ", sine's own " + std::to_string (sineStep));
+    const size_t tail = stream.size() - (size_t) n;
+    check (std::abs (stream[tail + 100] - sine ((int64_t) (80 - 1 - delayBlocks) * n + 100)) < 1e-4f, ("the app is back at full level afterwards" + tag).c_str());
+    check (sh->outputDelay == delayBlocks && outputDelayOf (sh) == delayBlocks, ("apps can read the safety setting" + tag).c_str());
+    host.destroy();
+    SharedRegion::unlink (kRegionName);
 }
 
 int main (int argc, char** argv)
@@ -120,6 +167,9 @@ int main (int argc, char** argv)
     a.core.disconnect();
     b.core.disconnect();
     SharedRegion::unlink (kRegionName);
+
+    lateAppTest (kOutputDelayBlocks);
+    lateAppTest (kMaxOutputDelayBlocks);
     std::printf ("\n%d passed, %d failed\n", passes, fails);
     return fails == 0 ? 0 : 1;
 }

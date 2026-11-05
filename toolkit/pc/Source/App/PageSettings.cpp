@@ -16,6 +16,13 @@ public:
         audio.setTitle ("Audio interface"); link.setTitle ("BC Link + PC audio"); places.setTitle ("Folders + defaults");
         selector = std::make_unique<juce::AudioDeviceSelectorComponent> (engine.devices, 0, 32, 0, 2, false, false, false, false);
         audio.addAndMakeVisible (*selector);
+        // anything you do in the picker is your choice, and gets saved (a fallback the app made on its own doesn't)
+        selector->addMouseListener (this, true);
+        deviceNote = makeLabel ("", 12.5f, col::white, 3);
+        deviceNote->setJustificationType (juce::Justification::topLeft);
+        audio.addChildComponent (*deviceNote);
+        backBtn = makeButton ("Back to my device", [this] { engine.retryWantedDevice(); refreshDeviceNote(); });
+        audio.addChildComponent (*backBtn);
         audioTip = makeLabel ("Pick your interface's ASIO driver and turn on the inputs your synths are plugged into. "
                               "If Ableton has the same ASIO driver open, most interfaces only allow one app at a time: "
                               "pick BC Split here and in Ableton (and RS_ASIO) so they share it, or use BC Link in Ableton.", 12, col::text3);
@@ -49,6 +56,8 @@ public:
         styleCombo (jam);
         a4.setRange (415, 466, 0.5); a4.setValue (Settings::get().dbl ("a4", 440), juce::dontSendNotification);
         a4.setSliderStyle (juce::Slider::LinearHorizontal); a4.setTextBoxStyle (juce::Slider::TextBoxRight, false, 80, 22); a4.setTextValueSuffix (" Hz");
+        a4.setScrollWheelEnabled (false);
+        a4.setDoubleClickReturnValue (true, 440.0);
         a4.onValueChange = [this] { Settings::get().set ("a4", a4.getValue()); };
         for (auto* c : std::initializer_list<juce::Component*> { &jam, &a4 }) places.addAndMakeVisible (c);
         jamLbl = makeLabel ("Jam recorder keeps", 12, col::text3); a4Lbl = makeLabel ("Tuning reference A4", 12, col::text3);
@@ -61,6 +70,20 @@ public:
         rescan = makeButton ("Rescan MIDI devices", [this] { if (auto* top = getTopLevelComponent()) rescanMidi (top); refreshInfo(); });
         for (auto* b : { openMusic.get(), openData.get(), rescan.get() }) places.addAndMakeVisible (b);
         refreshInfo();
+    }
+
+    void mouseDown (const juce::MouseEvent& e) override
+    {
+        if (e.eventComponent != this && selector->isParentOf (e.eventComponent)) engine.userIsPickingDevice();
+    }
+
+    void refreshDeviceNote()
+    {
+        auto p = engine.deviceProblem();
+        const bool show = p.isNotEmpty();
+        if (show != deviceNote->isVisible()) { deviceNote->setVisible (show); backBtn->setVisible (show); resized(); }
+        deviceNote->setText (p, juce::dontSendNotification);
+        backBtn->setButtonText ("Back to " + engine.wantedDevice());
     }
 
     static void rescanMidi (juce::Component* c)
@@ -117,6 +140,12 @@ public:
     void tick() override
     {
         if (++slow % 15) return;
+        refreshDeviceNote();
+        if (! a4.isMouseButtonDown())
+        {
+            const double want = Settings::get().dbl ("a4", 440);   // the Meters page has the same control
+            if (std::abs (want - a4.getValue()) > 0.01) a4.setValue (want, juce::dontSendNotification);
+        }
         juce::String s;
         s << "Listening on 127.0.0.1:" << link::kPort << "\n";
         int n = engine.linkCount();
@@ -146,6 +175,13 @@ public:
         rr.removeFromTop (10);
         places.setBounds (rr);
         auto a = audio.content();
+        if (deviceNote->isVisible())
+        {
+            auto note = a.removeFromTop (64);
+            backBtn->setBounds (note.removeFromRight (juce::jmin (190, note.getWidth() / 3)).removeFromTop (40));
+            deviceNote->setBounds (note.withTrimmedRight (8));
+            a.removeFromTop (6);
+        }
         audioTip->setBounds (a.removeFromBottom (70));
         selector->setBounds (a);
         auto l = link.content();
@@ -157,18 +193,23 @@ public:
         l.removeFromTop (8);
         linkHow->setBounds (l);
         auto p = places.content();
+        // jam + tuning share a row when there's room, otherwise one row each (so the slider never collapses to nothing)
+        const bool oneRow = p.getWidth() >= 130 + 150 + 20 + 140 + 220;
         auto row = p.removeFromTop (34);
-        jamLbl->setBounds (row.removeFromLeft (130)); jam.setBounds (row.removeFromLeft (150)); row.removeFromLeft (20);
+        jamLbl->setBounds (row.removeFromLeft (130)); jam.setBounds (row.removeFromLeft (150));
+        if (! oneRow) { p.removeFromTop (6); row = p.removeFromTop (34); } else row.removeFromLeft (20);
         a4Lbl->setBounds (row.removeFromLeft (140)); a4.setBounds (row);
         p.removeFromTop (10);
-        rowLayout (p.removeFromBottom (44), { { openMusic.get(), 170 }, { openData.get(), 180 }, { rescan.get(), 190 } });
+        const int btnH = flowLayout (p, { { openMusic.get(), 170 }, { openData.get(), 180 }, { rescan.get(), 190 } }, 40, 8, false);
+        flowLayout (p.removeFromBottom (btnH), { { openMusic.get(), 170 }, { openData.get(), 180 }, { rescan.get(), 190 } }, 40, 8);
+        p.removeFromBottom (6);
         folderInfo->setBounds (p);
     }
 
     Slab audio, link, places;
     std::unique_ptr<juce::AudioDeviceSelectorComponent> selector;
-    std::unique_ptr<juce::Label> audioTip, linkInfo, splitInfo, linkHow, jamLbl, a4Lbl, folderInfo;
-    std::unique_ptr<juce::TextButton> openMusic, openData, rescan, splitBtn;
+    std::unique_ptr<juce::Label> audioTip, linkInfo, splitInfo, linkHow, jamLbl, a4Lbl, folderInfo, deviceNote;
+    std::unique_ptr<juce::TextButton> openMusic, openData, rescan, splitBtn, backBtn;
     juce::ToggleButton loopBtn;
     juce::ComboBox jam;
     juce::Slider a4;

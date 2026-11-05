@@ -8,6 +8,7 @@
 #include <atomic>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace split
 {
@@ -29,6 +30,11 @@ namespace split
         /** audio thread: hand the inputs to every client, mix their previous block into the outputs */
         void process (const float* const* in, int numIns, float* const* out, int numOuts, int numFrames);
 
+        /** how many buffers apps get to answer (kOutputDelayBlocks..kMaxOutputDelayBlocks). More = fewer
+            ticks when an app stalls, a little more latency. Every app is told to reset so it re-reads its latency. */
+        void setOutputDelay (int blocks);
+        int outputDelay() const { return delay.load(); }
+
         /** message thread, a few times a second: frees slots of apps that quit or crashed */
         void housekeeping();
         struct ClientInfo { int index; std::string name; bool running; uint32_t late; };
@@ -42,6 +48,13 @@ namespace split
         SharedRegion region;
         Shared* sh = nullptr;
         Signal signals[kMaxClients];
+        std::atomic<int> delay { kOutputDelayBlocks };
+
+        /** host-side copy of each app's last good block: when the app is late, that block is played
+            backwards while fading out (so there's no step in the waveform), and the app fades back in
+            when it catches up. A hard cut to silence and back is the tick you'd otherwise hear. */
+        struct Conceal { float last[kMaxCh][kMaxFrames]; int chans = 0; int frames = 0; bool held = false; bool recovering = false; };
+        std::unique_ptr<Conceal[]> conceal;
     };
 
     // ------------------------------------------------------------ client

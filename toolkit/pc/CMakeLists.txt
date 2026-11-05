@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(BinaryimageToolkit VERSION 1.4.1)
+project(BinaryimageToolkit VERSION 1.5.0)
 
 if(MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
@@ -47,7 +47,8 @@ set(TOOLKIT_COMMON_SOURCES
     Source/Common/Link.cpp
     Source/Common/Wavetable.cpp
     Source/Common/Mangle.cpp
-    Source/Common/Theory.cpp)
+    Source/Common/Theory.cpp
+    Source/Common/LayoutCheck.cpp)
 
 set(TOOLKIT_APP_SOURCES
     Source/App/Engine.cpp

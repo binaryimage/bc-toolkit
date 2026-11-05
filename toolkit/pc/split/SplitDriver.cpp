@@ -103,9 +103,9 @@ public:
     {
         auto* sh = core.shared();
         if (sh == nullptr) return ASE_NotPresent;
-        // inputs arrive as the interface delivers them; outputs go out kOutputDelayBlocks buffers later (the host mixes every app)
+        // inputs arrive as the interface delivers them; outputs go out outputDelay buffers later (the host mixes every app)
         *inLat = sh->inLatency;
-        *outLat = sh->outLatency + sh->bufferSize * split::kOutputDelayBlocks;
+        *outLat = sh->outLatency + sh->bufferSize * split::outputDelayOf (sh);
         return ASE_OK;
     }
 

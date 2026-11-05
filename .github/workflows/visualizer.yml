@@ -69,8 +69,14 @@ jobs:
           if (-not $p.WaitForExit(3600000)) { $p.Kill(); throw "gallery run did not finish" }
           $n = (Get-ChildItem $dir -Filter *.png | Where-Object { $_.Name -match '^\d\d-' }).Count
           "gallery: $n images, exit $($p.ExitCode)" | Tee-Object visualizer/ci-results/gallery.txt
-          Copy-Item "$dir\00-all-styles.png", "$dir\00-all-styles-multicolour.png", "$dir\00-colours.png", "$dir\app.png", "$dir\styles.txt" visualizer/ci-results/
+          Copy-Item "$dir\00-all-styles.png", "$dir\00-all-styles-multicolour.png", "$dir\00-colours.png", "$dir\app.png", "$dir\styles.txt", "$dir\layout-check.txt" visualizer/ci-results/
+          New-Item -ItemType Directory -Force -Path visualizer/ci-results/app | Out-Null
+          Copy-Item "$dir\app-*.png" visualizer/ci-results/app/
           if ($n -lt 83) { throw "expected 80 styles + 3 contact sheets, got $n" }
+          # the button check: every control on both tabs at every window size is there and usable
+          $layout = Get-Content "$dir\layout-check.txt"
+          $layout | Out-File -Append visualizer/ci-results/gallery.txt
+          if ($layout[0] -ne "0 problems") { throw "layout check: $($layout[0]) (see layout-check.txt)" }
           exit 0
 
       - name: MP4 export tests (Media Foundation H.264 + AAC)

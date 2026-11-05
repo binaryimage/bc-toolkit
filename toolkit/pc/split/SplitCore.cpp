@@ -34,6 +34,9 @@ bool HostCore::create()
         for (auto& c : sh->clients) if (! processAlive (c.pid.load())) c.state.store (clientFree);
     }
     for (int i = 0; i < kMaxClients; ++i) signals[i].openOrCreate (signalName (i));
+    if (conceal == nullptr) conceal.reset (new Conceal[kMaxClients]);
+    for (int i = 0; i < kMaxClients; ++i) { conceal[i].held = false; conceal[i].recovering = false; }
+    sh->outputDelay = delay.load();
     sh->hostPid.store (currentPid());
     sh->hostState.store (hostStarting);
     return true;
@@ -72,6 +75,7 @@ void HostCore::publish (double rate, int bufferSize, const std::vector<std::stri
     sh->numIns = std::min ((int) ins.size(), kMaxCh);
     sh->numOuts = std::min ((int) outs.size(), kMaxCh);
     sh->inLatency = inLat; sh->outLatency = outLat;
+    sh->outputDelay = delay.load();
     for (int i = 0; i < kMaxCh; ++i)
     {
         copyName (sh->inNames[i], 32, i < (int) ins.size() ? ins[(size_t) i] : std::string());
@@ -110,25 +114,47 @@ void HostCore::process (const float* const* in, int numIns, float* const* out, i
     for (int k = 0; k < kMaxClients; ++k)
         if (sh->clients[k].state.load (std::memory_order_relaxed) == clientRunning) signals[k].signal();
 
-    // 2. mix what every app made kOutputDelayBlocks ago (reported to the apps as extra output latency)
+    // 2. mix what every app made `delay` blocks ago (reported to the apps as extra output latency)
     for (int c = 0; c < numOuts; ++c) if (out[c] != nullptr) std::memset (out[c], 0, sizeof (float) * (size_t) n);
-    const int64_t prev = b - kOutputDelayBlocks;
+    const int64_t prev = b - delay.load (std::memory_order_relaxed);
     if (prev >= 0)
     {
         const int pslot = (int) (prev % kSlots);
-        for (auto& cl : sh->clients)
+        for (int k = 0; k < kMaxClients; ++k)
         {
-            if (cl.state.load (std::memory_order_relaxed) != clientRunning) continue;
+            auto& cl = sh->clients[k];
+            auto& cc = conceal[k];
+            if (cl.state.load (std::memory_order_relaxed) != clientRunning) { cc.held = false; cc.recovering = false; continue; }
             const int64_t done = cl.outSeq.load (std::memory_order_acquire);
-            if (done < prev) { if (done >= 0) cl.late.fetch_add (1, std::memory_order_relaxed); continue; }
-            if (done - prev >= kSlots) continue;
+            const bool onTime = done >= prev && done - prev < kSlots;
+            if (! onTime)
+            {
+                if (done >= 0 && done < prev) cl.late.fetch_add (1, std::memory_order_relaxed);
+                // fill the gap: its last block, backwards (starts on the very sample it ended on), fading to nothing
+                if (cc.held && cc.frames > 0)
+                {
+                    const int m = std::min (n, cc.frames);
+                    for (int c = 0; c < std::min (cc.chans, numOuts); ++c)
+                    {
+                        if (out[c] == nullptr) continue;
+                        const float* src = cc.last[c];
+                        for (int i = 0; i < m; ++i) out[c][i] += src[cc.frames - 1 - i] * (1.0f - (float) (i + 1) / (float) m);
+                    }
+                }
+                cc.held = false;
+                cc.recovering = true;
+                continue;
+            }
             const int chans = std::min ({ (int) cl.outChannels.load (std::memory_order_relaxed), numOuts, kMaxCh });
             for (int c = 0; c < chans; ++c)
             {
-                if (out[c] == nullptr) continue;
                 const float* src = cl.out[pslot][c];
-                for (int i = 0; i < n; ++i) out[c][i] += src[i];
+                std::memcpy (cc.last[c], src, sizeof (float) * (size_t) n);
+                if (out[c] == nullptr) continue;
+                if (cc.recovering) for (int i = 0; i < n; ++i) out[c][i] += src[i] * ((float) (i + 1) / (float) n);   // back in from silence
+                else               for (int i = 0; i < n; ++i) out[c][i] += src[i];
             }
+            cc.chans = chans; cc.frames = n; cc.held = true; cc.recovering = false;
         }
     }
     for (int c = 0; c < std::min (numOuts, kMaxCh); ++c)
@@ -138,6 +164,17 @@ void HostCore::process (const float* const* in, int numIns, float* const* out, i
         for (int i = 0; i < n; ++i) pk = std::max (pk, std::abs (out[c][i]));
         sh->outPeak[c] = std::max (pk, sh->outPeak[c] * 0.92f);
     }
+}
+
+void HostCore::setOutputDelay (int blocks)
+{
+    blocks = std::max (kOutputDelayBlocks, std::min (kMaxOutputDelayBlocks, blocks));
+    if (blocks == delay.load()) return;
+    delay.store (blocks);
+    if (sh == nullptr) return;
+    sh->outputDelay = blocks;
+    sh->configGen.fetch_add (1);          // apps reset and pick up the new latency
+    for (auto& s : signals) s.signal();
 }
 
 void HostCore::housekeeping()
@@ -338,7 +375,8 @@ void ClientCore::loop()
 
         const int64_t s = sh->seq.load (std::memory_order_acquire);
         if (s < last) last = s;                 // host restarted its count
-        if (s - last > kOutputDelayBlocks + 1) last = s - kOutputDelayBlocks;   // fell way behind: skip ahead
+        const int d = outputDelayOf (sh);
+        if (s - last > d + 1) last = s - d;     // fell way behind: skip ahead
         while (last < s && ! quit.load())
         {
             const int64_t b = last;              // block number = completed count - 1

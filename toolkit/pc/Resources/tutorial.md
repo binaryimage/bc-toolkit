@@ -77,10 +77,10 @@ To open the Split window, select **BC Split** in the Start menu or select the tr
 
 ### If you hear clicks or gaps
 
-An application that cannot keep up causes short gaps in its own audio. When this happens, the Split window names the application. To fix it:
+An application that misses its turn is counted as a late block next to its name, with the time of the last one. Split fades that application out and back in instead of cutting it, so a stall is a short dip rather than a click. If the Split window says an application is falling behind:
 
-1. Select **Interface panel** and raise the buffer size (for example, from 128 to 256 or 512).
-2. Select **Reload** in the Split window.
+1. Set **Safety** to **3 buffers (fewer ticks)**. This gives every application one more buffer to answer, at the cost of about 5 ms more latency at 256 samples.
+2. If that is not enough, select **Interface panel**, raise the buffer size (for example, from 128 to 256 or 512), then select **Reload**.
 
 For the lowest latency and the most reliable playback while recording in Ableton, you can instead give Ableton the interface directly and feed Toolkit with BC Link.
 
@@ -88,19 +88,21 @@ For the lowest latency and the most reliable playback while recording in Ableton
 
 Meters shows every source at once. Each channel strip shows its level, the detected note and its tuning in cents, short-term loudness, and a **HUM** indicator when mains hum (50 or 60 Hz and its harmonics) is present.
 
-Select a strip to show it in the large display, which has five views:
+Select a strip to show it in the large display; Toolkit remembers it, and Record starts on the same source. **Stereo** on a strip links an input with its neighbour (1+2, 3+4 ... 11+12) into one stereo source, so X/Y, loudness, takes and jams are in stereo; select it again to split them.
 
-- **Tuner**: the note and its deviation in cents, relative to the A4 reference set beside it.
+The large display has five views:
+
+- **Tuner**: the note and its deviation in cents, relative to the A4 reference (the slider above the tuner, or in Settings; double-click it to return to 440 Hz).
 - **Scope**: a stable, triggered waveform.
 - **3D spectrum**: a waterfall of the last few seconds of the spectrum.
-- **X/Y**: left against right, for checking stereo width and phase.
+- **X/Y**: left against right, for checking stereo width and phase. A mono source draws a straight line; link it with its neighbour first.
 - **Loudness**: momentary, short-term and integrated loudness (LUFS) and true peak, with common streaming targets. **Reset integrated** starts a new measurement.
 
 ## Record
 
 Choose a source, then select **Record** to start immediately, or **Arm** to start automatically when the signal rises above the threshold. Armed recording keeps a short pre-roll so the attack is not lost. **Longest take** sets a time limit.
 
-After recording you can play the take, name it, use **Trim silence**, select **Save WAV** (saved to Music\Toolkit Recordings), or send it to the Chop station, Wavetables, Mangle or Video.
+While recording, the take is drawn as it comes in. After recording you can play the take (Play becomes Stop while it plays), name it, use **Trim silence**, select **Save WAV** (saved to Music\Toolkit Recordings), or send it to the Chop station, Wavetables, Mangle or Video.
 
 ### Jam recorder
 
@@ -244,7 +246,7 @@ The presets (Dust cassette, VHS ghost, Deep freeze, Dead battery and Clean stret
 The pattern generator creates a chord progression, a bass line and a lead line in minor and modal scales, including Phrygian, natural minor, harmonic minor, Phrygian dominant, Locrian and Hungarian minor.
 
 1. Choose the key, scale, length, bass style (16th notes, 8th notes, sustained or hip-hop) and tempo.
-2. Select **Generate** until you have a pattern you want to keep.
+2. Select **Generate** until you have a pattern you want to keep. **Random** picks a new key, scale and bass style first (it leans to the darker, less common scales); the padlocks beside Key, Scale and Bass keep those settings when you select Random.
 3. Under **Playback**, choose the built-in preview sound or your synths over MIDI, with a separate output and channel for chords, bass and lead. Bass notes are retriggered individually, without glide.
 4. Select **Save .mid** to save a three-track MIDI file to Music\Toolkit Patterns and the MPC folders, or drag the MIDI button directly into Ableton.
 
@@ -268,17 +270,19 @@ The Video page is BC Visualizer built into Toolkit. It turns a track into a musi
 
 Videos are saved to Music\BC Visualizer. You can keep previewing, or use other pages, while a video renders; **Cancel** stops it.
 
+- **Random** under the style list picks a new style and colour. The padlock next to it (Keep style) and the one next to **Colour** keep either one.
+- The **Effects** tab has a switch for each reaction effect: Motion, Sparkles, Glitch, Shimmer, Echoes, Ghosts, Trails, Static, Flash and Colour motion, plus **All on** and **All off**. **Mirror** either follows the song or stays on the one you pick (left-right, top-bottom, four-way or flipped); a fixed mirror applies even with Reactions off.
 - **Intensity** sets how strongly the visuals react. Lower it for ambient tracks; raise it for quiet masters.
 - Upload at 1440p even for 1080p viewers: YouTube uses its better encoder for 1440p uploads.
 - 60 fps looks smoother on fast styles (Warp Field, Tunnel, Glitch) but takes twice as long to render.
 - **Reactions** (Off, Subtle or Wild) adds a layer on top of every style that listens to 32 frequency ranges and to the character of the sound. Each gets its own job: the sub makes the picture breathe, bass hits punch and shake it, mid hits flicker a kaleidoscope, presence hits slice it, the highs add glints, the air shimmers, noise adds static, distortion splits the colours, rising and falling pitch zoom in and out, panning slides it, wide stereo adds ghosts, reverb tails and gaps leave trails, silence dissolves it, drops flash, and every new section of the song flips it into a new mirror mode and shifts the colours. Nothing needs a steady beat.
 - **Colour** changes the ink: White, Ice, Amber, Red, Phosphor green, Violet, **Multi-colour**, **Ice multi-colour**, or one of 40 mixed palettes (Toxic Bloom, Blood Moon, Thermal, Oil Slick, Nebula, Hellfire and more). Multi-colour paints any style in a rainbow that spirals out from the centre and turns with the music, and Ice multi-colour does the same in cold cyans, blues and violets; try it on **Moth**, Kaleidoscope or Mandala. The **Paper** background gives black ink on off-white.
 
-The standalone BC Visualizer app still works and shares the same styles.
+The standalone BC Visualizer app still works and shares the same styles, tabs and controls.
 
 ## Settings
 
-Settings contains the audio interface and input selection, BC Link status (the Ableton tracks currently linked), PC audio capture, the status of BC Split, the jam recorder length, the tuning reference and the save locations. Select **Rescan MIDI devices** after connecting new MIDI equipment.
+Settings contains the audio interface and input selection (if the interface you picked can't be opened at start-up, Toolkit uses another one for now without saving it, says so here, and offers **Back to** your interface), BC Link status (the Ableton tracks currently linked), PC audio capture, the status of BC Split, the jam recorder length, the tuning reference and the save locations. Select **Rescan MIDI devices** after connecting new MIDI equipment.
 
 ## File locations
 

@@ -2,6 +2,7 @@
 #include "Session.h"
 #include "Common/Look.h"
 #include "Common/Widgets.h"
+#include "Common/LayoutCheck.h"
 
 namespace bcv
 {
@@ -95,41 +96,54 @@ public:
         position.onDragEnd = [this] { scrubbing = false; seek (position.getValue() * track.seconds()); };
         for (juce::Component* c : std::initializer_list<juce::Component*> { openBtn.get(), playBtn.get(), stopBtn.get(), trackLabel.get(), timeLabel.get(), &position }) addAndMakeVisible (c);
 
-        // settings
-        auto label = [this] (const juce::String& s) { auto l = makeLabel (s, 12, col::text3, 1); addAndMakeVisible (*l); labels.push_back (std::move (l)); };
-        label ("Title"); label ("Artist"); label ("Colour"); label ("Background"); label ("Text"); label ("Intensity"); label ("Size"); label ("Frame rate");
+        // settings: Look / Effects tabs (scrolling if the window is short), export pinned underneath
+        for (auto* t : { &lookTab, &fxTab })
+        {
+            t->setRadioGroupId (41); t->setClickingTogglesState (true);
+            t->onClick = [this] { prefs().setValue ("tab", fxTab.getToggleState() ? 1 : 0); showTab(); };
+            addAndMakeVisible (t);
+        }
+        lookTab.setButtonText ("Look"); fxTab.setButtonText ("Effects");
+        (prefs().getIntValue ("tab", 0) == 1 ? fxTab : lookTab).setToggleState (true, juce::dontSendNotification);
+        addAndMakeVisible (paneView);
+        paneView.setScrollBarsShown (true, false);
+        paneView.setScrollBarThickness (8);
+
+        auto label = [this] (const juce::String& s, juce::Component& parent) { auto l = makeLabel (s, 12, col::text3, 1); parent.addAndMakeVisible (*l); labels.push_back (std::move (l)); };
+        label ("Title", lookPane); label ("Artist", lookPane); label ("Colour", lookPane); label ("Background", lookPane); label ("Text", lookPane); label ("Intensity", lookPane);
+        label ("Size", *this); label ("Frame rate", *this);
         for (auto* e : { &titleEd, &artistEd })
         {
             e->setFont (font (15));
             e->onTextChange = [this] { look.title = titleEd.getText(); look.artist = artistEd.getText(); savePrefs(); redrawIfPaused(); };
-            addAndMakeVisible (*e);
+            lookPane.addAndMakeVisible (*e);
         }
         artistEd.setText (look.artist, false);
-        auto combo = [this] (juce::ComboBox& c, const juce::StringArray& items, int sel, std::function<void (int)> on)
+        auto combo = [this] (juce::ComboBox& c, const juce::StringArray& items, int sel, std::function<void (int)> on, juce::Component& parent)
         {
             c.addItemList (items, 1); styleCombo (c); c.setSelectedItemIndex (sel, juce::dontSendNotification);
             c.onChange = [this, &c, on] { on (c.getSelectedItemIndex()); savePrefs(); redrawIfPaused(); };
-            addAndMakeVisible (c);
+            parent.addAndMakeVisible (c);
         };
-        combo (tintBox, tintNames(), look.tint, [this] (int i) { look.tint = i; });
-        combo (bgBox, backgroundNames(), look.background, [this] (int i) { look.background = i; });
-        combo (textBox, textNames(), look.text, [this] (int i) { look.text = i; });
+        combo (tintBox, tintNames(), look.tint, [this] (int i) { look.tint = i; }, lookPane);
+        combo (bgBox, backgroundNames(), look.background, [this] (int i) { look.background = i; }, lookPane);
+        combo (textBox, textNames(), look.text, [this] (int i) { look.text = i; }, lookPane);
         juce::StringArray sizes; for (auto& s : videoSizes()) sizes.add (s.label);
-        combo (sizeBox, sizes, sizeIndex, [this] (int i) { sizeIndex = i; });
-        combo (fpsBox, { "30 fps", "60 fps" }, fps60 ? 1 : 0, [this] (int i) { fps60 = i == 1; });
-        combo (reactBox, reactionNames(), look.reactions, [this] (int i) { look.reactions = i; renderer.reset(); });
-        reactLbl = makeLabel ("Reactions", 12, col::text3, 1); addAndMakeVisible (*reactLbl);
+        combo (sizeBox, sizes, sizeIndex, [this] (int i) { sizeIndex = i; }, *this);
+        combo (fpsBox, { "30 fps", "60 fps" }, fps60 ? 1 : 0, [this] (int i) { fps60 = i == 1; }, *this);
+        combo (reactBox, reactionNames(), look.reactions, [this] (int i) { look.reactions = i; fxReactBox.setSelectedItemIndex (i, juce::dontSendNotification); renderer.reset(); }, lookPane);
+        reactLbl = makeLabel ("Reactions", 12, col::text3, 1); lookPane.addAndMakeVisible (*reactLbl);
         intensity.setSliderStyle (juce::Slider::LinearHorizontal);
         intensity.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
         intensity.setRange (0.25, 2.0, 0.01);
         intensity.setValue (look.intensity, juce::dontSendNotification);
         intensity.onValueChange = [this] { look.intensity = (float) intensity.getValue(); savePrefs(); redrawIfPaused(); };
-        addAndMakeVisible (intensity);
+        lookPane.addAndMakeVisible (intensity);
         auto toggle = [this] (juce::ToggleButton& t, const juce::String& s, bool on, std::function<void (bool)> fn)
         {
             t.setButtonText (s); t.setToggleState (on, juce::dontSendNotification);
             t.onClick = [this, &t, fn] { fn (t.getToggleState()); savePrefs(); redrawIfPaused(); };
-            addAndMakeVisible (t);
+            lookPane.addAndMakeVisible (t);
         };
         toggle (fadesBtn, "Fade in and out", look.fades, [this] (bool b) { look.fades = b; });
         toggle (vignetteBtn, "Vignette and grain", look.vignette, [this] (bool b) { look.vignette = b; });
@@ -144,9 +158,46 @@ public:
         blurb->setJustificationType (juce::Justification::topLeft);
         status = makeLabel ("Videos go to Music\\BC Visualizer.", 12.5f, col::text3);
         status->setJustificationType (juce::Justification::topLeft);
-        for (juce::Component* c : std::initializer_list<juce::Component*> { coverBtn.get(), clearCoverBtn.get(), exportBtn.get(), cancelBtn.get(), folderBtn.get(), blurb.get(), status.get(), &progress })
+        for (juce::Component* c : std::initializer_list<juce::Component*> { coverBtn.get(), clearCoverBtn.get(), blurb.get(), &colourLock })
+            lookPane.addAndMakeVisible (c);
+        for (juce::Component* c : std::initializer_list<juce::Component*> { exportBtn.get(), cancelBtn.get(), folderBtn.get(), status.get(), &progress })
             addAndMakeVisible (c);
         cancelBtn->setEnabled (false);
+        colourLock.setToggleState (prefs().getBoolValue ("lockColour", false), juce::dontSendNotification);
+        colourLock.onClick = [this] { prefs().setValue ("lockColour", colourLock.getToggleState()); };
+
+        // Effects tab: every reaction effect on its own, and the mirror
+        fxIntro = makeLabel ("Each effect follows the music while Reactions is on. Switch off the ones you don't want; "
+                             "a fixed mirror stays on even with Reactions off.", 12, col::text3);
+        fxIntro->setJustificationType (juce::Justification::topLeft);
+        fxPane.addAndMakeVisible (*fxIntro);
+        fxReactLbl = makeLabel ("Reactions", 12, col::text3, 1); fxPane.addAndMakeVisible (*fxReactLbl);
+        combo (fxReactBox, reactionNames(), look.reactions, [this] (int i) { look.reactions = i; reactBox.setSelectedItemIndex (i, juce::dontSendNotification); renderer.reset(); }, fxPane);
+        combo (mirrorBox, mirrorNames(), look.mirror, [this] (int i) { look.mirror = i; renderer.reset(); }, fxPane);
+        mirrorBox.setTooltip ("Follows the song: flips to a new mirror each section and flickers a kaleidoscope on mid hits. Or pick one to keep.");
+        auto names = effectNames(), hints = effectHints();
+        for (int i = 0; i < kEffectCount; ++i)
+        {
+            auto* t = fxToggles.add (new juce::ToggleButton (names[i]));
+            t->setTooltip (hints[i]);
+            t->setToggleState (look.effectOn ((Effect) i), juce::dontSendNotification);
+            t->onClick = [this, t, i] { look.setEffect ((Effect) i, t->getToggleState()); savePrefs(); redrawIfPaused(); };
+            fxPane.addAndMakeVisible (t);
+        }
+        fxAllOn = makeButton ("All on", [this] { setAllEffects (true); });
+        fxAllOff = makeButton ("All off", [this] { setAllEffects (false); });
+        fxPane.addAndMakeVisible (*fxAllOn); fxPane.addAndMakeVisible (*fxAllOff);
+
+        // Random (style + colour, unless locked), under the style list
+        randomBtn = makeButton ("Random", [this] { randomLook(); });
+        randomBtn->setTooltip ("A new style and colour. Lock either to keep it.");
+        addAndMakeVisible (*randomBtn);
+        addAndMakeVisible (styleLock);
+        styleLock.setToggleState (prefs().getBoolValue ("lockStyle", false), juce::dontSendNotification);
+        styleLock.onClick = [this] { prefs().setValue ("lockStyle", styleLock.getToggleState()); };
+        styleLockLbl = makeLabel ("Keep style", 12, col::text3, 1);
+        addAndMakeVisible (*styleLockLbl);
+        showTab();
 
         // audio out
         juce::String err = devices.initialiseWithDefaultDevices (0, 2);
@@ -177,7 +228,16 @@ public:
         stylesSlab.setBounds (r.removeFromLeft (270));
         settingsSlab.setBounds (r.removeFromRight (330));
         previewSlab.setBounds (r);
-        styles.setBounds (stylesSlab.content() + stylesSlab.getPosition());
+        {
+            auto sc = stylesSlab.content() + stylesSlab.getPosition();
+            auto rnd = sc.removeFromBottom (40);
+            auto lk = rnd.removeFromRight (96);
+            styleLock.setBounds (lk.removeFromLeft (22).withSizeKeepingCentre (22, 22));
+            styleLockLbl->setBounds (lk.withTrimmedLeft (2));
+            randomBtn->setBounds (rnd.withTrimmedRight (6));
+            sc.removeFromBottom (8);
+            styles.setBounds (sc);
+        }
 
         auto p = previewSlab.content() + previewSlab.getPosition();
         auto top = p.removeFromTop (34);
@@ -185,39 +245,105 @@ public:
         top.removeFromLeft (12);
         trackLabel->setBounds (top);
         auto bottom = p.removeFromBottom (36);
+        const bool ownRow = bottom.getWidth() < 90 + 8 + 90 + 12 + 120 + 160;   // narrow window: slider above the buttons
+        if (ownRow) { position.setBounds (p.removeFromBottom (28)); p.removeFromBottom (4); }
         playBtn->setBounds (bottom.removeFromLeft (90)); bottom.removeFromLeft (8);
         stopBtn->setBounds (bottom.removeFromLeft (90)); bottom.removeFromLeft (12);
-        timeLabel->setBounds (bottom.removeFromRight (120));
-        position.setBounds (bottom.reduced (0, 8));
+        timeLabel->setBounds (bottom.removeFromRight (juce::jmin (120, bottom.getWidth())));
+        if (! ownRow) position.setBounds (bottom.reduced (0, 8));
         p.removeFromBottom (8); p.removeFromTop (8);
         preview.setBounds (p);
 
         auto s = settingsSlab.content() + settingsSlab.getPosition();
-        int li = 0;
-        auto row = [&] (juce::Component& c, int h = 30) { labels[(size_t) li++]->setBounds (s.removeFromTop (18)); c.setBounds (s.removeFromTop (h)); s.removeFromTop (8); };
-        blurb->setBounds (s.removeFromTop (54)); s.removeFromTop (6);
-        row (titleEd); row (artistEd); row (tintBox); row (bgBox); row (textBox);
-        {
-            auto lab = s.removeFromTop (18); labels[(size_t) li++]->setBounds (lab.removeFromLeft (lab.getWidth() * 55 / 100)); reactLbl->setBounds (lab.withTrimmedLeft (8));
-            auto rr = s.removeFromTop (28); intensity.setBounds (rr.removeFromLeft (rr.getWidth() * 55 / 100)); reactBox.setBounds (rr.withTrimmedLeft (8));
-            s.removeFromTop (8);
-        }
-        auto cov = s.removeFromTop (30); coverBtn->setBounds (cov.removeFromLeft (cov.getWidth() * 2 / 3 - 4)); cov.removeFromLeft (8); clearCoverBtn->setBounds (cov);
-        s.removeFromTop (6);
-        fadesBtn.setBounds (s.removeFromTop (26)); vignetteBtn.setBounds (s.removeFromTop (26)); progressBtn.setBounds (s.removeFromTop (26)); badgeBtn.setBounds (s.removeFromTop (26));
+        auto tabs = s.removeFromTop (32);
+        lookTab.setBounds (tabs.removeFromLeft (tabs.getWidth() / 2 - 3)); tabs.removeFromLeft (6); fxTab.setBounds (tabs);
         s.removeFromTop (8);
-        auto two = s.removeFromTop (18);
-        labels[(size_t) li]->setBounds (two.removeFromLeft (two.getWidth() / 2)); labels[(size_t) li + 1]->setBounds (two.withTrimmedLeft (8));
-        auto twoC = s.removeFromTop (30);
+        folderBtn->setBounds (s.removeFromBottom (30)); s.removeFromBottom (4);
+        status->setBounds (s.removeFromBottom (34)); s.removeFromBottom (4);
+        progress.setBounds (s.removeFromBottom (22)); s.removeFromBottom (6);
+        auto ex = s.removeFromBottom (40); exportBtn->setBounds (ex.removeFromLeft (ex.getWidth() * 2 / 3 - 4)); ex.removeFromLeft (8); cancelBtn->setBounds (ex);
+        s.removeFromBottom (8);
+        auto twoC = s.removeFromBottom (30);
         sizeBox.setBounds (twoC.removeFromLeft (twoC.getWidth() / 2)); fpsBox.setBounds (twoC.withTrimmedLeft (8));
-        s.removeFromTop (12);
-        auto ex = s.removeFromTop (40); exportBtn->setBounds (ex.removeFromLeft (ex.getWidth() * 2 / 3 - 4)); ex.removeFromLeft (8); cancelBtn->setBounds (ex);
-        s.removeFromTop (8);
-        progress.setBounds (s.removeFromTop (22));
-        s.removeFromTop (6);
-        folderBtn->setBounds (s.removeFromBottom (30));
-        status->setBounds (s);
+        auto two = s.removeFromBottom (18);
+        labels[6]->setBounds (two.removeFromLeft (two.getWidth() / 2)); labels[7]->setBounds (two.withTrimmedLeft (8));
+        s.removeFromBottom (8);
+        paneView.setBounds (s);
+        layoutPanes();
         frameDirty = true;
+    }
+
+    void layoutPanes()
+    {
+        const int w = juce::jmax (100, paneView.getWidth() - 10);   // room for the scrollbar when it shows
+        {
+            auto s = juce::Rectangle<int> (0, 0, w, 2000);
+            size_t li = 0;
+            auto row = [&] (juce::Component& c, int h = 30) { labels[li++]->setBounds (s.removeFromTop (18)); c.setBounds (s.removeFromTop (h)); s.removeFromTop (8); };
+            blurb->setBounds (s.removeFromTop (54)); s.removeFromTop (6);
+            row (titleEd); row (artistEd);
+            {
+                auto lab = s.removeFromTop (18);
+                colourLock.setBounds (lab.removeFromRight (22));
+                labels[li++]->setBounds (lab);
+                tintBox.setBounds (s.removeFromTop (30)); s.removeFromTop (8);
+            }
+            row (bgBox); row (textBox);
+            {
+                auto lab = s.removeFromTop (18); labels[li++]->setBounds (lab.removeFromLeft (lab.getWidth() * 55 / 100)); reactLbl->setBounds (lab.withTrimmedLeft (8));
+                auto rr = s.removeFromTop (28); intensity.setBounds (rr.removeFromLeft (rr.getWidth() * 55 / 100)); reactBox.setBounds (rr.withTrimmedLeft (8));
+                s.removeFromTop (8);
+            }
+            auto cov = s.removeFromTop (30); coverBtn->setBounds (cov.removeFromLeft (cov.getWidth() * 2 / 3 - 4)); cov.removeFromLeft (8); clearCoverBtn->setBounds (cov);
+            s.removeFromTop (6);
+            fadesBtn.setBounds (s.removeFromTop (26)); vignetteBtn.setBounds (s.removeFromTop (26)); progressBtn.setBounds (s.removeFromTop (26)); badgeBtn.setBounds (s.removeFromTop (26));
+            lookPane.setSize (w, s.getY() + 4);
+        }
+        {
+            auto s = juce::Rectangle<int> (0, 0, w, 2000);
+            fxIntro->setBounds (s.removeFromTop (48)); s.removeFromTop (4);
+            fxReactLbl->setBounds (s.removeFromTop (18)); fxReactBox.setBounds (s.removeFromTop (30)); s.removeFromTop (8);
+            mirrorBox.setBounds (s.removeFromTop (30)); s.removeFromTop (8);
+            const int colW = (w - 8) / 2;
+            for (int i = 0; i < fxToggles.size(); ++i)
+                fxToggles[i]->setBounds ((i % 2) * (colW + 8), s.getY() + (i / 2) * 26, colW, 24);
+            s.removeFromTop (((fxToggles.size() + 1) / 2) * 26 + 8);
+            auto b = s.removeFromTop (32);
+            fxAllOn->setBounds (b.removeFromLeft (b.getWidth() / 2 - 4)); b.removeFromLeft (8); fxAllOff->setBounds (b);
+            fxPane.setSize (w, s.getY() + 4);
+        }
+    }
+
+    void showTab()
+    {
+        paneView.setViewedComponent (fxTab.getToggleState() ? &fxPane : &lookPane, false);
+        layoutPanes();
+    }
+
+    void setAllEffects (bool on)
+    {
+        for (int i = 0; i < kEffectCount; ++i) { look.setEffect ((Effect) i, on); fxToggles[i]->setToggleState (on, juce::dontSendNotification); }
+        savePrefs(); redrawIfPaused();
+    }
+
+    /** a new style and colour (whichever isn't locked) */
+    void randomLook()
+    {
+        auto& rnd = juce::Random::getSystemRandom();
+        if (! styleLock.getToggleState() && all.size() > 1)
+        {
+            int n = look.style;
+            while (n == look.style) n = rnd.nextInt ((int) all.size());
+            styles.selectRow (n);
+            styles.scrollToEnsureRowIsOnscreen (n);
+        }
+        if (! colourLock.getToggleState() && tintBox.getNumItems() > 1)
+        {
+            int c = look.tint;
+            while (c == look.tint) c = rnd.nextInt (tintBox.getNumItems());
+            tintBox.setSelectedItemIndex (c, juce::sendNotificationSync);
+        }
+        redrawIfPaused();
     }
 
     // ---------------------------------------------------------------- files
@@ -259,6 +385,7 @@ public:
     // ---------------------------------------------------------------- for tests
     void renderTo (juce::Image& img, const Frame& f, Viz& v) { juce::Graphics g (img); renderer.render (g, img.getBounds().toFloat(), f, v, look); }
     Look& getLook() { return look; }
+    void setTab (int t) { (t == 1 ? fxTab : lookTab).setToggleState (true, juce::dontSendNotification); showTab(); }
     Track& getTrack() { return track; }
     void showTime (double t) { for (double x = 0; x <= t; x += 1.0 / 30) { clockT = x; tick(); } }
 
@@ -274,7 +401,14 @@ private:
     Slab stylesSlab { "Styles" }, previewSlab { "Preview" }, settingsSlab { "Video" };
     StyleList stylesModel; juce::ListBox styles;
     Preview preview;
-    std::unique_ptr<juce::TextButton> openBtn, playBtn, stopBtn, coverBtn, clearCoverBtn, exportBtn, cancelBtn, folderBtn;
+    std::unique_ptr<juce::TextButton> openBtn, playBtn, stopBtn, coverBtn, clearCoverBtn, exportBtn, cancelBtn, folderBtn, randomBtn, fxAllOn, fxAllOff;
+    juce::TextButton lookTab, fxTab;
+    juce::Viewport paneView;
+    juce::Component lookPane, fxPane;
+    LockToggle styleLock { "style" }, colourLock { "colour" };
+    std::unique_ptr<juce::Label> styleLockLbl, fxIntro, fxReactLbl;
+    juce::ComboBox fxReactBox, mirrorBox;
+    juce::OwnedArray<juce::ToggleButton> fxToggles;
     std::unique_ptr<juce::Label> trackLabel, timeLabel, blurb, status;
     std::vector<std::unique_ptr<juce::Label>> labels;
     juce::Slider position, intensity;
@@ -413,6 +547,8 @@ private:
         look.reactions = juce::jlimit (0, 2, p.getIntValue ("reactions", 2));
         look.tint = juce::jlimit (0, tintNames().size() - 1, look.tint);
         look.intensity = (float) p.getDoubleValue ("intensity", 1.0);
+        look.mirror = juce::jlimit (0, (int) kMirrorCount - 1, p.getIntValue ("mirror", mirrorAuto));
+        look.effectsOff = p.getIntValue ("effectsOff", 0);
         sizeIndex = juce::jlimit (0, (int) videoSizes().size() - 1, p.getIntValue ("size", 0));
         fps60 = p.getBoolValue ("fps60", false);
         juce::File cov (p.getValue ("cover"));
@@ -424,6 +560,7 @@ private:
         p.setValue ("style", look.style); p.setValue ("artist", look.artist); p.setValue ("tint", look.tint);
         p.setValue ("background", look.background); p.setValue ("text", look.text); p.setValue ("fades", look.fades);
         p.setValue ("vignette", look.vignette); p.setValue ("progress", look.progress); p.setValue ("coverBadge", look.coverBadge); p.setValue ("reactions", look.reactions); p.setValue ("intensity", (double) look.intensity);
+        p.setValue ("mirror", look.mirror); p.setValue ("effectsOff", look.effectsOff);
         p.setValue ("size", sizeIndex); p.setValue ("fps60", fps60);
     }
 
@@ -450,6 +587,40 @@ static void writePng (const juce::Image& img, const juce::File& f)
 }
 
 /** One PNG per style after 4 seconds of the demo loop, a contact sheet, and the app window. */
+/** The app window, plus the button check (also on its own: --layout-check <folder>). */
+static int runLayoutCheck (const juce::File& dir)
+{
+    dir.createDirectory();
+    // the app itself, plus the button check: both tabs, at the normal size, the smallest it can be dragged to, and tall
+    int layoutProblems = 0;
+    {
+        MainComponent mc;
+        mc.setSize (1480, 900);
+        mc.showTime (3.0);
+        auto shot = mc.createComponentSnapshot (mc.getLocalBounds(), true, 1.0f);
+        writePng (shot, dir.getChildFile ("app.png"));
+
+        struct Size { const char* name; int w, h; };
+        const Size sizes[] = { { "normal", 1480, 900 }, { "smallest", 1100, 690 }, { "tall", 1100, 1500 } };   // window limit 1100 x 720
+        juce::StringArray report;
+        for (auto& sz : sizes)
+            for (int tab = 0; tab < 2; ++tab)
+            {
+                mc.setSize (sz.w, sz.h);
+                mc.setTab (tab);
+                auto found = findLayoutProblems (mc);
+                layoutProblems += found.size();
+                const juce::String where = juce::String (sz.name) + " " + juce::String (sz.w) + "x" + juce::String (sz.h) + "  " + (tab == 0 ? "Look" : "Effects");
+                report.add ((found.isEmpty() ? "PASS  " : "FAIL  ") + where + "   (" + juce::String (listControls (mc).size()) + " controls)");
+                for (auto& f : found) report.add ("        " + f);
+                writePng (mc.createComponentSnapshot (mc.getLocalBounds(), true, 1.0f), dir.getChildFile ("app-" + juce::String (sz.name) + "-" + (tab == 0 ? "look" : "effects") + ".png"));
+            }
+        report.insert (0, juce::String (layoutProblems) + " problems");
+        dir.getChildFile ("layout-check.txt").replaceWithText (report.joinIntoString ("\n") + "\n");
+    }
+    return layoutProblems == 0 ? 0 : 3;
+}
+
 static int runGallery (const juce::File& dir)
 {
     dir.createDirectory();
@@ -542,15 +713,7 @@ static int runGallery (const juce::File& dir)
         writePng (sw, dir.getChildFile ("00-colours.png"));
     }
 
-    // the app itself
-    {
-        MainComponent mc;
-        mc.setSize (1480, 900);
-        mc.showTime (3.0);
-        auto shot = mc.createComponentSnapshot (mc.getLocalBounds(), true, 1.0f);
-        writePng (shot, dir.getChildFile ("app.png"));
-    }
-    return 0;
+    return runLayoutCheck (dir);
 }
 
 static int runExport (const juce::StringArray& args, int at)
@@ -660,6 +823,8 @@ public:
         int bn = args.indexOf ("--bench");
         if (bn >= 0) { setApplicationReturnValue (runBench (args[bn + 1].getIntValue() > 0 ? args[bn + 1].getIntValue() : 1100, args[bn + 2].getIntValue() > 0 ? args[bn + 2].getIntValue() : 620)); quit(); return; }
         if (g >= 0 && g + 1 < args.size()) { setApplicationReturnValue (runGallery (juce::File::getCurrentWorkingDirectory().getChildFile (args[g + 1].unquoted()))); quit(); return; }
+        int lc = args.indexOf ("--layout-check");
+        if (lc >= 0 && lc + 1 < args.size()) { setApplicationReturnValue (runLayoutCheck (juce::File::getCurrentWorkingDirectory().getChildFile (args[lc + 1].unquoted()))); quit(); return; }
         if (e >= 0 && e + 1 < args.size()) { setApplicationReturnValue (runExport (args, e)); quit(); return; }
         window = std::make_unique<MainWindow>();
     }

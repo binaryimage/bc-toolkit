@@ -520,22 +520,25 @@ public:
         out.setBounds (right.withTrimmedLeft (10));
 
         auto c = edit.content();
-        auto side = c.removeFromRight (300);
+        auto side = c.removeFromRight (juce::jlimit (230, 300, c.getWidth() / 2));
         auto bar = c.removeFromTop (40);
         rowLayout (bar, { { drawBtn.get(), 100 }, { harmBtn.get(), 120 }, { undoBtn.get(), 90 } });
         c.removeFromTop (6);
         cyc.setBounds (c); harm.setBounds (c);
         side.removeFromLeft (14);
+        // six rows of buttons share the height (40 each when there's room, a little less on a short window)
+        const int bh = juce::jlimit (28, 40, (side.getHeight() - 20 - 20 - 8) / 6);
         startLbl->setBounds (side.removeFromTop (20));
-        for (int i = 0; i < 6; ++i) shapeBtns[(size_t) i]->setBounds (side.getX() + (i % 3) * (side.getWidth() / 3), side.getY() + (i / 3) * 40, side.getWidth() / 3, 40);
-        side.removeFromTop (88);
+        for (int i = 0; i < 6; ++i) shapeBtns[(size_t) i]->setBounds (side.getX() + (i % 3) * (side.getWidth() / 3), side.getY() + (i / 3) * bh, side.getWidth() / 3, bh);
+        side.removeFromTop (2 * bh + 8);
         toolLbl->setBounds (side.removeFromTop (20));
-        for (int i = 0; i < 8; ++i) toolBtns[(size_t) i]->setBounds (side.getX() + (i % 2) * (side.getWidth() / 2), side.getY() + (i / 2) * 40, side.getWidth() / 2, 40);
+        for (int i = 0; i < 8; ++i) toolBtns[(size_t) i]->setBounds (side.getX() + (i % 2) * (side.getWidth() / 2), side.getY() + (i / 2) * bh, side.getWidth() / 2, bh);
 
         auto t = table.content();
-        auto tb = t.removeFromTop (40);
-        rowLayout (tb, { { addKey.get(), 86 }, { addSine.get(), 86 }, { delKey.get(), 86 }, { leftKey.get(), 44 }, { rightKey.get(), 44 },
-                         { &total, 120 }, { importBtn.get(), 130 }, { grabBtn.get(), 150 }, { grabSrc.get(), 170 } });
+        const int tbh = flowLayout (t, { { addKey.get(), 86 }, { addSine.get(), 86 }, { delKey.get(), 86 }, { leftKey.get(), 44 }, { rightKey.get(), 44 },
+                                         { &total, 120 }, { importBtn.get(), 130 }, { grabBtn.get(), 150 }, { grabSrc.get(), 170 } }, 40, 8, false);
+        flowLayout (t.removeFromTop (tbh), { { addKey.get(), 86 }, { addSine.get(), 86 }, { delKey.get(), 86 }, { leftKey.get(), 44 }, { rightKey.get(), 44 },
+                                             { &total, 120 }, { importBtn.get(), 130 }, { grabBtn.get(), 150 }, { grabSrc.get(), 170 } }, 40, 8);
         t.removeFromTop (6);
         strip.setBounds (t.removeFromTop (58));
         t.removeFromTop (6);

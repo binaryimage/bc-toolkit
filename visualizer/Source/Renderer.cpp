@@ -92,6 +92,21 @@ juce::StringArray tintNames()
     return s;
 }
 juce::StringArray reactionNames() { return { "Off", "Subtle", "Wild" }; }
+juce::StringArray effectNames() { return { "Motion", "Sparkles", "Glitch", "Shimmer", "Echoes", "Ghosts", "Trails", "Static", "Flash", "Colour motion" }; }
+juce::StringArray effectHints()
+{
+    return { "Zoom punches on bass, sway on low mids, lean with panning, shake on hits",
+             "Sparkles on the highs",
+             "Sideways glitch slices on presence (2-6 kHz) hits",
+             "Ripple wobble on the air (very top end)",
+             "Zoomed copies when the mix gets busy",
+             "Side-by-side ghost copies when the mix is wide",
+             "Trails and slow dissolve on tails, gaps and silence",
+             "TV static on noisy sounds",
+             "White flash on drops",
+             "Colours turning, kicking on beats and jumping on new sections (off: the palette holds still)" };
+}
+juce::StringArray mirrorNames() { return { "Mirror: follows the song", "Mirror: off", "Mirror: left-right", "Mirror: top-bottom", "Mirror: four-way", "Mirror: flipped" }; }
 juce::StringArray backgroundNames() { return { "Black", "Cover art (dimmed)", "Paper" }; }
 juce::StringArray textNames() { return { "Bottom left", "Centred", "Hidden" }; }
 
@@ -148,7 +163,8 @@ void Renderer::render (juce::Graphics& g, juce::Rectangle<float> r, const Frame&
     }
 
     const float react = look.reactions <= 0 ? 0.0f : look.reactions == 1 ? 0.5f : 1.0f;
-    if (look.tint >= kMultiColour || react > 0)
+    const bool fixedMirror = look.mirror >= mirrorLeftRight;
+    if (look.tint >= kMultiColour || react > 0 || fixedMirror)
     {
         auto size = r.toNearestInt().withZeroOrigin();
         if (! layer.isValid() || layer.getBounds() != size)
@@ -160,11 +176,11 @@ void Renderer::render (juce::Graphics& g, juce::Rectangle<float> r, const Frame&
             juce::Graphics gl (layer);
             gl.fillAll (juce::Colours::black);
             Palette vp;   // white on black; the colour comes afterwards
-            if (react > 0) gl.addTransform (reactTransform (f, size.toFloat(), react));
+            if (react > 0 && look.effectOn (fxMotion)) gl.addTransform (reactTransform (f, size.toFloat(), react));
             const float kk = look.intensity * (1 + react * (0.8f * f.swell + 0.6f * f.drop));
             viz.draw (gl, size.toFloat(), f, vp, kk);
         }
-        if (react > 0) postFx (f, react);
+        if (react > 0 || fixedMirror) postFx (f, react, look);
         colourise (f, look, react);
         g.drawImageAt (layer, (int) r.getX(), (int) r.getY());
     }
@@ -285,7 +301,7 @@ juce::AffineTransform Renderer::reactTransform (const Frame& f, juce::Rectangle<
         .translated (c.x + react * slide * 0.05f * r.getWidth() + sx, c.y + sy);
 }
 
-void Renderer::postFx (const Frame& f, float react)
+void Renderer::postFx (const Frame& f, float react, const Look& look)
 {
     // Everything here works on a one-byte-per-pixel brightness buffer (the layer is white on black at this point),
     // so it's a handful of cheap passes instead of full image draws. The result stays in lum for colourise().
@@ -314,6 +330,7 @@ void Renderer::postFx (const Frame& f, float react)
     if (f.section != lastSection) { lastSection = f.section; mirrorMode = (mirrorMode + 1 + rnd.nextInt (3)) % 5; }
     int mode = react >= 1 ? mirrorMode : 0;
     if (zoneMax (f, 12, 17) > 0.75f && react >= 0.5f) mode = mode == 0 ? (f.section % 2 ? 1 : 3) : mode;
+    if (look.mirror != mirrorAuto) mode = look.mirror == mirrorOff ? 0 : look.mirror - 1;   // your pick: 1 L-R, 2 T-B, 3 four-way, 4 flipped
     if (mode == 1 || mode == 3)
         for (int y = 0; y < h; ++y) { juce::uint8* row = lum.data() + (size_t) y * (size_t) w; for (int x = 0; x < w / 2; ++x) row[w - 1 - x] = row[x]; }
     if (mode == 2 || mode == 3)
@@ -323,7 +340,7 @@ void Renderer::postFx (const Frame& f, float react)
 
     // 3. sparkles on the highs: soft dots stamped in
     const float highs = zoneAvg (f, 26, 28, true);
-    const int sparks = (int) (react * highs * 70);
+    const int sparks = look.effectOn (fxSparkles) ? (int) (react * highs * 70) : 0;
     for (int i = 0; i < sparks; ++i)
     {
         const int cx = rnd.nextInt (w), cy = rnd.nextInt (h), rad = juce::jmax (1, (int) ((1.5f + rnd.nextFloat() * 2.5f) * h / 1080.0f * 2.5f));
@@ -344,7 +361,7 @@ void Renderer::postFx (const Frame& f, float react)
     std::memcpy (cpy.data(), lum.data(), N);
     const float presence = zoneMax (f, 22, 25), air = zoneAvg (f, 29, 31, false);
     shift.assign ((size_t) h, 0);
-    if (presence > 0.5f)
+    if (presence > 0.5f && look.effectOn (fxGlitch))
     {
         int slices = 1 + (int) (presence * 4);
         for (int s = 0; s < slices; ++s)
@@ -354,10 +371,10 @@ void Renderer::postFx (const Frame& f, float react)
             for (int y = y0; y < juce::jmin (h, y0 + hh); ++y) shift[(size_t) y] += dx;
         }
     }
-    if (air > 0.25f) for (int y = 0; y < h; ++y) shift[(size_t) y] += (int) std::lround (react * (air - 0.25f) * 4 * h / 1080.0f * std::sin (y * 0.15f + t * 30));
+    if (air > 0.25f && look.effectOn (fxShimmer)) for (int y = 0; y < h; ++y) shift[(size_t) y] += (int) std::lround (react * (air - 0.25f) * 4 * h / 1080.0f * std::sin (y * 0.15f + t * 30));
 
-    const int echoA = f.density > 0.15f ? (int) (react * f.density * 0.35f * 256) : 0;
-    const int ghostA = f.width > 0.1f ? (int) (react * f.width * 0.4f * 256) : 0;
+    const int echoA = f.density > 0.15f && look.effectOn (fxEchoes) ? (int) (react * f.density * 0.35f * 256) : 0;
+    const int ghostA = f.width > 0.1f && look.effectOn (fxGhosts) ? (int) (react * f.width * 0.4f * 256) : 0;
     const int ghostOff = (int) (f.width * 0.04f * w * react);
     if (echoA > 0)
     {
@@ -367,11 +384,11 @@ void Renderer::postFx (const Frame& f, float react)
         for (int x = 0; x < w; ++x) { ex1[(size_t) x] = juce::jlimit (0, w - 1, (int) (cxf + (x - cxf) / 1.05f)); ex2[(size_t) x] = (int) (cxf + (x - cxf) / 0.95f); }
         for (int y = 0; y < h; ++y) { ey1[(size_t) y] = juce::jlimit (0, h - 1, (int) (cyf + (y - cyf) / 1.05f)); ey2[(size_t) y] = (int) (cyf + (y - cyf) / 0.95f); }
     }
-    const int decay = (int) (juce::jlimit (0.0f, 0.93f, react * (0.55f * f.tail + 0.3f * f.sparse + 0.5f * f.silence)) * 256);
+    const int decay = look.effectOn (fxTrails) ? (int) (juce::jlimit (0.0f, 0.93f, react * (0.55f * f.tail + 0.3f * f.sparse + 0.5f * f.silence)) * 256) : 0;
     const juce::uint32 dissolve = (juce::uint32) (f.silence * react * 90);
     const int drift = f.silence > 0.2f ? 1 : 0;
-    const int noiseAmp = (int) (react * f.noisiness * 70);
-    const int flash = (int) (react * f.drop * f.drop * 90);
+    const int noiseAmp = look.effectOn (fxStatic) ? (int) (react * f.noisiness * 70) : 0;
+    const int flash = look.effectOn (fxFlash) ? (int) (react * f.drop * f.drop * 90) : 0;
     juce::uint32 seed = (juce::uint32) (f.index * 2654435761u + 1);
     for (int y = 0; y < h; ++y)
     {
@@ -459,6 +476,7 @@ void Renderer::colourise (const Frame& f, const Look& look, float react)
     const float target = (float) f.section * 0.33f;
     sectionShift += (target - sectionShift) * juce::jmin (1.0f, (float) f.dt * 6);
     offset = (float) std::fmod (f.t * (0.04 + 0.05 * f.energy) + f.beat * 0.07 + f.brightness * 0.3f * (react > 0 ? 1 : 0) + sectionShift * (react > 0 ? 1 : 0), 1000.0);
+    if (! look.effectOn (fxColourMotion)) offset = 0;   // the palette holds still
     const std::vector<float>* fv = spatial > 0 ? &field (kind) : nullptr;
 
     juce::Image::BitmapData bd (layer, juce::Image::BitmapData::readWrite);

@@ -91,6 +91,15 @@ void Source::feed (const float* l, const float* r, int n)
             cap.copyFrom (0, at, l, m);
             if (cap.getNumChannels() > 1) cap.copyFrom (1, at, r, m);
             capLen = at + m;
+            for (int i = 0; i < m; ++i)
+            {
+                capPeakAcc = juce::jmax (capPeakAcc, std::abs (l[i]), std::abs (r[i]));
+                if (++capPeakCount == 256)
+                {
+                    if (capPeakFill < (int) capPeaks.size()) capPeaks[(size_t) capPeakFill++] = capPeakAcc;
+                    capPeakAcc = 0; capPeakCount = 0;
+                }
+            }
         }
         if (m < n) capState = 0;   // full: stop (UI picks it up)
     }
@@ -137,10 +146,18 @@ juce::AudioBuffer<float> Source::jamSnapshot (double seconds) const
     return b;
 }
 
+void Source::capturePeaks (std::vector<float>& into) const
+{
+    const juce::SpinLock::ScopedLockType cl (const_cast<juce::SpinLock&> (capLock));
+    if ((int) into.size() > capPeakFill) into.clear();
+    into.insert (into.end(), capPeaks.begin() + (std::ptrdiff_t) into.size(), capPeaks.begin() + capPeakFill);
+}
+
 void Source::startCapture (double maxSeconds)
 {
     const juce::SpinLock::ScopedLockType cl (capLock);
     cap.setSize (channels > 1 ? 2 : 1, (int) (maxSeconds * sr.load()));
+    capPeaks.assign ((size_t) (cap.getNumSamples() / 256 + 2), 0.0f); capPeakFill = 0; capPeakAcc = 0; capPeakCount = 0;
     cap.clear();
     capLen = 0;
     capStartFrame = -1;
@@ -151,6 +168,7 @@ void Source::armCapture (double maxSeconds, float thresholdDb)
 {
     const juce::SpinLock::ScopedLockType cl (capLock);
     cap.setSize (channels > 1 ? 2 : 1, (int) (maxSeconds * sr.load()));
+    capPeaks.assign ((size_t) (cap.getNumSamples() / 256 + 2), 0.0f); capPeakFill = 0; capPeakAcc = 0; capPeakCount = 0;
     cap.clear();
     capLen = 0;
     armTh = juce::Decibels::decibelsToGain (thresholdDb);
@@ -187,15 +205,107 @@ Engine::Engine (bool openDevices)
     server = std::make_unique<link::Server> ([this] (int id, const link::Packet& p) { onLinkAudio (id, p); },
                                              [this] (int id) { onLinkLost (id); });
     if (! openDevices) return;
-    std::unique_ptr<juce::XmlElement> saved (juce::parseXML (Settings::get().str ("audioDevice")));
-    devices.initialise (16, 2, saved.get(), true);
+    devicesOpen = true;
+    wantedSetup = juce::parseXML (Settings::get().str ("audioDevice"));
+    wantedName = deviceNameIn (wantedSetup.get());
+    openWantedDevice (true);
+    startedAt = lastRetry = juce::Time::getMillisecondCounter();
     devices.addChangeListener (this);
     devices.addAudioCallback (this);
     server->start();
+    startTimer (1000);
+}
+
+juce::String Engine::deviceNameIn (const juce::XmlElement* x)
+{
+    if (x == nullptr) return {};
+    auto n = x->getStringAttribute ("audioOutputDeviceName");
+    return n.isNotEmpty() ? n : x->getStringAttribute ("audioInputDeviceName");
+}
+
+void Engine::openWantedDevice (bool allowFallback)
+{
+    const juce::ScopedValueSetter<bool> busy (reopening, true);
+    auto current = [this] { auto* d = devices.getCurrentAudioDevice(); return d != nullptr ? d->getName() : juce::String(); };
+
+    if (wantedSetup != nullptr)
+    {
+        devices.initialise (16, 2, wantedSetup.get(), false);
+        if (current() == wantedName) { fellBack = false; problem = {}; return; }
+    }
+    if (! allowFallback) return;
+
+    // yours didn't open (or none saved yet): BC Split if it's installed, then whatever the system offers
+    if (wantedName != "BC Split")
+    {
+        devices.initialise (16, 2, nullptr, false);
+        for (auto* t : devices.getAvailableDeviceTypes())
+        {
+            if (! t->getDeviceNames().contains ("BC Split")) continue;
+            devices.setCurrentAudioDeviceType (t->getTypeName(), true);
+            auto setup = devices.getAudioDeviceSetup();
+            setup.outputDeviceName = setup.inputDeviceName = "BC Split";
+            setup.useDefaultInputChannels = setup.useDefaultOutputChannels = true;
+            devices.setAudioDeviceSetup (setup, true);
+            break;
+        }
+    }
+    if (current().isEmpty()) devices.initialise (16, 2, nullptr, true);
+
+    if (wantedName.isEmpty())
+    {
+        // first run: whatever opened is the choice
+        fellBack = false; problem = {};
+        if (auto xml = devices.createStateXml()) { wantedSetup = std::move (xml); wantedName = deviceNameIn (wantedSetup.get()); }
+        return;
+    }
+    fellBack = true;
+    problem = "Couldn't open " + wantedName + ", so the app is on "
+              + (current().isNotEmpty() ? current() : juce::String ("no device")) + " for now (not saved as your choice). "
+              + "Press \"Back to " + wantedName + "\" once it's ready, or pick a device to make that your choice.";
+}
+
+bool Engine::retryWantedDevice()
+{
+    if (! fellBack || wantedSetup == nullptr) return ! fellBack;
+    auto fallback = devices.createStateXml();
+    openWantedDevice (false);
+    if (fellBack)
+    {
+        // still not there: put the stand-in back rather than leaving the app silent
+        const juce::ScopedValueSetter<bool> busy (reopening, true);
+        devices.initialise (16, 2, fallback.get(), true);
+        return false;
+    }
+    notify();
+    return true;
+}
+
+void Engine::timerCallback()
+{
+    const auto now = juce::Time::getMillisecondCounter();
+    // the device you picked wasn't there at start-up (Split's host still starting up): try again a few times in the
+    // first half minute. After that only on request, since each try briefly stops the stand-in device.
+    if (fellBack && devicesOpen && now - startedAt < 30000 && now - lastRetry > 6000)
+    {
+        lastRetry = now;
+        retryWantedDevice();
+    }
+    // MIDI outputs nobody has used for a while: close them, so the MPC software or Ableton can have the port
+    std::vector<std::unique_ptr<juce::MidiOutput>> closing;
+    {
+        const juce::ScopedLock sl (midiLock);
+        for (auto it = outs.begin(); it != outs.end();)
+        {
+            if (now - outUsed[it->first] > 20000) { closing.push_back (std::move (it->second)); outUsed.erase (it->first); it = outs.erase (it); }
+            else ++it;
+        }
+    }
 }
 
 Engine::~Engine()
 {
+    stopTimer();
     stopLoopback();
     devices.removeAudioCallback (this);
     devices.closeAudioDevice();
@@ -205,7 +315,21 @@ Engine::~Engine()
 
 void Engine::changeListenerCallback (juce::ChangeBroadcaster*)
 {
-    if (auto xml = devices.createStateXml()) Settings::get().set ("audioDevice", xml->toString());
+    // save it only when it's your pick (or your device is the one running): a fallback never overwrites your choice
+    const bool yours = juce::Time::getMillisecondCounter() < userPickUntil;
+    if (! reopening && (yours || ! fellBack))
+    {
+        if (auto xml = devices.createStateXml())
+        {
+            Settings::get().set ("audioDevice", xml->toString());
+            if (yours || deviceNameIn (xml.get()) == wantedName)
+            {
+                wantedName = deviceNameIn (xml.get());
+                wantedSetup = std::move (xml);
+                fellBack = false; problem = {};
+            }
+        }
+    }
     notify();
 }
 
@@ -221,21 +345,35 @@ void Engine::audioDeviceAboutToStart (juce::AudioIODevice* d)
     auto names = d->getInputChannelNames();
     {
         const juce::ScopedLock sl (lock);
+        // the callback's in[] holds only the active channels, in order: map hardware channel -> index in in[]
+        std::vector<int> slot ((size_t) names.size(), -1);
+        for (int ch = 0, k = 0; ch < names.size(); ++ch) if (active[ch]) slot[(size_t) ch] = k++;
         int count = 0;
+        inputFeed.clear();
         for (int ch = 0; ch < names.size(); ++ch)
         {
             if (! active[ch]) continue;
+            // 1+2, 3+4 ... linked as stereo (when both are on)
+            const bool paired = ch % 2 == 0 && ch + 1 < names.size() && active[ch + 1] && Settings::get().flag ("stereoPair" + juce::String (ch));
             juce::String label = Settings::get().str ("inputName" + juce::String (ch), names[ch]);
-            if (count < inputs.size())
+            if (paired)
             {
-                inputs[count]->name = label;
-                inputs[count]->active = true;
-                inputs[count]->setSampleRate (sr);
+                auto right = names[ch + 1].fromLastOccurrenceOf (" ", false, false);
+                label = Settings::get().str ("pairName" + juce::String (ch), names[ch] + "+" + (right.isNotEmpty() ? right : names[ch + 1]));
             }
-            else inputs.add (new Source (Source::input, label, 1, sr));
+            const int chans = paired ? 2 : 1;
+            if (count >= inputs.size()) inputs.add (new Source (Source::input, label, chans, sr));
+            auto* s = inputs[count];
+            s->name = label;
+            s->active = true;
+            s->channels = chans;
+            s->hwL = ch; s->hwR = paired ? ch + 1 : -1;
+            s->setSampleRate (sr);
+            inputFeed.push_back ({ slot[(size_t) ch], paired ? slot[(size_t) ch + 1] : -1 });
             ++count;
+            if (paired) ++ch;
         }
-        for (int i = count; i < inputs.size(); ++i) inputs[i]->active = false;
+        for (int i = count; i < inputs.size(); ++i) { inputs[i]->active = false; inputs[i]->hwL = inputs[i]->hwR = -1; }
         for (auto* s : inputs) s->setJamSeconds (jamMins * 60);
     }
     tmpL.assign (8192, 0.0f);
@@ -245,8 +383,12 @@ void Engine::audioDeviceAboutToStart (juce::AudioIODevice* d)
 void Engine::audioDeviceIOCallbackWithContext (const float* const* in, int nin, float* const* out, int nout, int n,
                                                const juce::AudioIODeviceCallbackContext&)
 {
-    for (int c = 0; c < nin && c < inputs.size(); ++c)
-        if (in[c] != nullptr) inputs.getUnchecked (c)->feed (in[c], nullptr, n);
+    for (size_t k = 0; k < inputFeed.size() && (int) k < inputs.size(); ++k)
+    {
+        const auto [li, ri] = inputFeed[k];
+        if (li < 0 || li >= nin || in[li] == nullptr) continue;
+        inputs.getUnchecked ((int) k)->feed (in[li], ri >= 0 && ri < nin && in[ri] != nullptr ? in[ri] : nullptr, n);
+    }
 
     for (int c = 0; c < nout; ++c) if (out[c] != nullptr) juce::FloatVectorOperations::clear (out[c], n);
     if (nout == 0) return;
@@ -282,19 +424,35 @@ juce::String Engine::sourceLabel (const Source* s) const
     }
 }
 
+bool Engine::canPairAsStereo (const Source* s) const
+{
+    if (s == nullptr || s->kind != Source::input || s->hwL < 0) return false;
+    if (s->hwR >= 0) return true;   // already a pair: can be split again
+    auto* d = const_cast<Engine*> (this)->devices.getCurrentAudioDevice();
+    if (d == nullptr) return false;
+    const int ch = s->hwL - (s->hwL % 2);            // 1+2, 3+4 ...
+    auto active = d->getActiveInputChannels();
+    return ch + 1 < d->getInputChannelNames().size() && active[ch] && active[ch + 1];
+}
+
+void Engine::setStereoPair (const Source* s, bool paired)
+{
+    if (! canPairAsStereo (s)) return;
+    const int ch = s->hwL - (s->hwL % 2);
+    Settings::get().set ("stereoPair" + juce::String (ch), paired);
+    // rebuild the sources: reopen the same device with the same settings
+    devices.closeAudioDevice();
+    devices.restartLastAudioDevice();
+}
+
 void Engine::renameInput (int index, const juce::String& n)
 {
     const juce::ScopedLock sl (lock);
     if (! juce::isPositiveAndBelow (index, inputs.size())) return;
-    inputs[index]->name = n;
-    // map back to the hardware channel number
-    if (auto* d = devices.getCurrentAudioDevice())
-    {
-        auto active = d->getActiveInputChannels();
-        int count = 0;
-        for (int ch = 0; ch < d->getInputChannelNames().size(); ++ch)
-            if (active[ch]) { if (count == index) { Settings::get().set ("inputName" + juce::String (ch), n); break; } ++count; }
-    }
+    auto* s = inputs[index];
+    s->name = n;
+    if (s->hwL < 0) return;
+    Settings::get().set ((s->hwR >= 0 ? "pairName" : "inputName") + juce::String (s->hwL), n);
 }
 
 void Engine::setJamMinutes (int m)
@@ -514,6 +672,7 @@ juce::MidiOutput* Engine::midiOut (const juce::String& id)
 {
     const juce::ScopedLock sl (midiLock);
     if (id.isEmpty()) return nullptr;
+    outUsed[id] = juce::Time::getMillisecondCounter();
     auto it = outs.find (id);
     if (it != outs.end()) return it->second.get();
     auto o = juce::MidiOutput::openDevice (id);
@@ -524,11 +683,13 @@ juce::MidiOutput* Engine::midiOut (const juce::String& id)
 
 void Engine::sendNow (const juce::String& id, const juce::MidiMessage& m)
 {
+    const juce::ScopedLock sl (midiLock);   // held while sending, so an idle port can't close underneath
     if (auto* o = midiOut (id)) o->sendMessageNow (m);
 }
 
 void Engine::allNotesOff (const juce::String& id, int ch)
 {
+    const juce::ScopedLock sl (midiLock);
     if (auto* o = midiOut (id))
     {
         o->sendMessageNow (juce::MidiMessage::allNotesOff (ch));

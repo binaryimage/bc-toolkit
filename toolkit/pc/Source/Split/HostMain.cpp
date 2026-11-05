@@ -4,6 +4,7 @@
 #include "Common/JuceHeader.h"
 #include "Common/Look.h"
 #include "Common/Widgets.h"
+#include "Common/LayoutCheck.h"
 #include "SplitCore.h"
 #include "SplitTestClock.h"
 #include <map>
@@ -34,6 +35,7 @@ public:
     bool start()
     {
         if (! core.create()) return false;
+        core.setOutputDelay (settings().getIntValue ("safety", split::kOutputDelayBlocks));
         if (test) { clock.start (48000, 256); return true; }
         asio.reset (juce::AudioIODeviceType::createAudioIODeviceType_ASIO());
         if (asio == nullptr) { core.setState (split::hostError, "ASIO isn't available on this computer."); return true; }
@@ -188,8 +190,17 @@ public:
     {
         for (auto* s : { &top, &apps, &ins }) addAndMakeVisible (s);
         top.setTitle ("Interface"); apps.setTitle ("Apps using Split"); ins.setTitle ("Inputs");
-        styleCombo (device); styleCombo (rate); styleCombo (buffer);
-        for (auto* c : { &device, &rate, &buffer }) top.addAndMakeVisible (c);
+        styleCombo (device); styleCombo (rate); styleCombo (buffer); styleCombo (safety);
+        for (auto* c : { &device, &rate, &buffer, &safety }) top.addAndMakeVisible (c);
+        safety.addItem ("2 buffers (normal)", split::kOutputDelayBlocks);
+        safety.addItem ("3 buffers (fewer ticks)", split::kMaxOutputDelayBlocks);
+        safety.setSelectedId (engine.core.outputDelay(), juce::dontSendNotification);
+        safety.onChange = [this] {
+            if (updating) return;
+            engine.core.setOutputDelay (safety.getSelectedId());
+            settings().setValue ("safety", safety.getSelectedId());
+            refresh();
+        };
         device.onChange = [this] { if (! updating) engine.open (device.getText(), engine.currentRate(), engine.currentBuffer()); refresh(); };
         rate.onChange = [this] { if (! updating) engine.open (engine.currentName(), rate.getText().getDoubleValue(), engine.currentBuffer()); refresh(); };
         buffer.onChange = [this] { if (! updating) engine.open (engine.currentName(), engine.currentRate(), buffer.getText().getIntValue()); refresh(); };
@@ -201,7 +212,7 @@ public:
         warn = makeLabel ("", 13.5f, col::white, 2);
         warn->setJustificationType (juce::Justification::topLeft);
         apps.addAndMakeVisible (*warn);
-        for (auto* l : { "Real interface", "Sample rate", "Buffer" }) { auto lb = makeLabel (l, 12, col::text3); top.addAndMakeVisible (*lb); lbls.push_back (std::move (lb)); }
+        for (auto* l : { "Real interface", "Sample rate", "Buffer", "Safety" }) { auto lb = makeLabel (l, 12, col::text3); top.addAndMakeVisible (*lb); lbls.push_back (std::move (lb)); }
         status = makeLabel ("", 14, col::text, 1);
         status->setJustificationType (juce::Justification::topLeft);
         top.addAndMakeVisible (*status);
@@ -210,7 +221,8 @@ public:
         apps.addAndMakeVisible (*appList);
         help = makeLabel ("Pick \"BC Split\" as the ASIO device in Ableton, Toolkit and Rocksmith (RS_ASIO.ini: Driver=BC Split). "
                           "Split keeps the interface open and shares it, so they can all run at once. Their outputs go out two buffers "
-                          "later than they would direct (about 11 ms at 256), and Split reports that so recordings still line up.", 12, col::text3);
+                          "later than they would direct (about 11 ms at 256; three with Safety on 3), and Split reports that so recordings "
+                          "still line up. If an app is late, Split fades it out and back in rather than cutting it, so a stall is a dip, not a click.", 12, col::text3);
         help->setJustificationType (juce::Justification::topLeft);
         apps.addAndMakeVisible (*help);
         ins.addAndMakeVisible (meters);
@@ -267,16 +279,28 @@ public:
         for (auto& c : cl)
         {
             auto& h = history[c.index];
-            if (h.name != juce::String (c.name) || c.late < h.late) h = { juce::String (c.name), c.late, now, 0 };
+            if (h.name != juce::String (c.name) || c.late < h.late) h = { juce::String (c.name), c.late, now, 0, c.late > 0 ? now : 0, c.late };
+            if (c.late > h.lastSeen) { h.lastSeen = c.late; h.lastAt = now; }
             if (now - h.since > 4000) { h.rate = (double) (c.late - h.late) * 60000.0 / (now - h.since); h.late = c.late; h.since = now; }
             if (h.rate > 3) behind.add (juce::String (c.name));
         }
         warn->setText (behind.isEmpty() ? juce::String()
-                       : behind.joinIntoString (", ") + (behind.size() == 1 ? " is" : " are") + " falling behind (you'd hear ticks). Raise the buffer in Interface panel, then press Reload.",
+                       : behind.joinIntoString (", ") + (behind.size() == 1 ? " is" : " are") + " falling behind (you'd hear dips). Set Safety to 3 buffers, or raise the buffer in Interface panel and press Reload.",
                        juce::dontSendNotification);
         if (cl.empty()) a << "Nothing yet. Open Ableton, Toolkit or Rocksmith with BC Split as the ASIO device.";
         for (auto& c : cl)
-            a << (c.running ? "PLAYING   " : "idle         ") << juce::String (c.name) << (c.late > 0 ? "   (" + juce::String ((int) c.late) + " late blocks)" : juce::String()) << "\n";
+        {
+            a << (c.running ? "PLAYING   " : "idle         ") << juce::String (c.name);
+            if (c.late > 0)
+            {
+                // a total on its own can't tell you if it's still happening: say when the last one was
+                const auto& h = history[c.index];
+                const auto ago = (now - h.lastAt) / 1000;
+                a << "   (" << (int) c.late << (c.late == 1 ? " late block" : " late blocks") << ", last one "
+                  << (ago < 5 ? juce::String ("just now") : ago < 60 ? juce::String ((int) ago) + " s ago" : juce::String ((int) (ago / 60)) + " min ago") << ")";
+            }
+            a << "\n";
+        }
         appList->setText (a, juce::dontSendNotification);
         apps.setTitle ("Apps using Split  /  " + juce::String ((int) cl.size()));
         meters.repaint();
@@ -287,23 +311,34 @@ public:
     void resized() override
     {
         auto r = getLocalBounds().reduced (12);
-        top.setBounds (r.removeFromTop (200)); r.removeFromTop (10);
-        ins.setBounds (r.removeFromBottom (210)); r.removeFromBottom (10);
+        top.setBounds (r.removeFromTop (222)); r.removeFromTop (10);
+        ins.setBounds (r.removeFromBottom (juce::jlimit (150, 210, (r.getHeight() - 10) * 35 / 100))); r.removeFromBottom (10);
         apps.setBounds (r);
         auto t = top.content();
         auto labels = t.removeFromTop (18), row = t.removeFromTop (36);
-        const int ws[] = { 300, 130, 150 };
+        // buttons on the right first, so they're never pushed off the edge; the device box gets what's left
+        reloadBtn->setBounds (row.getRight() - 100, row.getY() - 3, 100, 40);
+        panelBtn->setBounds (row.getRight() - 100 - 8 - 150, row.getY() - 3, 150, 40);
+        const int combosRight = panelBtn->getX() - 10;
+        const int fixedW[] = { 130, 150 };
+        const int deviceW = juce::jlimit (150, 320, combosRight - row.getX() - fixedW[0] - fixedW[1] - 20);
+        const int ws[] = { deviceW, fixedW[0], fixedW[1] };
         juce::Component* cs[] = { &device, &rate, &buffer };
         int x = row.getX();
         for (int k = 0; k < 3; ++k) { lbls[(size_t) k]->setBounds (x, labels.getY(), ws[k], 18); cs[k]->setBounds (x, row.getY(), ws[k], 34); x += ws[k] + 10; }
-        panelBtn->setBounds (x, row.getY() - 3, 150, 40);
-        reloadBtn->setBounds (x + 158, row.getY() - 3, 100, 40);
         t.removeFromTop (10);
-        retryBtn->setBounds (t.removeFromRight (120).removeFromTop (40));
+        auto right = t.removeFromRight (258);
+        lbls[3]->setBounds (right.removeFromTop (18));
+        safety.setBounds (right.removeFromTop (34));
+        right.removeFromTop (8);
+        retryBtn->setBounds (right.removeFromTop (40).removeFromLeft (120));
         status->setBounds (t);
         auto a = apps.content();
-        help->setBounds (a.removeFromBottom (54));
-        warn->setBounds (a.removeFromBottom (40));
+        // the list of apps comes first; the help text only shows when there's room left over
+        const bool roomForHelp = a.getHeight() >= 54 + 40 + 90;
+        help->setVisible (roomForHelp);
+        if (roomForHelp) help->setBounds (a.removeFromBottom (54));
+        warn->setBounds (a.removeFromBottom (juce::jmin (40, a.getHeight() / 3)));
         appList->setBounds (a);
         meters.setBounds (ins.content());
     }
@@ -311,10 +346,10 @@ public:
 private:
     Engine& engine;
     Slab top, apps, ins;
-    juce::ComboBox device, rate, buffer;
+    juce::ComboBox device, rate, buffer, safety;
     std::unique_ptr<juce::TextButton> panelBtn, retryBtn, reloadBtn;
     std::unique_ptr<juce::Label> warn;
-    struct LateHistory { juce::String name; uint32_t late = 0; juce::uint32 since = 0; double rate = 0; };
+    struct LateHistory { juce::String name; uint32_t late = 0; juce::uint32 since = 0; double rate = 0; juce::uint32 lastAt = 0; uint32_t lastSeen = 0; };
     std::map<int, LateHistory> history;
     std::vector<std::unique_ptr<juce::Label>> lbls;
     std::unique_ptr<juce::Label> status, appList, help;
@@ -330,7 +365,8 @@ public:
         setUsingNativeTitleBar (true);
         setContentOwned (new HostComponent (e), false);
         setResizable (true, false);
-        centreWithSize (880, 640);
+        centreWithSize (880, 660);
+        setResizeLimits (800, 600, 4000, 3000);   // narrower than this and the top row would run out of room
     }
     void closeButtonPressed() override { setVisible (false); if (onClose) onClose(); }
     std::function<void()> onClose;
@@ -431,9 +467,34 @@ public:
         auto* c = window->getContentComponent();
         auto img = c->createComponentSnapshot (c->getLocalBounds(), true, 1.0f);
         screenshotFile.deleteFile();
-        juce::FileOutputStream os (screenshotFile);
-        bool ok = os.openedOk() && juce::PNGImageFormat().writeImageToStream (img, os);
+        bool ok = false;
+        {
+            juce::FileOutputStream os (screenshotFile);
+            ok = os.openedOk() && juce::PNGImageFormat().writeImageToStream (img, os);
+        }
         log (ok ? "saved " + screenshotFile.getFullPathName() : "couldn't write " + screenshotFile.getFullPathName());
+
+        // the button check, at the window's normal size and at the smallest it can be dragged to
+        juce::StringArray report, problems;
+        auto checkAt = [&] (int w, int h, const juce::String& name)
+        {
+            c->setSize (w, h);
+            auto found = tk::findLayoutProblems (*c);
+            report.add ((found.isEmpty() ? "PASS  " : "FAIL  ") + name + " " + juce::String (w) + "x" + juce::String (h) + "   (" + juce::String (tk::listControls (*c).size()) + " controls)");
+            for (auto& f : found) { report.add ("        " + f); problems.add (f); }
+            auto shot = c->createComponentSnapshot (c->getLocalBounds(), true, 1.0f);
+            auto f = screenshotFile.getSiblingFile (screenshotFile.getFileNameWithoutExtension() + "-" + name + ".png");
+            f.deleteFile();
+            juce::FileOutputStream os (f);
+            juce::PNGImageFormat().writeImageToStream (shot, os);
+        };
+        const auto normal = c->getBounds();
+        checkAt (normal.getWidth(), normal.getHeight(), "normal");
+        checkAt (800 - 16, 600 - 40, "smallest");   // setResizeLimits (800, 600), minus the window frame
+        c->setSize (normal.getWidth(), normal.getHeight());
+        report.insert (0, juce::String (problems.size()) + " problems");
+        screenshotFile.getSiblingFile (screenshotFile.getFileNameWithoutExtension() + "-layout.txt").replaceWithText (report.joinIntoString ("\n") + "\n");
+        log ("layout check: " + juce::String (problems.size()) + " problems");
     }
 
     void shutdown() override

@@ -5,6 +5,32 @@ namespace tk
 {
 namespace
 {
+/** The take as it records: one bar per 256 frames, newest on the right, scrolling once it fills the width. */
+class LiveTake : public Screen
+{
+public:
+    std::vector<float> peaks;
+    void paintScreen (juce::Graphics& g, juce::Rectangle<float> r) override
+    {
+        const float mid = r.getCentreY(), half = r.getHeight() * 0.45f;
+        g.setColour (col::grid); g.drawHorizontalLine ((int) mid, r.getX(), r.getRight());
+        const int cols = juce::jmax (1, (int) r.getWidth());
+        // fit everything recorded so far (several peaks per pixel for long takes), so the whole take stays in view
+        const int n = (int) peaks.size();
+        if (n == 0) { g.setColour (col::text3); g.setFont (font (13)); g.drawText ("listening...", r, juce::Justification::centred); return; }
+        const double per = juce::jmax (1.0, (double) n / cols);
+        g.setColour (juce::Colour (0xffd8d8d8));
+        for (int x = 0; x < cols; ++x)
+        {
+            const int a = (int) (x * per), b = juce::jmin (n, (int) ((x + 1) * per));
+            if (a >= n) break;
+            float pk = 0; for (int i = a; i < juce::jmax (a + 1, b); ++i) pk = juce::jmax (pk, peaks[(size_t) i]);
+            const float h = juce::jmin (1.0f, pk) * half;
+            g.fillRect (r.getX() + x, mid - h, 1.0f, juce::jmax (1.0f, 2 * h));
+        }
+    }
+};
+
 class RecordPage : public Page
 {
 public:
@@ -43,10 +69,15 @@ public:
         srcSlab.addAndMakeVisible (*state);
 
         takeSlab.addAndMakeVisible (wave);
+        takeSlab.addChildComponent (live);
         wave.editable = false;
         name.setText ("Take", juce::dontSendNotification);
         takeSlab.addAndMakeVisible (name);
-        playBtn = makeButton ("Play", [this] { if (take.getNumSamples()) engine.play (take, takeSr); });
+        // Play turns into Stop while the take is sounding
+        playBtn = makeButton ("Play", [this] {
+            if (playingTake && engine.isPlaying()) { engine.stopPlayback(); playingTake = false; return; }
+            if (take.getNumSamples()) { engine.play (take, takeSr); playingTake = true; }
+        });
         saveBtn = makeButton ("Save WAV", [this] { saveTake(); });
         trimBtn = makeButton ("Trim silence", [this] { trim(); });
         chopBtn = makeButton ("To chop station", [this] { send ("chop"); });
@@ -111,6 +142,7 @@ public:
         for (auto* b : { playBtn.get(), saveBtn.get(), trimBtn.get(), chopBtn.get(), wavesBtn.get(), mangleBtn.get(), videoBtn.get() }) b->setBounds (btns.removeFromLeft (bw).reduced (2, 0));
         t.removeFromBottom (8);
         wave.setBounds (t);
+        live.setBounds (t);
 
         auto j = jamSlab.content();
         auto j1 = j.removeFromTop (36);
@@ -118,9 +150,11 @@ public:
         jamInfo->setBounds (j1);
         j.removeFromTop (10);
         auto j2 = j.removeFromTop (44);
-        jamName.setBounds (j2.removeFromLeft (320).reduced (0, 4)); j2.removeFromLeft (10);
-        for (auto* b : jamBtns) { b->setBounds (j2.removeFromLeft (170)); j2.removeFromLeft (6); }
-        openJams->setBounds (j2.removeFromRight (170));
+        // label box takes what the five buttons leave (never less than 160), so nothing runs off the edge
+        const int bw2 = juce::jmin (170, (j2.getWidth() - 160 - 10 - 4 * 6) / 4);
+        jamName.setBounds (j2.removeFromLeft (juce::jlimit (160, 320, j2.getWidth() - 4 * (bw2 + 6) - 10)).reduced (0, 4)); j2.removeFromLeft (10);
+        for (auto* b : jamBtns) { b->setBounds (j2.removeFromLeft (bw2)); j2.removeFromLeft (6); }
+        openJams->setBounds (j2.removeFromLeft (bw2));
     }
 
     void toggleRecord (bool arm)
@@ -130,6 +164,7 @@ public:
         if (recording != nullptr)
         {
             take = recording->stopCapture();
+            live.setVisible (false); wave.setVisible (true);
             takeSr = recording->sr;
             takeName = engine.sourceLabel (recording);
             recording = nullptr;
@@ -142,6 +177,7 @@ public:
         double mx = lens[juce::jlimit (0, 3, maxLen.getSelectedId() - 1)];
         if (arm) s->armCapture (mx, (float) thresh.getValue()); else s->startCapture (mx);
         recording = s;
+        live.peaks.clear();
     }
 
     void tick() override
@@ -154,6 +190,9 @@ public:
             state->setText (st == 1 ? "Armed: waiting for sound..." : "Recording  " + fmtTime (recording->capturedSeconds()), juce::dontSendNotification);
             recBtn->setButtonText ("Stop"); recBtn->setToggleState (true, juce::dontSendNotification);
             armBtn->setEnabled (false);
+            recording->capturePeaks (live.peaks);
+            if (! live.isVisible()) { live.setVisible (true); wave.setVisible (false); }
+            live.repaint();
         }
         else
         {
@@ -162,6 +201,9 @@ public:
             armBtn->setEnabled (true);
         }
         if (engine.isPlaying()) wave.setPlayhead (engine.playPosition()); else wave.setPlayhead (-1);
+        if (playingTake && ! engine.isPlaying()) playingTake = false;
+        playBtn->setButtonText (playingTake ? "Stop" : "Play");
+        playBtn->setToggleState (playingTake, juce::dontSendNotification);
         auto all = engine.sources();
         double held = 0;
         for (auto* s : all) held = juce::jmax (held, s->jamFilledSeconds());
@@ -231,7 +273,8 @@ public:
     std::unique_ptr<juce::Label> state, threshLbl, maxLbl, info, jamLbl, jamInfo;
     juce::Slider thresh; juce::ComboBox maxLen, jamMins;
     juce::TextEditor name, jamName;
-    LedMeter meter; WaveView wave;
+    LedMeter meter; WaveView wave; LiveTake live;
+    bool playingTake = false;
     juce::AudioBuffer<float> take; double takeSr = 48000; juce::String takeName;
     Source* recording = nullptr;
 };

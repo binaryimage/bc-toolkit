@@ -20,10 +20,12 @@ How it works
 Good to know
   - Every app runs at the same sample rate and buffer (set in the Split window). Keep them at 48 kHz.
     An app on its own can change the rate; with other apps attached it stays put.
-  - Outputs go out one buffer later than direct (about 5 ms at 256 samples). Split reports it, so DAWs
-    line recordings up.
+  - Outputs go out two buffers later than direct (about 11 ms at 256 samples), or three with Safety
+    set to 3 buffers. Split reports it, so DAWs line recordings up.
   - If an app says Split won't start, open the Split window: the status line says why (usually some app
     has the TASCAM driver open directly; point that one at Split too).
-  - A "late blocks" count next to an app means it couldn't keep up: raise the buffer.
+  - A "late blocks" count next to an app means it missed its turn (it says when the last one was).
+    Split fades a late app out and back in, so you hear a short dip instead of a click. If it keeps
+    happening, set Safety to 3 buffers, or raise the buffer.
 
 Uninstall from Windows Settings > Apps.

@@ -14,8 +14,10 @@ namespace split
     constexpr int kMaxFrames = 2048;            // largest buffer size
     constexpr int kSlots = 4;                   // ring of blocks
     constexpr int kMaxClients = 8;
-    /** apps get this many buffers to answer before their output is due (2 = room for uneven USB callbacks) */
+    /** apps get this many buffers to answer before their output is due (2 = room for uneven USB callbacks).
+        The Split window's "Safety" setting can raise it to kMaxOutputDelayBlocks; Shared::outputDelay holds the live value. */
     constexpr int kOutputDelayBlocks = 2;
+    constexpr int kMaxOutputDelayBlocks = kSlots - 1;   // the ring must keep the block being mixed apart from the one being written
     constexpr const char* kRegionName = "binaryimageSplit.v1";
     constexpr const char* kDriverName = "BC Split";
     constexpr const char* kHostExe = "BC Split Host.exe";
@@ -45,7 +47,7 @@ namespace split
         std::atomic<uint32_t> configGen;     // bumps when rate / buffer / channels change
         std::atomic<uint32_t> rateRequestClient;   // client index + 1 asking for requestedRate
         int32_t bufferSize, numIns, numOuts, inLatency, outLatency;
-        int32_t pad0;
+        int32_t outputDelay;                 // buffers apps get before their output is due (was padding: 0 = kOutputDelayBlocks)
         double sampleRate;
         double requestedRate;
         char deviceName[64];
@@ -59,6 +61,13 @@ namespace split
         float in[kSlots][kMaxCh][kMaxFrames];
         ClientSlot clients[kMaxClients];
     };
+
+    /** the live output delay; an older host left the field at 0, which means the default */
+    inline int outputDelayOf (const Shared* s)
+    {
+        const int d = s != nullptr ? (int) s->outputDelay : 0;
+        return d < kOutputDelayBlocks ? kOutputDelayBlocks : d > kMaxOutputDelayBlocks ? kMaxOutputDelayBlocks : d;
+    }
 
     static_assert (std::atomic<int64_t>::is_always_lock_free, "64-bit atomics must be lock-free to share across processes");
     static_assert (sizeof (ClientSlot) % 64 == 0, "client slots stay cache-line aligned");

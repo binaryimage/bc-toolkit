@@ -175,7 +175,7 @@ public:
     void resized() override
     {
         auto r = getLocalBounds();
-        auto bottom = r.removeFromBottom (juce::jlimit (260, 330, getHeight() * 40 / 100));
+        auto bottom = r.removeFromBottom (juce::jlimit (300, 330, getHeight() * 40 / 100));   // the export column needs ~250 inside
         top.setBounds (r);
         int w = bottom.getWidth();
         pads.setBounds (bottom.removeFromLeft (w * 40 / 100));

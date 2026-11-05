@@ -81,10 +81,8 @@ public:
 
         auto q = prog.content();
         auto b = q.removeFromTop (44);
-        startBtn->setBounds (b.removeFromLeft (170)); b.removeFromLeft (6);
-        stopBtn->setBounds (b.removeFromLeft (100)); b.removeFromLeft (6);
-        testBtn->setBounds (b.removeFromLeft (120));
-        openBtn->setBounds (b.removeFromRight (140));
+        openBtn->setBounds (b.removeFromRight (juce::jmin (140, juce::jmax (110, b.getWidth() - 170 - 100 - 120 - 24)))); b.removeFromRight (12);
+        rowLayout (b, { { startBtn.get(), 170 }, { stopBtn.get(), 100 }, { testBtn.get(), 120 } }, 6);
         q.removeFromTop (10);
         status->setBounds (q.removeFromTop (24));
         bar.setBounds (q.removeFromTop (22));

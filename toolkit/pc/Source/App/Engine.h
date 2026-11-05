@@ -49,7 +49,11 @@ namespace tk
         juce::int64 totalFrames() const noexcept { return frames.load(); }
         juce::int64 captureStartFrame() const noexcept { return capStartFrame.load(); }
 
+        /** live picture of the take while it records: one peak per 256 frames. Appends what's new since last time. */
+        void capturePeaks (std::vector<float>& into) const;
+
         Kind kind; juce::String name; int channels; std::atomic<double> sr;
+        int hwL = -1, hwR = -1;          // interface channels feeding it (hwR = -1: mono)
         std::atomic<bool> active { true };
         std::atomic<float> peakDb { -120 }, rmsDb { -120 };
         std::atomic<double> lufsM { -120 }, lufsS { -120 }, lufsI { -120 }, truePeak { -120 };
@@ -70,13 +74,14 @@ namespace tk
         // capture
         juce::SpinLock capLock;
         juce::AudioBuffer<float> cap;
+        std::vector<float> capPeaks; int capPeakFill = 0; float capPeakAcc = 0; int capPeakCount = 0;
         std::atomic<int> capLen { 0 }, capState { 0 };
         std::atomic<juce::int64> frames { 0 }, capStartFrame { -1 };
         float armTh = 0.03f;
     };
 
     /** Audio + MIDI hub for the whole app. */
-    class Engine : private juce::AudioIODeviceCallback, private juce::ChangeListener, private juce::MidiInputCallback
+    class Engine : private juce::AudioIODeviceCallback, private juce::ChangeListener, private juce::MidiInputCallback, private juce::Timer
     {
     public:
         Engine (bool openDevices = true);
@@ -86,12 +91,25 @@ namespace tk
         double sampleRate() const { return sr.load(); }
         /** true when an output device is open (so voices actually advance) */
         bool hasOutput() { return devices.getCurrentAudioDevice() != nullptr; }
+        /** The Settings page calls this when you touch the device picker: only your own picks get saved.
+            (A device the app fell back to, because yours wouldn't open, never overwrites your choice.) */
+        void userIsPickingDevice() { userPickUntil = juce::Time::getMillisecondCounter() + 8000; }
+        /** empty when your saved device is the one running; otherwise what happened, for the Settings page */
+        juce::String deviceProblem() const { return problem; }
+        /** the device you picked (what the app keeps trying to get back to) */
+        juce::String wantedDevice() const { return wantedName; }
+        /** try your device again (the Settings page's "Back to ..." button); true if it's running now */
+        bool retryWantedDevice();
 
         // sources (pointers stay valid for the life of the app)
         juce::Array<Source*> sources (bool activeOnly = true) const;
         Source* source (int index) const;
         juce::String sourceLabel (const Source*) const;
         void renameInput (int index, const juce::String& name);
+        /** Inputs 1+2, 3+4 ... 11+12 can be linked into one stereo source (X/Y, loudness, takes and jams are then stereo). */
+        bool canPairAsStereo (const Source*) const;
+        bool isStereoPair (const Source* s) const { return s != nullptr && s->kind == Source::input && s->hwR >= 0; }
+        void setStereoPair (const Source*, bool paired);
         std::function<void()> onSourcesChanged;
 
         // jam recorder
@@ -147,12 +165,17 @@ namespace tk
         void audioDeviceStopped() override {}
         void changeListenerCallback (juce::ChangeBroadcaster*) override;
         void handleIncomingMidiMessage (juce::MidiInput*, const juce::MidiMessage&) override;
+        void timerCallback() override;
+        /** open the device you picked; if it won't open, BC Split, then whatever works, without saving that */
+        void openWantedDevice (bool allowFallback);
+        static juce::String deviceNameIn (const juce::XmlElement*);
         void onLinkAudio (int id, const link::Packet&);
         void onLinkLost (int id);
         void notify();
 
         mutable juce::CriticalSection lock;
         juce::OwnedArray<Source> inputs, extras;
+        std::vector<std::pair<int, int>> inputFeed;   // per input source: which of the callback's channels feed L and R (-1 = mono)
         std::atomic<double> sr { 48000 };
         int jamMins = 5;
         std::unique_ptr<link::Server> server;
@@ -176,9 +199,15 @@ namespace tk
         std::function<void (float*, float*, int, double)> generator;
 
         std::map<juce::String, std::unique_ptr<juce::MidiOutput>> outs;
+        std::map<juce::String, juce::uint32> outUsed;   // ports close again after a while unused, so other apps can have them
         std::unique_ptr<juce::MidiInput> in;
         std::function<void (const juce::MidiMessage&)> inCb;
         juce::CriticalSection midiLock;
+
+        std::unique_ptr<juce::XmlElement> wantedSetup;
+        juce::String wantedName, problem;
+        bool fellBack = false, reopening = false, devicesOpen = false;
+        juce::uint32 userPickUntil = 0, lastRetry = 0, startedAt = 0;
 
         struct Loopback;
         std::unique_ptr<Loopback> loop;

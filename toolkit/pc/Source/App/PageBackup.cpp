@@ -420,7 +420,8 @@ public:
         auto f = folderSlab.content();
         folderHint->setBounds (f.removeFromTop (40));
         auto row = f.removeFromTop (36);
-        rowLayout (row, { { &folderEd, row.getWidth() - 250 }, { browseBtn.get(), 110 }, { findBtn.get(), 120 } });
+        if (row.getWidth() - 250 < 200) { folderEd.setBounds (row); f.removeFromTop (6); row = f.removeFromTop (36); rowLayout (row, { { browseBtn.get(), 110 }, { findBtn.get(), 120 } }); }
+        else rowLayout (row, { { &folderEd, row.getWidth() - 250 }, { browseBtn.get(), 110 }, { findBtn.get(), 120 } });
         f.removeFromTop (8);
         rowLayout (f.removeFromTop (44), { { snapBtn.get(), 170 }, { folderStatus.get(), 600 } });
 
@@ -435,7 +436,9 @@ public:
         rowLayout (x.removeFromTop (44), { { listenBtn.get(), 110 }, { saveSyxBtn.get(), 140 }, { clearBtn.get(), 90 }, { sendBtn.get(), 240 } });
         x.removeFromTop (8);
         auto pr = x.removeFromTop (30);
-        paceLbl->setBounds (pr.removeFromLeft (230)); pace.setBounds (pr.withWidth (juce::jmin (360, pr.getWidth())));
+        if (pr.getWidth() < 230 + 200) { paceLbl->setBounds (pr); pr = x.removeFromTop (30); }
+        else paceLbl->setBounds (pr.removeFromLeft (230));
+        pace.setBounds (pr.withWidth (juce::jmin (360, pr.getWidth())));
         x.removeFromTop (8);
         pill.setBounds (x.removeFromTop (28));
 

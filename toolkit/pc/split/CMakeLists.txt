@@ -1,6 +1,6 @@
 # BC Split: the ASIO driver DLL (built 64- and 32-bit) and its tests. Plain Win32, no JUCE.
 cmake_minimum_required(VERSION 3.22)
-project(BinaryimageSplit VERSION 1.0.0 LANGUAGES CXX)
+project(BinaryimageSplit VERSION 1.1.0 LANGUAGES CXX)
 # Split's own installer version is the version above
 add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 set(CMAKE_CXX_STANDARD 17)

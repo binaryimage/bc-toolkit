@@ -1,4 +1,6 @@
 #include "MainWindow.h"
+#include "Common/LayoutCheck.h"
+#include <map>
 #include "Pages.h"
 
 namespace tk
@@ -33,7 +35,16 @@ void MidiPicker::refresh()
     for (int i = 0; i < list.size(); ++i) addItem (list[i].name, i + 1);
     auto want = Settings::get().str (settingsKey);
     for (int i = 0; i < list.size(); ++i) if (list[i].name == want) { setSelectedId (i + 1, juce::dontSendNotification); return; }
+    // nothing saved yet: a real synth, not Windows' built-in GM synth or a controller's own control port
+    for (int i = 0; i < list.size(); ++i) if (! isUtilityPort (list[i].name)) { setSelectedId (i + 1, juce::dontSendNotification); return; }
     setSelectedId (1, juce::dontSendNotification);
+}
+
+bool MidiPicker::isUtilityPort (const juce::String& n)
+{
+    return n.containsIgnoreCase ("Microsoft GS") || n.containsIgnoreCase ("Wavetable Synth")
+        || (n.containsIgnoreCase ("MPC") && (n.containsIgnoreCase ("Public") || n.containsIgnoreCase ("Private") || n.containsIgnoreCase ("DAW")))
+        || n.containsIgnoreCase ("StreamDeck") || n.containsIgnoreCase ("MackieControl") || n.containsIgnoreCase ("loopMIDI");
 }
 
 juce::String MidiPicker::id() const
@@ -50,11 +61,32 @@ void fillNotes (juce::ComboBox& c, int lo, int hi)
     for (int n = lo; n <= hi; ++n) c.addItem (noteName (n), n + 1);
 }
 
-void rowLayout (juce::Rectangle<int> r, std::initializer_list<std::pair<juce::Component*, int>> items, int gap)
+int flowLayout (juce::Rectangle<int> r, std::initializer_list<std::pair<juce::Component*, int>> items, int rowHeight, int gap, bool place)
 {
+    int x = r.getX(), y = r.getY();
     for (auto& [c, w] : items)
     {
-        if (c != nullptr) c->setBounds (r.removeFromLeft (w));
+        if (c == nullptr) continue;
+        const int cw = juce::jmin (w, r.getWidth());
+        if (x > r.getX() && x + cw > r.getRight()) { x = r.getX(); y += rowHeight + gap; }
+        if (place) c->setBounds (x, y, cw, rowHeight);
+        x += cw + gap;
+    }
+    return y + rowHeight - r.getY();
+}
+
+void rowLayout (juce::Rectangle<int> r, std::initializer_list<std::pair<juce::Component*, int>> items, int gap)
+{
+    // when the row is wider than the space (narrow windows), everything shrinks by the same share instead of
+    // the last items being squeezed to nothing
+    int total = 0, n = 0;
+    for (auto& [c, w] : items) if (c != nullptr) { total += w; ++n; }
+    const int room = r.getWidth() - gap * juce::jmax (0, n - 1);
+    const double k = total > room && total > 0 ? juce::jmax (0.0, (double) room / total) : 1.0;
+    for (auto& [c, w] : items)
+    {
+        if (c == nullptr) continue;
+        c->setBounds (r.removeFromLeft ((int) std::floor (w * k)));
         r.removeFromLeft (gap);
     }
 }
@@ -182,6 +214,84 @@ void MainComponent::renderAll (const juce::File& dir, int w, int h)
         juce::FileOutputStream os (f);
         juce::PNGImageFormat().writeImageToStream (img, os);
     }
+}
+
+static void writePng (const juce::Image& img, const juce::File& f)
+{
+    f.getParentDirectory().createDirectory();
+    f.deleteFile();
+    juce::FileOutputStream os (f);
+    juce::PNGImageFormat().writeImageToStream (img, os);
+}
+
+/** the tab-like buttons on a page (radio groups), grouped */
+static void findTabs (juce::Component& c, std::map<int, juce::Array<juce::Button*>>& groups)
+{
+    for (auto* ch : c.getChildren())
+    {
+        if (auto* b = dynamic_cast<juce::Button*> (ch)) { if (b->getRadioGroupId() != 0 && b->isVisible()) groups[b->getRadioGroupId()].add (b); continue; }
+        findTabs (*ch, groups);
+    }
+}
+
+juce::StringArray MainComponent::checkAll (const juce::File& dir)
+{
+    struct Size { const char* name; int w, h; bool saveAll; };
+    // the window can't go below 1100 x 700 (about 1100 x 660 inside the title bar); tall = a vertical monitor
+    const Size sizes[] = { { "wide", 1600, 1000, true }, { "min", 1100, 660, true }, { "tall", 1100, 1500, false } };
+    juce::StringArray problems, report;
+    int checks = 0;
+    for (auto& sz : sizes)
+    {
+        setSize (sz.w, sz.h);
+        int pi = 1;
+        for (auto& n : kNav)
+        {
+            show (n.id);
+            current->demo();
+            for (int t = 0; t < 20; ++t) { engine.runDemo (0.03); current->tick(); }
+            const juce::String pageName = juce::String (pi++).paddedLeft ('0', 2) + "-" + n.id;
+
+            auto look = [&] (const juce::String& view)
+            {
+                current->resized();
+                for (int t = 0; t < 4; ++t) { engine.runDemo (0.03); current->tick(); }
+                auto found = findLayoutProblems (*this);
+                ++checks;
+                const juce::String where = juce::String (sz.name) + " " + juce::String (sz.w) + "x" + juce::String (sz.h) + "  " + n.label + (view.isNotEmpty() ? " / " + view : juce::String());
+                auto controls = listControls (*current);
+                report.add ((found.isEmpty() ? "PASS  " : "FAIL  ") + where + "   (" + juce::String (controls.size()) + " controls)");
+                for (auto& f : found) { report.add ("        " + f); problems.add (where + ": " + f); }
+                if (sz.saveAll || ! found.isEmpty())
+                {
+                    auto file = juce::String (sz.name) + "/" + pageName + (view.isNotEmpty() ? "-" + view.toLowerCase().retainCharacters ("abcdefghijklmnopqrstuvwxyz0123456789 ").trim().replaceCharacter (' ', '-') : juce::String()) + ".png";
+                    writePng (createComponentSnapshot (getLocalBounds(), true, 1.0f), dir.getChildFile (file));
+                }
+            };
+
+            std::map<int, juce::Array<juce::Button*>> groups;
+            findTabs (*current, groups);
+            if (groups.empty()) { look ({}); continue; }
+            bool first = true;
+            for (auto& [id, btns] : groups)
+            {
+                for (auto* b : btns)
+                {
+                    if (! first && b == btns.getFirst()) continue;   // the first tab was already seen with the page
+                    b->setToggleState (true, juce::dontSendNotification);
+                    if (b->onClick) b->onClick();
+                    look (b->getButtonText());
+                    first = false;
+                }
+                btns.getFirst()->setToggleState (true, juce::dontSendNotification);
+                if (btns.getFirst()->onClick) btns.getFirst()->onClick();
+            }
+        }
+    }
+    report.insert (0, juce::String (checks) + " views checked, " + juce::String (problems.size()) + " problems\n");
+    dir.createDirectory();
+    dir.getChildFile ("layout-check.txt").replaceWithText (report.joinIntoString ("\n") + "\n");
+    return problems;
 }
 
 // ------------------------------------------------------------ window

@@ -110,6 +110,10 @@ jobs:
           & ./build/ToolkitTests_artefacts/Release/ToolkitTests.exe --split-check 2>&1 | Tee-Object -Append $out; if ($LASTEXITCODE -ne 0) { $ok = $false }
           Start-Sleep -Seconds 2
           Stop-Process -Id $host_.Id -Force -ErrorAction SilentlyContinue
+          "== the Split window's button check (normal size and the smallest it drags to)" | Tee-Object -Append $out
+          $lay = "$PWD\toolkit\pc\ci-results\shots\16-split-host-layout.txt"
+          if (Test-Path $lay) { Get-Content $lay | Tee-Object -Append $out; if ((Get-Content $lay)[0] -ne "0 problems") { $ok = $false } }
+          else { "no layout report" | Tee-Object -Append $out; $ok = $false }
           if (-not $ok) { throw "split tests failed" }
           exit 0
 

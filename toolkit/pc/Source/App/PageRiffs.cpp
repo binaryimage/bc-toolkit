@@ -120,6 +120,20 @@ public:
         opts.addAndMakeVisible (tempo); opts.addAndMakeVisible (sevenths);
         rollBtn = makeButton ("Generate", [this] { seed = (unsigned) juce::Random::getSystemRandom().nextInt (1 << 24); generate(); });
         opts.addAndMakeVisible (*rollBtn);
+        // Random: a new key, scale and bass style (whichever aren't locked), then new notes
+        randomBtn = makeButton ("Random", [this] { randomise(); });
+        randomBtn->setTooltip ("New key, scale and bass style, then new notes. Lock any of them to keep it.");
+        opts.addAndMakeVisible (*randomBtn);
+        const char* lockNames[] = { "key", "scale", "bass style" };
+        const char* lockKeys[] = { "riffLockKey", "riffLockScale", "riffLockBass" };
+        for (int i = 0; i < 3; ++i)
+        {
+            auto* l = locks.add (new LockToggle (lockNames[i]));
+            l->setToggleState (Settings::get().flag (lockKeys[i]), juce::dontSendNotification);
+            juce::String k (lockKeys[i]);
+            l->onClick = [l, k] { Settings::get().set (k, l->getToggleState()); };
+            opts.addAndMakeVisible (l);
+        }
         for (auto* n : { "Key", "Scale", "Length", "Bass", "Tempo" }) { auto l = makeLabel (n, 12, col::text3); opts.addAndMakeVisible (*l); lbls.push_back (std::move (l)); }
         roll.addAndMakeVisible (view);
 
@@ -170,6 +184,39 @@ public:
         roll.setTitle ("Pattern  /  " + root.getText() + " " + scale.getText() + "  /  " + juce::String ((int) o.bpm) + " BPM  /  " + juce::String (o.bars) + " bars");
         const juce::SpinLock::ScopedLockType l (riffLock);
         current = r;
+    }
+
+    /** Random leans to the darker, less common scales: plain natural minor and Dorian come up least. */
+    static int pickScale (juce::Random& rnd)
+    {
+        auto& all = theory::scales();
+        std::vector<double> w;
+        double total = 0;
+        for (auto& sc : all)
+        {
+            juce::String n (sc.name);
+            double x = n == "Natural minor" ? 0.35 : n == "Dorian" ? 0.5 : n == "Harmonic minor" ? 0.8 : 1.3;
+            w.push_back (x); total += x;
+        }
+        double pick = rnd.nextDouble() * total;
+        for (size_t i = 0; i < w.size(); ++i) { pick -= w[i]; if (pick <= 0) return (int) i; }
+        return (int) w.size() - 1;
+    }
+
+    void randomise()
+    {
+        auto& rnd = juce::Random::getSystemRandom();
+        if (! locks[0]->getToggleState()) root.setSelectedId (rnd.nextInt (12) + 1, juce::dontSendNotification);
+        if (! locks[1]->getToggleState())
+        {
+            const int was = scale.getSelectedId();
+            int next = pickScale (rnd) + 1;
+            for (int t = 0; t < 4 && next == was; ++t) next = pickScale (rnd) + 1;   // a different one, most of the time
+            scale.setSelectedId (next, juce::dontSendNotification);
+        }
+        if (! locks[2]->getToggleState()) bass.setSelectedId (rnd.nextInt (bass.getNumItems()) + 1, juce::dontSendNotification);
+        seed = (unsigned) rnd.nextInt (1 << 24);
+        generate();
     }
 
     juce::File saveMidi()
@@ -330,7 +377,7 @@ public:
     void resized() override
     {
         auto r = getLocalBounds();
-        auto top = r.removeFromTop (150);
+        auto top = r.removeFromTop (164);
         opts.setBounds (top);
         r.removeFromTop (10);
         auto bottom = r.removeFromBottom (250);
@@ -340,7 +387,10 @@ public:
         auto o = opts.content();
         auto labels = o.removeFromTop (18);
         auto row = o.removeFromTop (36);
-        const int ws[] = { 90, 220, 120, 160, 300 };
+        // key / scale / length / bass, and tempo takes what's left (so a narrow window never pushes anything off the edge)
+        const int fixedW[] = { 90, 220, 120, 160 };
+        const int tempoW = juce::jlimit (150, 360, row.getWidth() - (90 + 220 + 120 + 160) - 4 * 10);
+        const int ws[] = { fixedW[0], fixedW[1], fixedW[2], fixedW[3], tempoW };
         juce::Component* cs[] = { &root, &scale, &bars, &bass, &tempo };
         int x = row.getX();
         for (int i = 0; i < 5; ++i)
@@ -349,24 +399,33 @@ public:
             cs[i]->setBounds (x, row.getY(), ws[i], 34);
             x += ws[i] + 10;
         }
-        sevenths.setBounds (x, row.getY(), 130, 34); x += 140;
-        rollBtn->setBounds (juce::jmax (x, row.getRight() - 200), row.getY() - 4, 200, 44);
+        // padlocks sit at the right end of the Key, Scale and Bass labels
+        const int lockFor[] = { 0, 1, 3 };
+        for (int k = 0; k < 3; ++k) { auto lb = lbls[(size_t) lockFor[k]]->getBounds(); locks[k]->setBounds (lb.getRight() - 20, lb.getY(), 20, lb.getHeight()); }
         o.removeFromTop (8);
+        auto row2 = o.removeFromTop (juce::jmin (40, o.getHeight()));
+        sevenths.setBounds (row2.removeFromLeft (130));
+        rollBtn->setBounds (row2.removeFromRight (juce::jmin (200, row2.getWidth() / 2)));
+        row2.removeFromRight (8);
+        randomBtn->setBounds (row2.removeFromRight (juce::jmin (150, row2.getWidth())));
 
         view.setBounds (roll.content());
 
         auto p = play.content();
-        auto left = p.removeFromLeft (620);
-        target.setBounds (left.removeFromTop (34).withWidth (300));
+        // the transport buttons need ~450 on the right; the synth rows get the rest (the MIDI picker shrinks first)
+        auto left = p.removeFromLeft (juce::jlimit (380, 620, p.getWidth() - 470));
+        target.setBounds (left.removeFromTop (34).withWidth (juce::jmin (300, left.getWidth())));
         left.removeFromTop (8);
+        const int outW = juce::jmax (120, left.getWidth() - 44 - 70 - 90 - 3 * 8);
         for (auto& pr : partRows)
         {
             auto rr = left.removeFromTop (38);
-            rowLayout (rr, { { &pr.on, 44 }, { pr.label.get(), 70 }, { pr.out.get(), 320 }, { &pr.chan, 90 } });
+            rowLayout (rr, { { &pr.on, 44 }, { pr.label.get(), 70 }, { pr.out.get(), outW }, { &pr.chan, 90 } });
             left.removeFromTop (4);
         }
         p.removeFromLeft (20);
-        rowLayout (p.removeFromTop (46), { { playBtn.get(), 110 }, { stopBtn.get(), 90 }, { loopBtn.get(), 90 }, { saveBtn.get(), 130 } });
+        const int bh = flowLayout (p, { { playBtn.get(), 110 }, { stopBtn.get(), 90 }, { loopBtn.get(), 90 }, { saveBtn.get(), 130 } }, 46, 8, false);
+        flowLayout (p.removeFromTop (bh), { { playBtn.get(), 110 }, { stopBtn.get(), 90 }, { loopBtn.get(), 90 }, { saveBtn.get(), 130 } }, 46, 8);
         p.removeFromTop (8);
         drag.setBounds (p.removeFromTop (50).withWidth (juce::jmin (440, p.getWidth())));
         p.removeFromTop (10);
@@ -388,7 +447,8 @@ public:
     juce::ComboBox root, scale, bars, bass, target;
     juce::Slider tempo;
     juce::ToggleButton sevenths;
-    std::unique_ptr<juce::TextButton> rollBtn, playBtn, stopBtn, loopBtn, saveBtn;
+    std::unique_ptr<juce::TextButton> rollBtn, randomBtn, playBtn, stopBtn, loopBtn, saveBtn;
+    juce::OwnedArray<LockToggle> locks;   // key, scale, bass style
     std::vector<std::unique_ptr<juce::Label>> lbls;
     std::unique_ptr<juce::Label> hint;
     struct PartRow { std::unique_ptr<juce::Label> label; std::unique_ptr<MidiPicker> out; juce::ComboBox chan; juce::ToggleButton on; };

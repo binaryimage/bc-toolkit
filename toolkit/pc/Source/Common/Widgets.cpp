@@ -543,4 +543,24 @@ juce::String fmtTime (double s)
     int m = (int) (s / 60); double sec = s - m * 60;
     return juce::String (m) + ":" + juce::String (sec, 1).paddedLeft ('0', 4);
 }
+
+void LockToggle::paintButton (juce::Graphics& g, bool over, bool)
+{
+    const bool locked = getToggleState();
+    auto r = getLocalBounds().toFloat().withSizeKeepingCentre (12.0f, 14.0f);
+    const juce::Colour c = locked ? col::white : (over ? col::text2 : col::text3);
+    auto body = r.removeFromBottom (8.0f);
+    // shackle: closed when locked, swung open when not
+    juce::Path shackle;
+    const float sx = body.getX() + 2.5f, sw = body.getWidth() - 5.0f, top = r.getY() + 1.0f;
+    shackle.startNewSubPath (sx, body.getY());
+    shackle.lineTo (sx, top + 3.0f);
+    shackle.quadraticTo (sx, top, sx + sw * 0.5f, top);
+    shackle.quadraticTo (sx + sw, top, sx + sw, top + 3.0f);
+    shackle.lineTo (sx + sw, locked ? body.getY() : body.getY() - 3.0f);
+    g.setColour (c);
+    g.strokePath (shackle, juce::PathStrokeType (1.6f));
+    if (locked) g.fillRoundedRectangle (body, 1.5f);
+    else g.drawRoundedRectangle (body.reduced (0.6f), 1.5f, 1.2f);
+}
 }

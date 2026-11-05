@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(BCVisualizer VERSION 2.0.1)
+project(BCVisualizer VERSION 2.1.0)
 
 if(MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
@@ -48,6 +48,7 @@ target_sources(BCVisualizer PRIVATE
     Source/Video.cpp
     ${TK}/Source/Common/Look.cpp
     ${TK}/Source/Common/Widgets.cpp
+    ${TK}/Source/Common/LayoutCheck.cpp
     ${TK}/Source/Common/Dsp.cpp)
 
 target_include_directories(BCVisualizer PRIVATE Source ${TK}/Source)

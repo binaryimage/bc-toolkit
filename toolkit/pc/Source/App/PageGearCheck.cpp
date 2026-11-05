@@ -122,6 +122,20 @@ public:
         resized();
     }
 
+    /** narrow window: the wide pickers give up width first, the note boxes keep enough to read (min 70) */
+    static void fitWidths (int* ws, int n, int room)
+    {
+        int total = 8 * (n - 1);
+        for (int i = 0; i < n; ++i) total += ws[i];
+        int over = total - room;
+        for (int pass = 0; pass < 3 && over > 0; ++pass)
+            for (int i = 0; i < n && over > 0; ++i)
+            {
+                const int give = juce::jmin (over, juce::jmax (0, ws[i] - (ws[i] > 150 ? 150 : 70)) / (pass + 1) + (pass == 2 ? juce::jmax (0, ws[i] - 70) : 0));
+                ws[i] -= give; over -= give;
+            }
+    }
+
     void resized() override
     {
         auto r = getLocalBounds();
@@ -140,12 +154,14 @@ public:
         {
             auto lr = c.removeFromTop (20), cr = c.removeFromTop (36);
             juce::Component* cs[] = { &latMidi, &latChan, &latSrc }; int ws[] = { 260, 100, 260 };
+            fitWidths (ws, 3, cr.getWidth());
             for (int i = 0; i < 3; ++i) { latLbls[i]->setBounds (lr.removeFromLeft (ws[i])); lr.removeFromLeft (8); cs[i]->setBounds (cr.removeFromLeft (ws[i])); cr.removeFromLeft (8); }
         }
         if (tab == 2)
         {
             auto lr = c.removeFromTop (20), cr = c.removeFromTop (36);
             juce::Component* cs[] = { &trkMidi, &trkChan, &trkSrc, &trkVco, &trkFrom, &trkTo }; int ws[] = { 250, 90, 220, 140, 80, 80 };
+            fitWidths (ws, 6, cr.getWidth());
             for (int i = 0; i < 6; ++i) { trkLbls[i]->setBounds (lr.removeFromLeft (ws[i])); lr.removeFromLeft (8); cs[i]->setBounds (cr.removeFromLeft (ws[i])); cr.removeFromLeft (8); }
         }
         auto rr = results.content();

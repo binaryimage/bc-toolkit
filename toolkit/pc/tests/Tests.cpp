@@ -608,6 +608,12 @@ int main (int argc, char** argv)
         engine.addDemoSources();
         tk::MainComponent mc (engine);
         mc.renderAll (outDir, 1600, 1000);
+        // every page, every tab, every window size: nothing missing, squashed, cut off, off-screen or on top of something else
+        auto probs = mc.checkAll (outDir.getChildFile ("layout"));
+        for (int i = 0; i < juce::jmin (60, probs.size()); ++i) std::printf ("      %s\n", probs[i].toRawUTF8());
+        check (probs.isEmpty(), "every button on every page, tab and window size is there and usable",
+               probs.isEmpty() ? juce::String ("see layout/layout-check.txt") : juce::String (probs.size()) + " problems, see layout/layout-check.txt");
+        std::printf ("\n%d passed, %d failed (after the layout check)\n", passes, failures);
     }
     {
         // the VST3's own window, as Ableton would show it, fed a low D so the tuner has something to say

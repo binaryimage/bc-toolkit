@@ -5,6 +5,11 @@
 namespace bcv
 {
     /** Everything about a video except the audio itself. */
+    /** The reaction effects you can switch off one by one (they all follow the music when on). */
+    enum Effect { fxMotion, fxSparkles, fxGlitch, fxShimmer, fxEchoes, fxGhosts, fxTrails, fxStatic, fxFlash, fxColourMotion, kEffectCount };
+    /** mirror choices: 0 follows the song (changes each section, kaleidoscope on mid hits), 1 off, then fixed ones */
+    enum Mirror { mirrorAuto = 0, mirrorOff, mirrorLeftRight, mirrorTopBottom, mirrorFourWay, mirrorFlipped, kMirrorCount };
+
     struct Look
     {
         int style = 0;
@@ -19,6 +24,10 @@ namespace bcv
         bool coverBadge = true;     // the cover art next to the title (bottom-left text only)
         float intensity = 1.0f;     // 0.25 .. 2
         int reactions = 2;          // 0 off, 1 subtle, 2 wild: the frequency-driven layer on top of every style
+        int mirror = mirrorAuto;    // see Mirror; a fixed choice applies even with reactions off
+        int effectsOff = 0;         // bit per Effect that's switched off (0 = all on, as before)
+        bool effectOn (Effect e) const { return (effectsOff & (1 << (int) e)) == 0; }
+        void setEffect (Effect e, bool on) { effectsOff = on ? (effectsOff & ~(1 << (int) e)) : (effectsOff | (1 << (int) e)); }
     };
 
     constexpr int kMultiColour = 6;   // rainbow
@@ -26,6 +35,9 @@ namespace bcv
     constexpr int kFirstMix = 8;      // from here on: the mixed palettes (gradients that move with the music)
     juce::StringArray tintNames();
     juce::StringArray reactionNames();
+    juce::StringArray effectNames();         // one per Effect, short enough for a button
+    juce::StringArray effectHints();         // what each one does, for tooltips
+    juce::StringArray mirrorNames();         // one per Mirror
     juce::StringArray backgroundNames();
     juce::StringArray textNames();
     Palette paletteFor (const Look&);
@@ -52,7 +64,7 @@ namespace bcv
         juce::Rectangle<int> fieldSize;
         const std::vector<float>& field (int kind);
         juce::AffineTransform reactTransform (const Frame& f, juce::Rectangle<float> r, float react);
-        void postFx (const Frame& f, float react);
+        void postFx (const Frame& f, float react, const Look& look);
         void colourise (const Frame& f, const Look& look, float react);
         // reaction state
         float sway = 0, slide = 0, zoomS = 1, offset = 0, sectionShift = 0;
