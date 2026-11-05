@@ -1,0 +1,3 @@
+0 problems
+PASS  normal 880x660   (6 controls)
+PASS  smallest 784x560   (6 controls)
