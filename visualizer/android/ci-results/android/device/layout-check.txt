@@ -1,0 +1,12 @@
+0 problems
+PASS  411x891  style   (12 controls)
+PASS  411x891  patterns-single   (21 controls)
+PASS  411x891  patterns-random   (21 controls)
+PASS  411x891  patterns-timer   (20 controls)
+PASS  411x891  style-patterns-on   (12 controls)
+PASS  411x891  picker   (24 controls)
+PASS  411x891  look   (23 controls)
+PASS  411x891  look-typing   (20 controls)
+PASS  411x891  effects   (23 controls)
+PASS  411x891  export   (16 controls)
+PASS  411x891  fullscreen   (12 controls)
