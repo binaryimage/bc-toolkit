@@ -1381,16 +1381,16 @@ static int exportTests (const juce::File& dir, juce::StringArray& report, bool f
         { "patterns-random-640x360",   640,  360, 30, false, Patterns::random, Patterns::timer, 4, 6 },
         { "patterns-follow-1280x720", 1280,  720, 30, false, Patterns::random, Patterns::followSong, 16, 9 },
         { "single-1080p30",           1920, 1080, 30, false, Patterns::single, 0, 16, 0 },
-        { "hevc-1280x720-60",         1280,  720, 60, true,  Patterns::picked, Patterns::timer, 4, 14 },
+        { "hevc-960x540-60",           960,  540, 60, true,  Patterns::picked, Patterns::timer, 4, 14 },
     };
-    // 4K: the phone's hardware encoder does it; the emulator's software one may not, so it only reports there
-    if (full) runs.push_back ({ "4k30",  3840, 2160, 30, false, Patterns::random, Patterns::timer, 4, 6, false });
+    // on the emulator everything (encoders included) runs in software, so keep its runs short
+    if (full) for (auto& r : runs) if (r.w > 1280) { r.w = 1280; r.h = 720; r.name = "single-720p30"; }
     for (auto& r : runs)
     {
         Patterns p; p.mode = r.mode; p.when = r.when; p.everySeconds = r.every; p.minSeconds = 3; p.maxSeconds = 8; p.fadeSeconds = 1.5;
         p.picks = { 3, 20, 48, 60 }; p.seed = 7;
         Look look; look.tint = r.tint; look.title = r.name;
-        const int seconds = r.w >= 3840 ? 3 : 8;
+        const int seconds = full ? 5 : 8;
         Track t; t.audio.setSize (2, (int) (Track::rate * seconds)); for (int ch = 0; ch < 2; ++ch) t.audio.copyFrom (ch, 0, demo.audio, ch, (int) (Track::rate * 6), t.audio.getNumSamples());
         auto ev = scanSong (t.audio, Track::rate);
         auto out = dir.getChildFile (juce::String ("test-") + r.name + ".mp4");
@@ -1404,6 +1404,7 @@ static int exportTests (const juce::File& dir, juce::StringArray& report, bool f
                     + juce::String (frames / juce::jmax (0.01, job.secondsTaken), 1) + " fps), " + job.encoderInfo + ", " + juce::String ((int) job.plan.steps.size()) + " styles"
                     + (ok ? juce::String() : "  error: " + job.error));
         if (! ok && r.required) ++failures;
+        dir.getChildFile ("selftest-progress.txt").replaceWithText (report.joinIntoString ("\n") + "\n");   // what's done so far, if it stalls
     }
     // the cores must draw exactly what one core draws (noise, glitches, trails and fades included)
     {

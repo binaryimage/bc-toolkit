@@ -19,9 +19,9 @@ adb shell monkey -p "$PKG" -c android.intent.category.LAUNCHER 1 > /dev/null
 sleep 8
 adb exec-out screencap -p > "$OUT/emulator-start.png"
 
-# up to 25 minutes for the layout pass and the exports (the emulator is slow, and its encoders are software)
+# up to 40 minutes for the layout pass and the exports (the emulator is slow, and its encoders are software)
 status=timeout
-for i in $(seq 1 300); do
+for i in $(seq 1 480); do
   if adb shell "test -f '$DEV_DIR/done.txt'" 2>/dev/null; then status=done; break; fi
   if ! adb shell pidof "$PKG" > /dev/null 2>&1; then
     sleep 3

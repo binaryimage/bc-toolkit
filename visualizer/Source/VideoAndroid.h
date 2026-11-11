@@ -41,6 +41,7 @@ public:
         for (int tries = 0; tries < 2000 && idx < 0; ++tries)      // up to ~10 s for a free input buffer
         {
             idx = AMediaCodec_dequeueInputBuffer (video, 5000);
+            if (idx < 0 && idx != AMEDIACODEC_INFO_TRY_AGAIN_LATER) { lastError = "The video encoder stopped (" + juce::String ((int) idx) + ")"; return false; }
             if (idx < 0 && ! drain (false)) return false;
         }
         if (idx < 0) { lastError = "The video encoder stopped taking frames"; return false; }
@@ -69,6 +70,7 @@ public:
             for (int tries = 0; tries < 2000 && idx < 0; ++tries)
             {
                 idx = AMediaCodec_dequeueInputBuffer (audio, 5000);
+                if (idx < 0 && idx != AMEDIACODEC_INFO_TRY_AGAIN_LATER) { lastError = "The audio encoder stopped (" + juce::String ((int) idx) + ")"; return false; }
                 if (idx < 0 && ! drain (false)) return false;
             }
             if (idx < 0) { lastError = "The audio encoder stopped taking samples"; return false; }
@@ -267,6 +269,7 @@ private:
         for (int tries = 0; tries < 2000; ++tries)
         {
             const ssize_t idx = AMediaCodec_dequeueInputBuffer (c, 5000);
+            if (idx < 0 && idx != AMEDIACODEC_INFO_TRY_AGAIN_LATER) { lastError = "An encoder stopped while finishing"; return false; }
             if (idx >= 0)
                 return AMediaCodec_queueInputBuffer (c, (size_t) idx, 0, 0, (uint64_t) pts, AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM) == AMEDIA_OK;
             if (! drain (false)) return false;
@@ -308,7 +311,8 @@ private:
                     }
                     continue;
                 }
-                if (idx < 0) continue;      // output buffers changed: just ask again
+                if (idx == AMEDIACODEC_INFO_OUTPUT_BUFFERS_CHANGED) continue;
+                if (idx < 0) { lastError = juce::String (which == 0 ? "The video" : "The audio") + " encoder failed (" + juce::String ((int) idx) + ")"; return false; }
                 size_t size = 0;
                 uint8_t* data = AMediaCodec_getOutputBuffer (c, (size_t) idx, &size);
                 const bool config = (info.flags & AMEDIACODEC_BUFFER_FLAG_CODEC_CONFIG) != 0;
