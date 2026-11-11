@@ -1,400 +1,400 @@
-11-11 17:36:41.485 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.485 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.485 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.485 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.485 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.485 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.486 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.486 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.486 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.486 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.486 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.486 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.486 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.486 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.486 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.486 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.486 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.486 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.486 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.486 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.486 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.486 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.486 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.486 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.487 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.487 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.487 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.487 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.487 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.487 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.487 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.487 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.487 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.487 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.487 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.487 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.487 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.487 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.487 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.487 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.487 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.488 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.488 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.488 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.488 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.488 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.488 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.488 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.488 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.488 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.488 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.488 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.488 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.488 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.489 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.493 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.494 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.495 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.495 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.495 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.496 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.496 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.496 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.497 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.497 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.497 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.498 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.498 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.498 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.498 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.498 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.498 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.498 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.498 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.498 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.498 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.498 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.498 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.498 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.498 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.499 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.499 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.499 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.499 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.499 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.499 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.499 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.499 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.500 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.501 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.501 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.502 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.502 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.502 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.502 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.502 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.502 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.503 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.503 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.503 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.503 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.503 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.503 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.503 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.503 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.504 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.504 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.504 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.504 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.504 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.504 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.504 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.504 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.504 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.505 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.505 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.505 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.505 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.506 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.506 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.506 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.506 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.506 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.506 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.506 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.506 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.506 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.506 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.506 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.506 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.506 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.506 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.507 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.507 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.507 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.507 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.507 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.507 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.507 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.507 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.507 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.507 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.507 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.507 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.507 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.507 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.507 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.508 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.508 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.508 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.508 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.508 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.508 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.508 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.508 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.508 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.508 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.508 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.508 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.508 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.508 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.509 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.509 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.509 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.509 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.509 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.509 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.509 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.509 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.509 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.509 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.509 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.509 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.509 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.509 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.509 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.510 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.510 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.510 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.510 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.510 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.510 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.510 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.510 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.511 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.511 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.511 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.511 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.511 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.511 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.511 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.511 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.511 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.512 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.513 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.513 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.513 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.513 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.513 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.513 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.513 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.514 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.514 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.514 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.514 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.514 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.514 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.514 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.514 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.514 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.514 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.514 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.514 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.514 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.514 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.515 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.515 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.515 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.515 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.515 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.515 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.515 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.515 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.515 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.515 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.516 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.516 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.516 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.516 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.516 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.517 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.517 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.517 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.517 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.517 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.517 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.517 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.517 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.518 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.518 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.518 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.518 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.518 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.518 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.518 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.518 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.518 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.518 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.518 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.518 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.518 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.518 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.518 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.519 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.519 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.519 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.519 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.519 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.520 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.520 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.520 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.520 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.520 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.520 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.520 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.520 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.520 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.520 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.521 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.521 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.521 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.521 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.521 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.521 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.521 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.522 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.522 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.522 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.522 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.522 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.523 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.523 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.523 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.523 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.524 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.524 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.524 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.524 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.525 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.525 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.525 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.525 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.525 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.526 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.526 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.526 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.526 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.526 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.526 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.526 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.527 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.527 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.527 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.527 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.527 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.527 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.527 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.527 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.528 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.528 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.528 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.529 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.529 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.529 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.529 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.529 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.529 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.529 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.529 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.529 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.529 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.529 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.529 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.529 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.529 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.529 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.529 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.530 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.530 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.530 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.530 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.530 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.531 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.531 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.531 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.531 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.532 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.532 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.532 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.532 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.532 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.532 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.534 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.534 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.535 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.536 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.536 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.537 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.537 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.537 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.537 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.537 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.537 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.538 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.538 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.538 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.538 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.538 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.538 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.539 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.539 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.539 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.539 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.539 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.539 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.539 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.539 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.539 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.540 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.540 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.540 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.540 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.540 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.540 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.540 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.540 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.540 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.541 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.541 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.542 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.542 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.542 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.542 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.543 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.543 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.543 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.543 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.544 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.544 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.544 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.544 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.544 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.544 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.545 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.545 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.546 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.546 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.546 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.546 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
-11-11 17:36:41.546 E/MediaCodec( 3631): Invalid to call at Released state; only valid in executing state
+11-11 17:53:35.678 D/CCodecBufferChannel( 3648): [c2.android.aac.encoder#192] MediaCodec discarded an unknown buffer
+11-11 17:53:35.678 D/CCodecBufferChannel( 3648): [c2.android.aac.encoder#192] MediaCodec discarded an unknown buffer
+11-11 17:53:35.678 D/CCodecBufferChannel( 3648): [c2.android.aac.encoder#192] MediaCodec discarded an unknown buffer
+11-11 17:53:35.679 D/MediaCodec( 3648): flushMediametrics
+11-11 17:53:35.727 D/MediaCodecList( 3648): codecHandlesFormat: no format, so no extra checks
+11-11 17:53:35.728 D/CCodec  ( 3648): allocate(c2.android.avc.encoder)
+11-11 17:53:35.729 I/CCodec  ( 3648): setting up 'default' as default (vendor) store
+11-11 17:53:35.731 I/CCodec  ( 3648): Created component [c2.android.avc.encoder]
+11-11 17:53:35.732 D/CCodecConfig( 3648): read media type: video/avc
+11-11 17:53:35.739 D/CCodecConfig( 3648): ignoring local param raw.color (0xc2001809) as it is already supported
+11-11 17:53:35.740 I/CCodecConfig( 3648): query failed after returning 12 values (BAD_INDEX)
+11-11 17:53:35.740 D/CCodecConfig( 3648): c2 config diff is Dict {
+11-11 17:53:35.740 D/CCodecConfig( 3648):   c2::i32 coded.average-qp.value = 0
+11-11 17:53:35.740 D/CCodecConfig( 3648):   c2::u32 coded.bitrate.value = 64000
+11-11 17:53:35.740 D/CCodecConfig( 3648):   c2::float coded.frame-rate.value = 1
+11-11 17:53:35.740 D/CCodecConfig( 3648):   c2::u32 coded.picture-type.value = 0
+11-11 17:53:35.740 D/CCodecConfig( 3648):   c2::u32 coded.pl.level = 20492
+11-11 17:53:35.740 D/CCodecConfig( 3648):   c2::u32 coded.pl.profile = 20481
+11-11 17:53:35.740 D/CCodecConfig( 3648):   c2::u32 coded.vui.color.matrix = 0
+11-11 17:53:35.740 D/CCodecConfig( 3648):   c2::u32 coded.vui.color.primaries = 0
+11-11 17:53:35.740 D/CCodecConfig( 3648):   c2::u32 coded.vui.color.range = 0
+11-11 17:53:35.740 D/CCodecConfig( 3648):   c2::u32 coded.vui.color.transfer = 0
+11-11 17:53:35.740 D/CCodecConfig( 3648):   c2::u32 coding.intra-refresh.mode = 0
+11-11 17:53:35.740 D/CCodecConfig( 3648):   c2::float coding.intra-refresh.period = 0
+11-11 17:53:35.740 D/CCodecConfig( 3648):   c2::u32 coding.request-sync-frame.value = 0
+11-11 17:53:35.740 D/CCodecConfig( 3648):   c2::i64 coding.sync-frame-interval.value = 1000000
+11-11 17:53:35.740 D/CCodecConfig( 3648):   c2::u32 input.delay.value = 0
+11-11 17:53:35.740 D/CCodecConfig( 3648):   string input.media-type.value = "video/raw"
+11-11 17:53:35.740 D/CCodecConfig( 3648):   string output.media-type.value = "video/avc"
+11-11 17:53:35.740 D/CCodecConfig( 3648):   c2::u32 raw.color.matrix = 0
+11-11 17:53:35.740 D/CCodecConfig( 3648):   c2::u32 raw.color.primaries = 0
+11-11 17:53:35.740 D/CCodecConfig( 3648):   c2::u32 raw.color.range = 0
+11-11 17:53:35.740 D/CCodecConfig( 3648):   c2::u32 raw.color.transfer = 0
+11-11 17:53:35.740 D/CCodecConfig( 3648):   c2::u32 raw.size.height = 16
+11-11 17:53:35.740 D/CCodecConfig( 3648):   c2::u32 raw.size.width = 16
+11-11 17:53:35.740 D/CCodecConfig( 3648): }
+11-11 17:53:35.743 D/MediaCodec( 3648): shapeMediaFormat: deltas(1): AMessage(what = 0x00000000) = {
+11-11 17:53:35.743 D/MediaCodec( 3648):     int32_t android._encoding-quality-level = 0
+11-11 17:53:35.743 D/MediaCodec( 3648):   }
+11-11 17:53:35.743 D/MediaCodec( 3648): flushMediametrics
+11-11 17:53:35.743 D/CCodec  ( 3648): [c2.android.avc.encoder] buffers are bound to CCodec for this session
+11-11 17:53:35.743 D/CCodecConfig( 3648): no c2 equivalents for color-format
+11-11 17:53:35.743 D/CCodecConfig( 3648): no c2 equivalents for color-standard
+11-11 17:53:35.743 D/CCodecConfig( 3648): no c2 equivalents for flags
+11-11 17:53:35.743 D/CCodecConfig( 3648): no c2 equivalents for encoder
+11-11 17:53:35.747 D/CCodecConfig( 3648): c2 config diff is   c2::u32 coded.bitrate.value = 8000000
+11-11 17:53:35.747 D/CCodecConfig( 3648):   c2::float coded.frame-rate.value = 30
+11-11 17:53:35.747 D/CCodecConfig( 3648):   c2::u32 coded.vui.color.matrix = 1
+11-11 17:53:35.747 D/CCodecConfig( 3648):   c2::u32 coded.vui.color.primaries = 1
+11-11 17:53:35.747 D/CCodecConfig( 3648):   c2::u32 coded.vui.color.range = 2
+11-11 17:53:35.747 D/CCodecConfig( 3648):   c2::u32 coded.vui.color.transfer = 3
+11-11 17:53:35.747 D/CCodecConfig( 3648):   c2::u32 raw.color.matrix = 1
+11-11 17:53:35.747 D/CCodecConfig( 3648):   c2::u32 raw.color.primaries = 1
+11-11 17:53:35.747 D/CCodecConfig( 3648):   c2::u32 raw.color.range = 2
+11-11 17:53:35.747 D/CCodecConfig( 3648):   c2::u32 raw.color.transfer = 3
+11-11 17:53:35.747 D/CCodecConfig( 3648):   c2::u32 raw.size.height = 720
+11-11 17:53:35.747 D/CCodecConfig( 3648):   c2::u32 raw.size.width = 1280
+11-11 17:53:35.748 D/CCodec  ( 3648): encoding statistics level = 0
+11-11 17:53:35.748 D/CCodec  ( 3648): setup formats input: AMessage(what = 0x00000000) = {
+11-11 17:53:35.748 D/CCodec  ( 3648):   Rect crop(0, 0, 1279, 719)
+11-11 17:53:35.748 D/CCodec  ( 3648):   int32_t color-standard = 1
+11-11 17:53:35.748 D/CCodec  ( 3648):   int32_t color-range = 2
+11-11 17:53:35.748 D/CCodec  ( 3648):   int32_t color-transfer = 3
+11-11 17:53:35.748 D/CCodec  ( 3648):   int32_t frame-rate = 30
+11-11 17:53:35.748 D/CCodec  ( 3648):   int32_t height = 720
+11-11 17:53:35.748 D/CCodec  ( 3648):   int32_t intra-refresh-period = 0
+11-11 17:53:35.748 D/CCodec  ( 3648):   string mime = "video/raw"
+11-11 17:53:35.748 D/CCodec  ( 3648):   int32_t video-qp-average = 0
+11-11 17:53:35.748 D/CCodec  ( 3648):   int32_t width = 1280
+11-11 17:53:35.748 D/CCodec  ( 3648):   int32_t android._dataspace = 260
+11-11 17:53:35.748 D/CCodec  ( 3648):   int32_t using-sw-read-often = 1
+11-11 17:53:35.748 D/CCodec  ( 3648):   int64_t android._C2MemoryUsage = 1
+11-11 17:53:35.748 D/CCodec  ( 3648):   int32_t color-format = 21
+11-11 17:53:35.748 D/CCodec  ( 3648):   int32_t android._color-format = 21
+11-11 17:53:35.748 D/CCodec  ( 3648):   int32_t stride = 1280
+11-11 17:53:35.748 D/CCodec  ( 3648):   int32_t slice-height = 720
+11-11 17:53:35.748 D/CCodec  ( 3648): }
+11-11 17:53:35.749 D/CCodec  ( 3648): setup formats output: AMessage(what = 0x00000000) = {
+11-11 17:53:35.749 D/CCodec  ( 3648):   int32_t bitrate = 8000000
+11-11 17:53:35.749 D/CCodec  ( 3648):   Rect crop(0, 0, 1279, 719)
+11-11 17:53:35.749 D/CCodec  ( 3648):   int32_t color-standard = 1
+11-11 17:53:35.749 D/CCodec  ( 3648):   int32_t color-range = 2
+11-11 17:53:35.749 D/CCodec  ( 3648):   int32_t color-transfer = 3
+11-11 17:53:35.749 D/CCodec  ( 3648):   int32_t frame-rate = 30
+11-11 17:53:35.749 D/CCodec  ( 3648):   int32_t height = 720
+11-11 17:53:35.749 D/CCodec  ( 3648):   int32_t intra-refresh-period = 0
+11-11 17:53:35.749 D/CCodec  ( 3648):   int32_t level = 4096
+11-11 17:53:35.749 D/CCodec  ( 3648):   int32_t max-bitrate = 8000000
+11-11 17:53:35.749 D/CCodec  ( 3648):   string mime = "video/avc"
+11-11 17:53:35.749 D/CCodec  ( 3648):   int32_t profile = 65536
+11-11 17:53:35.749 D/CCodec  ( 3648):   int32_t video-qp-average = 0
+11-11 17:53:35.749 D/CCodec  ( 3648):   int32_t width = 1280
+11-11 17:53:35.749 D/CCodec  ( 3648): }
+11-11 17:53:35.749 I/CCodecConfig( 3648): query failed after returning 13 values (BAD_INDEX)
+11-11 17:53:35.750 D/CCodecBufferChannel( 3648): [c2.android.avc.encoder#720] Using basic input block pool with poolID 1 => got 1 - OK (0)
+11-11 17:53:35.751 I/CCodecBufferChannel( 3648): [c2.android.avc.encoder#720] Created output block pool with allocatorID 16 => poolID 31 - OK
+11-11 17:53:35.752 D/CCodecBufferChannel( 3648): [c2.android.avc.encoder#720] Configured output block pool ids 31 => OK
+11-11 17:53:35.756 D/CCodecBuffers( 3648): [c2.android.avc.encoder#720:2D-BB-Input] updating image-data
+11-11 17:53:35.756 D/CCodecBuffers( 3648): [c2.android.avc.encoder#720:2D-BB-Input] updating stride = 1280, width: 1280, height: 720
+11-11 17:53:35.756 D/CCodecBuffers( 3648): [c2.android.avc.encoder#720:2D-BB-Input] updating vstride = 720
+11-11 17:53:35.771 D/MediaCodecList( 3648): codecHandlesFormat: no format, so no extra checks
+11-11 17:53:35.776 D/CCodec  ( 3648): allocate(c2.android.aac.encoder)
+11-11 17:53:35.777 I/CCodec  ( 3648): setting up 'default' as default (vendor) store
+11-11 17:53:35.778 I/CCodec  ( 3648): Created component [c2.android.aac.encoder]
+11-11 17:53:35.778 D/CCodecConfig( 3648): read media type: audio/mp4a-latm
+11-11 17:53:35.783 I/CCodecConfig( 3648): query failed after returning 9 values (BAD_INDEX)
+11-11 17:53:35.783 D/CCodecConfig( 3648): c2 config diff is Dict {
+11-11 17:53:35.783 D/CCodecConfig( 3648):   c2::u32 coded.bitrate.value = 64000
+11-11 17:53:35.783 D/CCodecConfig( 3648):   c2::u32 coded.pl.level = 0
+11-11 17:53:35.783 D/CCodecConfig( 3648):   c2::u32 coded.pl.profile = 8192
+11-11 17:53:35.783 D/CCodecConfig( 3648):   c2::u32 coding.aac-sbr-mode.value = 3
+11-11 17:53:35.783 D/CCodecConfig( 3648):   c2::u32 input.buffers.max-size.value = 2048
+11-11 17:53:35.783 D/CCodecConfig( 3648):   c2::u32 input.delay.value = 0
+11-11 17:53:35.783 D/CCodecConfig( 3648):   string input.media-type.value = "audio/raw"
+11-11 17:53:35.783 D/CCodecConfig( 3648):   string output.media-type.value = "audio/mp4a-latm"
+11-11 17:53:35.783 D/CCodecConfig( 3648):   c2::u32 raw.channel-count.value = 1
+11-11 17:53:35.783 D/CCodecConfig( 3648):   c2::u32 raw.sample-rate.value = 44100
+11-11 17:53:35.783 D/CCodecConfig( 3648): }
+11-11 17:53:35.783 D/MediaCodec( 3648): shapeMediaFormat: deltas(0): AMessage(what = 0x00000000) = {
+11-11 17:53:35.783 D/MediaCodec( 3648):   }
+11-11 17:53:35.784 D/MediaCodec( 3648): flushMediametrics
+11-11 17:53:35.784 D/CCodec  ( 3648): [c2.android.aac.encoder] buffers are bound to CCodec for this session
+11-11 17:53:35.784 D/CCodecConfig( 3648): no c2 equivalents for flags
+11-11 17:53:35.784 D/CCodecConfig( 3648): no c2 equivalents for encoder
+11-11 17:53:35.784 D/CCodecConfig( 3648): c2 config diff is   c2::u32 coded.bitrate.value = 320000
+11-11 17:53:35.784 D/CCodecConfig( 3648):   c2::u32 input.buffers.max-size.value = 4096
+11-11 17:53:35.784 D/CCodecConfig( 3648):   c2::u32 raw.channel-count.value = 2
+11-11 17:53:35.784 D/CCodecConfig( 3648):   c2::u32 raw.sample-rate.value = 48000
+11-11 17:53:35.784 D/CCodec  ( 3648): encoding statistics level = 0
+11-11 17:53:35.785 D/CCodec  ( 3648): setup formats input: AMessage(what = 0x00000000) = {
+11-11 17:53:35.785 D/CCodec  ( 3648):   int32_t sample-rate = 48000
+11-11 17:53:35.785 D/CCodec  ( 3648):   int32_t channel-count = 2
+11-11 17:53:35.785 D/CCodec  ( 3648):   int32_t max-input-size = 16384
+11-11 17:53:35.785 D/CCodec  ( 3648):   string mime = "audio/raw"
+11-11 17:53:35.785 D/CCodec  ( 3648):   int32_t android._config-pcm-encoding = 2
+11-11 17:53:35.785 D/CCodec  ( 3648): }
+11-11 17:53:35.785 D/CCodec  ( 3648): setup formats output: AMessage(what = 0x00000000) = {
+11-11 17:53:35.785 D/CCodec  ( 3648):   int32_t sample-rate = 48000
+11-11 17:53:35.785 D/CCodec  ( 3648):   int32_t bitrate = 320000
+11-11 17:53:35.785 D/CCodec  ( 3648):   int32_t channel-count = 2
+11-11 17:53:35.785 D/CCodec  ( 3648):   int32_t level = 0
+11-11 17:53:35.785 D/CCodec  ( 3648):   int32_t max-bitrate = 320000
+11-11 17:53:35.785 D/CCodec  ( 3648):   string mime = "audio/mp4a-latm"
+11-11 17:53:35.785 D/CCodec  ( 3648):   int32_t profile = 2
+11-11 17:53:35.785 D/CCodec  ( 3648): }
+11-11 17:53:35.785 I/CCodecConfig( 3648): query failed after returning 9 values (BAD_INDEX)
+11-11 17:53:35.787 D/CCodecBufferChannel( 3648): [c2.android.aac.encoder#423] Created input block pool with allocatorID 16 => poolID 22 - OK (0)
+11-11 17:53:35.788 I/CCodecBufferChannel( 3648): [c2.android.aac.encoder#423] Created output block pool with allocatorID 16 => poolID 32 - OK
+11-11 17:53:35.788 D/CCodecBufferChannel( 3648): [c2.android.aac.encoder#423] Configured output block pool ids 32 => OK
+11-11 17:53:35.869 D/CCodecBuffers( 3648): [c2.android.avc.encoder#720:2D-BB-Input[N]] updating image-data
+11-11 17:53:35.869 D/CCodecBuffers( 3648): [c2.android.avc.encoder#720:2D-BB-Input[N]] updating stride = 1280, width: 1280, height: 720
+11-11 17:53:35.869 D/CCodecBuffers( 3648): [c2.android.avc.encoder#720:2D-BB-Input[N]] updating vstride = 720
+11-11 17:53:38.651 E/RecoverySnapshotStorage(  548): 	at libcore.io.IoBridge.open(IoBridge.java:574)
+11-11 17:53:38.651 E/RecoverySnapshotStorage(  548): 	at libcore.io.Linux.open(Native Method)
+11-11 17:53:38.651 E/RecoverySnapshotStorage(  548): 	at libcore.io.ForwardingOs.open(ForwardingOs.java:563)
+11-11 17:53:38.651 E/RecoverySnapshotStorage(  548): 	at libcore.io.BlockGuardOs.open(BlockGuardOs.java:274)
+11-11 17:53:38.651 E/RecoverySnapshotStorage(  548): 	at libcore.io.IoBridge.open(IoBridge.java:560)
+11-11 17:53:39.134 W/binder_debug(    0): 3 callbacks suppressed
+11-11 17:53:39.427 I/GmsDebugLogger( 6214): [73] 1801
+11-11 17:53:39.430 I/GmsDebugLogger( 6214): [30] [MapsCoreDynamite.integ:231112103100800]
+11-11 17:53:39.474 I/GmsDebugLogger( 6214): [83] 1 [maps_core]
+11-11 17:53:39.671 W/libc    ( 6214): Access denied finding property "ro.hardware.chipname"
+11-11 17:53:40.253 W/libc    ( 3224): Access denied finding property "persist.adb.tls_server.enable"
+11-11 17:53:40.253 W/libc    ( 3224): Access denied finding property "service.adb.tls.port"
+11-11 17:53:40.647 I/PeopleInitIntentOp( 6214): Not initializing debuggability [CONTEXT service_id=5 ]
+11-11 17:53:40.857 I/GmsDebugLogger( 6214): [73] 1801
+11-11 17:53:40.864 I/GmsDebugLogger( 6214): [30] [VisionBarcode.optional:231818100800],[TfliteDynamiteDynamite.integ:264010405100800],[MlkitBarcodeUi.optional:231818100000]
+11-11 17:53:40.879 I/GmsDebugLogger( 6214): [83] 1 [mlkit.barcode.ui]
+11-11 17:53:41.514 I/GmsDebugLogger( 6214): [73] 1801
+11-11 17:53:41.520 I/GmsDebugLogger( 6214): [30] [VisionOcrDynamite.integ:231602402100000],[TfliteDynamiteDynamite.integ:264010405100800],[MlkitOcrCommon.optional:231818100800]
+11-11 17:53:41.523 I/GmsDebugLogger( 6214): [83] 1 [vision.ocr]
+11-11 17:53:41.581 I/SemanticLocation( 6210): 	at libcore.io.IoBridge.open(IoBridge.java:574)
+11-11 17:53:41.581 I/SemanticLocation( 6210): 	at libcore.io.Linux.open(Native Method)
+11-11 17:53:41.581 I/SemanticLocation( 6210): 	at libcore.io.ForwardingOs.open(ForwardingOs.java:563)
+11-11 17:53:41.581 I/SemanticLocation( 6210): 	at libcore.io.BlockGuardOs.open(BlockGuardOs.java:274)
+11-11 17:53:41.581 I/SemanticLocation( 6210): 	at libcore.io.ForwardingOs.open(ForwardingOs.java:563)
+11-11 17:53:41.581 I/SemanticLocation( 6210): 	at libcore.io.IoBridge.open(IoBridge.java:560)
+11-11 17:53:41.717 I/GmsDebugLogger( 6214): [73] 1801
+11-11 17:53:41.730 I/GmsDebugLogger( 6214): [30] [TfliteDynamiteDynamite.integ:264010405100800]
+11-11 17:53:41.743 I/GmsDebugLogger( 6214): [83] 1 [tflite_dynamite]
+11-11 17:53:41.746 I/SemanticLocation( 6210): 	at libcore.io.IoBridge.open(IoBridge.java:574)
+11-11 17:53:41.746 I/SemanticLocation( 6210): 	at libcore.io.Linux.open(Native Method)
+11-11 17:53:41.746 I/SemanticLocation( 6210): 	at libcore.io.ForwardingOs.open(ForwardingOs.java:563)
+11-11 17:53:41.746 I/SemanticLocation( 6210): 	at libcore.io.BlockGuardOs.open(BlockGuardOs.java:274)
+11-11 17:53:41.746 I/SemanticLocation( 6210): 	at libcore.io.ForwardingOs.open(ForwardingOs.java:563)
+11-11 17:53:41.746 I/SemanticLocation( 6210): 	at libcore.io.IoBridge.open(IoBridge.java:560)
+11-11 17:53:41.806 W/libc    ( 3224): Access denied finding property "persist.adb.tls_server.enable"
+11-11 17:53:41.806 W/libc    ( 3224): Access denied finding property "service.adb.tls.port"
+11-11 17:53:43.159 D/CCodecBufferChannel( 3648): [c2.android.avc.encoder#720] MediaCodec discarded an unknown buffer
+11-11 17:53:43.160 D/CCodecBufferChannel( 3648): [c2.android.avc.encoder#720] MediaCodec discarded an unknown buffer
+11-11 17:53:43.160 D/CCodecBufferChannel( 3648): [c2.android.avc.encoder#720] MediaCodec discarded an unknown buffer
+11-11 17:53:43.164 D/MediaCodec( 3648): flushMediametrics
+11-11 17:53:43.164 D/CCodecBufferChannel( 3648): [c2.android.aac.encoder#423] MediaCodec discarded an unknown buffer
+11-11 17:53:43.164 D/CCodecBufferChannel( 3648): [c2.android.aac.encoder#423] MediaCodec discarded an unknown buffer
+11-11 17:53:43.164 D/CCodecBufferChannel( 3648): [c2.android.aac.encoder#423] MediaCodec discarded an unknown buffer
+11-11 17:53:43.166 D/MediaCodec( 3648): flushMediametrics
+11-11 17:53:43.223 D/MediaCodecList( 3648): codecHandlesFormat: no format, so no extra checks
+11-11 17:53:43.224 D/CCodec  ( 3648): allocate(c2.android.hevc.encoder)
+11-11 17:53:43.225 I/CCodec  ( 3648): setting up 'default' as default (vendor) store
+11-11 17:53:43.227 I/CCodec  ( 3648): Created component [c2.android.hevc.encoder]
+11-11 17:53:43.227 D/CCodecConfig( 3648): read media type: video/hevc
+11-11 17:53:43.232 D/CCodecConfig( 3648): ignoring local param raw.color (0xc2001809) as it is already supported
+11-11 17:53:43.232 I/CCodecConfig( 3648): query failed after returning 14 values (BAD_INDEX)
+11-11 17:53:43.232 D/CCodecConfig( 3648): c2 config diff is Dict {
+11-11 17:53:43.232 D/CCodecConfig( 3648):   c2::u32 algo.bitrate-mode.value = 3
+11-11 17:53:43.232 D/CCodecConfig( 3648):   c2::u32 algo.complexity.value = 0
+11-11 17:53:43.232 D/CCodecConfig( 3648):   c2::u32 algo.quality.value = 80
+11-11 17:53:43.232 D/CCodecConfig( 3648):   c2::i32 coded.average-qp.value = 0
+11-11 17:53:43.232 D/CCodecConfig( 3648):   c2::u32 coded.bitrate.value = 64000
+11-11 17:53:43.232 D/CCodecConfig( 3648):   c2::float coded.frame-rate.value = 1
+11-11 17:53:43.232 D/CCodecConfig( 3648):   c2::u32 coded.picture-type.value = 0
+11-11 17:53:43.232 D/CCodecConfig( 3648):   c2::u32 coded.pl.level = 24576
+11-11 17:53:43.232 D/CCodecConfig( 3648):   c2::u32 coded.pl.profile = 24576
+11-11 17:53:43.232 D/CCodecConfig( 3648):   c2::u32 coded.vui.color.matrix = 0
+11-11 17:53:43.232 D/CCodecConfig( 3648):   c2::u32 coded.vui.color.primaries = 0
+11-11 17:53:43.232 D/CCodecConfig( 3648):   c2::u32 coded.vui.color.range = 0
+11-11 17:53:43.232 D/CCodecConfig( 3648):   c2::u32 coded.vui.color.transfer = 0
+11-11 17:53:43.232 D/CCodecConfig( 3648):   c2::u32 coding.request-sync-frame.value = 0
+11-11 17:53:43.232 D/CCodecConfig( 3648):   c2::i64 coding.sync-frame-interval.value = 1000000
+11-11 17:53:43.232 D/CCodecConfig( 3648):   c2::u32 input.delay.value = 0
+11-11 17:53:43.232 D/CCodecConfig( 3648):   string input.media-type.value = "video/raw"
+11-11 17:53:43.232 D/CCodecConfig( 3648):   string output.media-type.value = "video/hevc"
+11-11 17:53:43.232 D/CCodecConfig( 3648):   c2::u32 raw.color.matrix = 0
+11-11 17:53:43.232 D/CCodecConfig( 3648):   c2::u32 raw.color.primaries = 0
+11-11 17:53:43.232 D/CCodecConfig( 3648):   c2::u32 raw.color.range = 0
+11-11 17:53:43.232 D/CCodecConfig( 3648):   c2::u32 raw.color.transfer = 0
+11-11 17:53:43.232 D/CCodecConfig( 3648):   c2::u32 raw.size.height = 64
+11-11 17:53:43.232 D/CCodecConfig( 3648):   c2::u32 raw.size.width = 64
+11-11 17:53:43.232 D/CCodecConfig( 3648): }
+11-11 17:53:43.234 D/MediaCodec( 3648): shapeMediaFormat: deltas(1): AMessage(what = 0x00000000) = {
+11-11 17:53:43.234 D/MediaCodec( 3648):     int32_t android._encoding-quality-level = 0
+11-11 17:53:43.234 D/MediaCodec( 3648):   }
+11-11 17:53:43.235 D/MediaCodec( 3648): flushMediametrics
+11-11 17:53:43.235 D/CCodec  ( 3648): [c2.android.hevc.encoder] buffers are bound to CCodec for this session
+11-11 17:53:43.235 D/CCodecConfig( 3648): no c2 equivalents for color-format
+11-11 17:53:43.235 D/CCodecConfig( 3648): no c2 equivalents for color-standard
+11-11 17:53:43.235 D/CCodecConfig( 3648): no c2 equivalents for flags
+11-11 17:53:43.235 D/CCodecConfig( 3648): no c2 equivalents for encoder
+11-11 17:53:43.236 D/CCodecConfig( 3648): c2 config diff is   c2::u32 coded.bitrate.value = 8000000
+11-11 17:53:43.236 D/CCodecConfig( 3648):   c2::float coded.frame-rate.value = 60
+11-11 17:53:43.236 D/CCodecConfig( 3648):   c2::u32 coded.pl.level = 24580
+11-11 17:53:43.236 D/CCodecConfig( 3648):   c2::u32 coded.vui.color.matrix = 1
+11-11 17:53:43.236 D/CCodecConfig( 3648):   c2::u32 coded.vui.color.primaries = 1
+11-11 17:53:43.236 D/CCodecConfig( 3648):   c2::u32 coded.vui.color.range = 2
+11-11 17:53:43.236 D/CCodecConfig( 3648):   c2::u32 coded.vui.color.transfer = 3
+11-11 17:53:43.236 D/CCodecConfig( 3648):   c2::u32 raw.color.matrix = 1
+11-11 17:53:43.236 D/CCodecConfig( 3648):   c2::u32 raw.color.primaries = 1
+11-11 17:53:43.236 D/CCodecConfig( 3648):   c2::u32 raw.color.range = 2
+11-11 17:53:43.236 D/CCodecConfig( 3648):   c2::u32 raw.color.transfer = 3
+11-11 17:53:43.236 D/CCodecConfig( 3648):   c2::u32 raw.size.height = 540
+11-11 17:53:43.236 D/CCodecConfig( 3648):   c2::u32 raw.size.width = 960
+11-11 17:53:43.239 D/CCodec  ( 3648): encoding statistics level = 0
+11-11 17:53:43.239 D/CCodec  ( 3648): setup formats input: AMessage(what = 0x00000000) = {
+11-11 17:53:43.239 D/CCodec  ( 3648):   Rect crop(0, 0, 959, 539)
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t color-standard = 1
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t color-range = 2
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t color-transfer = 3
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t frame-rate = 60
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t height = 540
+11-11 17:53:43.239 D/CCodec  ( 3648):   string mime = "video/raw"
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t video-qp-average = 0
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t width = 960
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t android._dataspace = 260
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t using-sw-read-often = 1
+11-11 17:53:43.239 D/CCodec  ( 3648):   int64_t android._C2MemoryUsage = 1
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t color-format = 21
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t android._color-format = 21
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t stride = 960
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t slice-height = 540
+11-11 17:53:43.239 D/CCodec  ( 3648): }
+11-11 17:53:43.239 D/CCodec  ( 3648): setup formats output: AMessage(what = 0x00000000) = {
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t bitrate = 8000000
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t bitrate-mode = 1
+11-11 17:53:43.239 D/CCodec  ( 3648):   Rect crop(0, 0, 959, 539)
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t color-standard = 1
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t color-range = 2
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t color-transfer = 3
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t frame-rate = 60
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t height = 540
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t level = 256
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t max-bitrate = 8000000
+11-11 17:53:43.239 D/CCodec  ( 3648):   string mime = "video/hevc"
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t profile = 1
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t video-qp-average = 0
+11-11 17:53:43.239 D/CCodec  ( 3648):   int32_t width = 960
+11-11 17:53:43.239 D/CCodec  ( 3648): }
+11-11 17:53:43.239 I/CCodecConfig( 3648): query failed after returning 15 values (BAD_INDEX)
+11-11 17:53:43.240 D/CCodecBufferChannel( 3648): [c2.android.hevc.encoder#12] Using basic input block pool with poolID 1 => got 1 - OK (0)
+11-11 17:53:43.241 I/CCodecBufferChannel( 3648): [c2.android.hevc.encoder#12] Created output block pool with allocatorID 16 => poolID 33 - OK
+11-11 17:53:43.241 D/CCodecBufferChannel( 3648): [c2.android.hevc.encoder#12] Configured output block pool ids 33 => OK
+11-11 17:53:43.243 D/CCodecBuffers( 3648): [c2.android.hevc.encoder#12:2D-BB-Input] updating image-data
+11-11 17:53:43.243 D/CCodecBuffers( 3648): [c2.android.hevc.encoder#12:2D-BB-Input] updating stride = 960, width: 960, height: 540
+11-11 17:53:43.243 D/CCodecBuffers( 3648): [c2.android.hevc.encoder#12:2D-BB-Input] updating vstride = 540
+11-11 17:53:43.254 D/MediaCodecList( 3648): codecHandlesFormat: no format, so no extra checks
+11-11 17:53:43.255 D/CCodec  ( 3648): allocate(c2.android.aac.encoder)
+11-11 17:53:43.256 I/CCodec  ( 3648): setting up 'default' as default (vendor) store
+11-11 17:53:43.264 I/CCodec  ( 3648): Created component [c2.android.aac.encoder]
+11-11 17:53:43.265 D/CCodecConfig( 3648): read media type: audio/mp4a-latm
+11-11 17:53:43.269 I/CCodecConfig( 3648): query failed after returning 9 values (BAD_INDEX)
+11-11 17:53:43.269 D/CCodecConfig( 3648): c2 config diff is Dict {
+11-11 17:53:43.269 D/CCodecConfig( 3648):   c2::u32 coded.bitrate.value = 64000
+11-11 17:53:43.269 D/CCodecConfig( 3648):   c2::u32 coded.pl.level = 0
+11-11 17:53:43.269 D/CCodecConfig( 3648):   c2::u32 coded.pl.profile = 8192
+11-11 17:53:43.269 D/CCodecConfig( 3648):   c2::u32 coding.aac-sbr-mode.value = 3
+11-11 17:53:43.269 D/CCodecConfig( 3648):   c2::u32 input.buffers.max-size.value = 2048
+11-11 17:53:43.269 D/CCodecConfig( 3648):   c2::u32 input.delay.value = 0
+11-11 17:53:43.269 D/CCodecConfig( 3648):   string input.media-type.value = "audio/raw"
+11-11 17:53:43.269 D/CCodecConfig( 3648):   string output.media-type.value = "audio/mp4a-latm"
+11-11 17:53:43.269 D/CCodecConfig( 3648):   c2::u32 raw.channel-count.value = 1
+11-11 17:53:43.269 D/CCodecConfig( 3648):   c2::u32 raw.sample-rate.value = 44100
+11-11 17:53:43.269 D/CCodecConfig( 3648): }
+11-11 17:53:43.270 D/MediaCodec( 3648): shapeMediaFormat: deltas(0): AMessage(what = 0x00000000) = {
+11-11 17:53:43.270 D/MediaCodec( 3648):   }
+11-11 17:53:43.270 D/MediaCodec( 3648): flushMediametrics
+11-11 17:53:43.270 D/CCodec  ( 3648): [c2.android.aac.encoder] buffers are bound to CCodec for this session
+11-11 17:53:43.270 D/CCodecConfig( 3648): no c2 equivalents for flags
+11-11 17:53:43.270 D/CCodecConfig( 3648): no c2 equivalents for encoder
+11-11 17:53:43.271 D/CCodecConfig( 3648): c2 config diff is   c2::u32 coded.bitrate.value = 320000
+11-11 17:53:43.271 D/CCodecConfig( 3648):   c2::u32 input.buffers.max-size.value = 4096
+11-11 17:53:43.271 D/CCodecConfig( 3648):   c2::u32 raw.channel-count.value = 2
+11-11 17:53:43.271 D/CCodecConfig( 3648):   c2::u32 raw.sample-rate.value = 48000
+11-11 17:53:43.271 D/CCodec  ( 3648): encoding statistics level = 0
+11-11 17:53:43.271 D/CCodec  ( 3648): setup formats input: AMessage(what = 0x00000000) = {
+11-11 17:53:43.271 D/CCodec  ( 3648):   int32_t sample-rate = 48000
+11-11 17:53:43.271 D/CCodec  ( 3648):   int32_t channel-count = 2
+11-11 17:53:43.271 D/CCodec  ( 3648):   int32_t max-input-size = 16384
+11-11 17:53:43.271 D/CCodec  ( 3648):   string mime = "audio/raw"
+11-11 17:53:43.271 D/CCodec  ( 3648):   int32_t android._config-pcm-encoding = 2
+11-11 17:53:43.271 D/CCodec  ( 3648): }
+11-11 17:53:43.271 D/CCodec  ( 3648): setup formats output: AMessage(what = 0x00000000) = {
+11-11 17:53:43.271 D/CCodec  ( 3648):   int32_t sample-rate = 48000
+11-11 17:53:43.271 D/CCodec  ( 3648):   int32_t bitrate = 320000
+11-11 17:53:43.271 D/CCodec  ( 3648):   int32_t channel-count = 2
+11-11 17:53:43.271 D/CCodec  ( 3648):   int32_t level = 0
+11-11 17:53:43.271 D/CCodec  ( 3648):   int32_t max-bitrate = 320000
+11-11 17:53:43.271 D/CCodec  ( 3648):   string mime = "audio/mp4a-latm"
+11-11 17:53:43.271 D/CCodec  ( 3648):   int32_t profile = 2
+11-11 17:53:43.271 D/CCodec  ( 3648): }
+11-11 17:53:43.271 I/CCodecConfig( 3648): query failed after returning 9 values (BAD_INDEX)
+11-11 17:53:43.273 D/CCodecBufferChannel( 3648): [c2.android.aac.encoder#779] Created input block pool with allocatorID 16 => poolID 24 - OK (0)
+11-11 17:53:43.275 I/CCodecBufferChannel( 3648): [c2.android.aac.encoder#779] Created output block pool with allocatorID 16 => poolID 34 - OK
+11-11 17:53:43.275 D/CCodecBufferChannel( 3648): [c2.android.aac.encoder#779] Configured output block pool ids 34 => OK
+11-11 17:53:43.510 D/CCodecBuffers( 3648): [c2.android.hevc.encoder#12:2D-BB-Input[N]] updating image-data
+11-11 17:53:43.510 D/CCodecBuffers( 3648): [c2.android.hevc.encoder#12:2D-BB-Input[N]] updating stride = 960, width: 960, height: 540
+11-11 17:53:43.510 D/CCodecBuffers( 3648): [c2.android.hevc.encoder#12:2D-BB-Input[N]] updating vstride = 540
+11-11 17:53:45.851 D/StrictMode( 1902): 	at libcore.io.BlockGuardOs.access(BlockGuardOs.java:74)
+11-11 17:53:45.851 D/StrictMode( 1902): 	at libcore.io.ForwardingOs.access(ForwardingOs.java:128)
+11-11 17:53:45.852 D/StrictMode( 1902): 	at libcore.io.BlockGuardOs.access(BlockGuardOs.java:74)
+11-11 17:53:45.852 D/StrictMode( 1902): 	at libcore.io.ForwardingOs.access(ForwardingOs.java:128)
+11-11 17:53:51.693 I/GmsDebugLogger( 6214): [73] 1801
+11-11 17:53:51.751 I/GmsDebugLogger( 6214): [30] [VisionOcrDynamite.integ:231602402100000],[TfliteDynamiteDynamite.integ:264010405100800],[MlkitOcrCommon.optional:231818100800]
+11-11 17:53:51.753 I/GmsDebugLogger( 6214): [83] 1 [vision.ocr]
+11-11 17:54:17.846 I/GmsDebugLogger( 6214): [73] 1801
+11-11 17:54:17.848 I/GmsDebugLogger( 6214): [30] [VisionOcrDynamite.integ:231602402100000],[TfliteDynamiteDynamite.integ:264010405100800],[MlkitOcrCommon.optional:231818100800]
+11-11 17:54:17.853 I/GmsDebugLogger( 6214): [83] 1 [vision.ocr]
+11-11 17:54:20.327 W/PhenotypeConfigurationU( 6210): Update for unknown DeviceConfig package com.google.android.gms.chimera_debug [CONTEXT service_id=204 ]
+11-11 17:54:20.327 W/PhenotypeConfigurationU( 6210): bwix: No package exists for config package: com.google.android.gms.chimera_debug
+11-11 17:54:22.945 D/MediaCodec( 3648): flushMediametrics
+11-11 17:54:22.946 D/CCodecBufferChannel( 3648): [c2.android.aac.encoder#779] MediaCodec discarded an unknown buffer
+11-11 17:54:22.946 D/CCodecBufferChannel( 3648): [c2.android.aac.encoder#779] MediaCodec discarded an unknown buffer
+11-11 17:54:22.946 D/CCodecBufferChannel( 3648): [c2.android.aac.encoder#779] MediaCodec discarded an unknown buffer
+11-11 17:54:22.947 D/MediaCodec( 3648): flushMediametrics
+11-11 17:54:26.891 I/GmsDebugLogger( 6214): [73] 1801
+11-11 17:54:26.892 I/GmsDebugLogger( 6214): [30] [VisionOcrDynamite.integ:231602402100000],[TfliteDynamiteDynamite.integ:264010405100800],[MlkitOcrCommon.optional:231818100800]
+11-11 17:54:26.896 I/GmsDebugLogger( 6214): [83] 1 [vision.ocr]
+11-11 17:54:32.800 W/libc    ( 6214): Access denied finding property "ro.hardware.chipname"
+11-11 17:54:32.819 I/GmsDebugLogger( 6214): [73] 1801
+11-11 17:54:32.822 I/GmsDebugLogger( 6214): [30] [MapsCoreDynamite.integ:231112103100800]
+11-11 17:54:32.830 I/GmsDebugLogger( 6214): [83] 1 [maps_core]
+11-11 17:54:32.921 I/GmsDebugLogger( 6214): [73] 1801
+11-11 17:54:32.929 I/GmsDebugLogger( 6214): [30] [VisionOcrDynamite.integ:231602402100000],[TfliteDynamiteDynamite.integ:264010405100800],[MlkitOcrCommon.optional:231818100800]
+11-11 17:54:32.950 I/GmsDebugLogger( 6214): [83] 1 [vision.ocr]
+11-11 17:54:32.994 I/PeopleInitIntentOp( 6214): Not initializing debuggability [CONTEXT service_id=5 ]
+11-11 17:54:33.306 I/GmsDebugLogger( 6214): [73] 1801
+11-11 17:54:33.318 I/GmsDebugLogger( 6214): [30] [VisionBarcode.optional:231818100800],[TfliteDynamiteDynamite.integ:264010405100800],[MlkitBarcodeUi.optional:231818100000]
+11-11 17:54:33.331 I/GmsDebugLogger( 6214): [83] 1 [mlkit.barcode.ui]
+11-11 17:54:33.349 I/SemanticLocation( 6210): 	at libcore.io.IoBridge.open(IoBridge.java:574)
+11-11 17:54:33.349 I/SemanticLocation( 6210): 	at libcore.io.Linux.open(Native Method)
+11-11 17:54:33.349 I/SemanticLocation( 6210): 	at libcore.io.ForwardingOs.open(ForwardingOs.java:563)
+11-11 17:54:33.349 I/SemanticLocation( 6210): 	at libcore.io.BlockGuardOs.open(BlockGuardOs.java:274)
+11-11 17:54:33.349 I/SemanticLocation( 6210): 	at libcore.io.ForwardingOs.open(ForwardingOs.java:563)
+11-11 17:54:33.349 I/SemanticLocation( 6210): 	at libcore.io.IoBridge.open(IoBridge.java:560)
+11-11 17:54:33.445 W/libc    ( 3224): Access denied finding property "persist.adb.tls_server.enable"
+11-11 17:54:33.445 W/libc    ( 3224): Access denied finding property "service.adb.tls.port"
+11-11 17:54:33.456 I/SemanticLocation( 6210): 	at libcore.io.IoBridge.open(IoBridge.java:574)
+11-11 17:54:33.456 I/SemanticLocation( 6210): 	at libcore.io.Linux.open(Native Method)
+11-11 17:54:33.456 I/SemanticLocation( 6210): 	at libcore.io.ForwardingOs.open(ForwardingOs.java:563)
+11-11 17:54:33.456 I/SemanticLocation( 6210): 	at libcore.io.BlockGuardOs.open(BlockGuardOs.java:274)
+11-11 17:54:33.456 I/SemanticLocation( 6210): 	at libcore.io.ForwardingOs.open(ForwardingOs.java:563)
+11-11 17:54:33.456 I/SemanticLocation( 6210): 	at libcore.io.IoBridge.open(IoBridge.java:560)
+11-11 17:54:33.532 I/GmsDebugLogger( 6214): [73] 1801
+11-11 17:54:33.566 I/GmsDebugLogger( 6214): [30] [TfliteDynamiteDynamite.integ:264010405100800]
+11-11 17:54:33.573 I/GmsDebugLogger( 6214): [83] 1 [tflite_dynamite]
+11-11 17:54:33.723 I/GmsDebugLogger( 6214): [73] 1801
+11-11 17:54:33.724 I/GmsDebugLogger( 6214): [30] [VisionOcrDynamite.integ:231602402100000],[TfliteDynamiteDynamite.integ:264010405100800],[MlkitOcrCommon.optional:231818100800]
+11-11 17:54:33.726 I/GmsDebugLogger( 6214): [83] 1 [vision.ocr]
+11-11 17:54:34.320 I/GmsDebugLogger( 6214): [73] 1801
+11-11 17:54:34.325 I/GmsDebugLogger( 6214): [30] [VisionOcrDynamite.integ:231602402100000],[VisionBarcode.optional:231818100800],[TfliteDynamiteDynamite.integ:264010405100800],[MlkitOcrCommon.optional:231818100800],[MapsCoreDynamite.integ:231112103100800],[MlkitBarcodeUi.optional:231818100000]
+11-11 17:54:36.312 W/ModernMediaScanner( 1808): Failed to visit /data/data/com.binaryimage.bcvisualizer/BC Visualizer/BC Visualizer_temp5d8f5a7b.settings: java.nio.file.NoSuchFileException: /data/data/com.binaryimage.bcvisualizer/BC Visualizer/BC Visualizer_temp5d8f5a7b.settings
+11-11 17:54:36.314 D/MediaScannerConnection( 3648): Scanned /data/user/0/com.binaryimage.bcvisualizer/BC Visualizer/BC Visualizer_temp5d8f5a7b.settings to null

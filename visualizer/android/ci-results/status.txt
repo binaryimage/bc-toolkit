@@ -1,1 +1,1 @@
-phone-ui: success   android: failure
+phone-ui: success   android: success

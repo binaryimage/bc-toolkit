@@ -1,0 +1,5 @@
+song scan: 0 events in 0:24.0
+PASS  patterns-random-640x360: 4961 KB, 4.5 s (33.7 fps), H.264 8 Mbps (software), 1 styles
+PASS  patterns-follow-1280x720: 5206 KB, 8.5 s (17.6 fps), H.264 8 Mbps (software), 1 styles
+PASS  single-720p30: 5303 KB, 7.4 s (20.1 fps), H.264 8 Mbps (software), 1 styles
+PASS  hevc-960x540-60: 5415 KB, 39.7 s (7.6 fps), HEVC 8 Mbps (software), 1 styles

@@ -9,10 +9,10 @@ plan (picked, every 16 s):
   0:30.8  fade 2.5 s  -> 41 Heart Monitor
 
 song scan: 0 events in 0:24.0
-PASS  patterns-random-640x360: 3620 KB, 2.3 s (105.7 fps), , 2 styles
-PASS  patterns-follow-1280x720: 13438 KB, 6.7 s (35.8 fps), , 1 styles
-PASS  single-1080p30: 39865 KB, 13.3 s (18.1 fps), , 1 styles
-PASS  hevc-1280x720-60: 4677 KB, 11.0 s (43.6 fps), , 2 styles
+PASS  patterns-random-640x360: 3620 KB, 1.7 s (138.1 fps), , 2 styles
+PASS  patterns-follow-1280x720: 13438 KB, 5.0 s (47.8 fps), , 1 styles
+PASS  single-1080p30: 39865 KB, 10.2 s (23.5 fps), , 1 styles
+PASS  hevc-960x540-60: 2906 KB, 5.2 s (92.2 fps), , 2 styles
 PASS  1 core and 4 cores draw the same picture (0 rows differ)
 weird.flac: 4 events: 15.2 19.2(slam) 28.7 34.3(slam)
 plan (random, follow the song, 4-12 s, cut on slams):
@@ -22,4 +22,4 @@ plan (random, follow the song, 4-12 s, cut on slams):
   0:27.7  fade 2.0 s  -> 58 Hypno Spiral
   0:34.3  cut         -> 63 Coral Growth
 
-speed at 1080p: 1 core 42.2 ms/frame, 4 cores 29.2 ms, crossfade on 4 cores 50.4 ms
+speed at 1080p: 1 core 34.2 ms/frame, 4 cores 24.8 ms, crossfade on 4 cores 40.4 ms
