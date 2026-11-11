@@ -78,7 +78,9 @@ list(APPEND TOOLKIT_APP_SOURCES
     ${VISUALIZER_DIR}/Trippy.cpp
     ${VISUALIZER_DIR}/Renderer.cpp
     ${VISUALIZER_DIR}/Session.cpp
-    ${VISUALIZER_DIR}/Video.cpp)
+    ${VISUALIZER_DIR}/Video.cpp
+    ${VISUALIZER_DIR}/Patterns.cpp
+    ${VISUALIZER_DIR}/Parallel.cpp)
 if(WIN32)
     set(TOOLKIT_VIDEO_LIBS mfplat mfreadwrite mfuuid ole32)   # Media Foundation writes the MP4
 else()

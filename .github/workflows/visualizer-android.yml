@@ -1,0 +1,208 @@
+name: Build + test BC Visualizer (Android)
+
+on:
+  push:
+    paths: ["visualizer/Source/**", "visualizer/android/**", "toolkit/pc/Source/Common/**", ".github/workflows/visualizer-android.yml", "!visualizer/android/ci-results/**"]
+  workflow_dispatch:
+
+concurrency:
+  group: visualizer-android-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write    # releases + committing test results back to the branch
+
+env:
+  JUCE_TAG: "8.0.15"
+  NDK_VERSION: "28.1.13356709"
+
+jobs:
+  # The phone UI built for Linux: screenshots of every tab at three phone sizes, the button check,
+  # Patterns plans on a real track, exports, and the 1-core vs all-cores picture check.
+  phone-ui:
+    name: Phone UI, button check, patterns, exports (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Packages
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ninja-build xvfb ffmpeg libfreetype-dev libfontconfig1-dev libx11-dev libxext-dev \
+            libxrandr-dev libxinerama-dev libxcursor-dev libxrender-dev libxcomposite-dev > /dev/null
+      - name: Get JUCE
+        run: git clone --depth 1 --branch "$JUCE_TAG" https://github.com/juce-framework/JUCE.git JUCE
+      - name: Build
+        run: |
+          cmake -S visualizer/android -B build-ui -G Ninja -DCMAKE_BUILD_TYPE=Release -DTOOLKIT_JUCE_DIR="$PWD/JUCE"
+          cmake --build build-ui --target BCVisualizerPhone
+      - name: Self test
+        run: |
+          set +e
+          mkdir -p results
+          BCV_THREADS=4 BCV_TEST_AUDIO="$PWD/visualizer/test-audio/weird.flac" \
+            xvfb-run -a "build-ui/BCVisualizerPhone_artefacts/Release/BC Visualizer Phone" --selftest "$PWD/results/ui"
+          code=$?
+          cat results/ui/selftest.txt; head -n 60 results/ui/layout-check.txt
+          for f in results/ui/test-*.mp4; do echo "$(basename "$f"): $(ffprobe -v error -show_entries stream=codec_name,width,height,r_frame_rate -show_entries format=duration -of csv=p=0 "$f" | tr '\n' ' ')"; done | tee results/ui/ffprobe.txt
+          rm -f results/ui/test-*.mp4
+          exit $code
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: phone-ui
+          path: results/
+
+  # The real Android build: APK for the phone (arm64), plus an x86_64 copy that runs in the emulator,
+  # where the app tests itself: every tab at the emulator's real screen size, and MP4s from MediaCodec.
+  android:
+    name: APK + emulator test
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Packages
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ninja-build xvfb ffmpeg zip libfreetype-dev libfontconfig1-dev libx11-dev libxext-dev \
+            libxrandr-dev libxinerama-dev libxcursor-dev libxrender-dev libxcomposite-dev libcurl4-openssl-dev > /dev/null
+      - name: Get JUCE and build the Projucer
+        run: |
+          git clone --depth 1 --branch "$JUCE_TAG" https://github.com/juce-framework/JUCE.git JUCE
+          cmake -S JUCE -B build-projucer -G Ninja -DCMAKE_BUILD_TYPE=Release -DJUCE_BUILD_EXTRAS=ON > /dev/null
+          cmake --build build-projucer --target Projucer
+      - name: Make the Android Studio project
+        run: |
+          xvfb-run -a build-projucer/extras/Projucer/Projucer_artefacts/Release/Projucer --resave visualizer/android/BCVisualizer.jucer
+          cd visualizer/android/Builds/Android
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          sed -i 's/JavaLanguageVersion.of(8)/JavaLanguageVersion.of(17)/' app/build.gradle
+          echo "org.gradle.jvmargs=-Xmx6g" >> gradle.properties
+      - name: NDK
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;$NDK_VERSION" "cmake;3.22.1" > /dev/null
+      - name: Signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.BCV_ANDROID_KEYSTORE }}
+        run: |
+          mkdir -p ~/.android
+          if [ -n "$KEYSTORE_B64" ]; then echo "$KEYSTORE_B64" | base64 -d > ~/.android/debug.keystore; echo "KEY_OK=1" >> "$GITHUB_ENV"
+          else
+            echo "::warning::No BCV_ANDROID_KEYSTORE secret: signing with a one-off key (updates will need an uninstall first)"
+            keytool -genkeypair -keystore ~/.android/debug.keystore -storepass android -keypass android -alias androiddebugkey \
+              -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=throwaway" > /dev/null
+          fi
+      - name: Build the APK
+        id: build
+        run: |
+          set -o pipefail
+          cd visualizer/android/Builds/Android
+          chmod +x gradlew
+          ./gradlew --no-daemon --warning-mode none assembleRelease_Release 2>&1 | tee "$GITHUB_WORKSPACE/gradle.log" | grep -E "error|warning: unused|BUILD|FAILED|> Task :app:(build|externalNativeBuild)" || true
+          APK=$(find app/build/outputs/apk -name "*.apk" | head -1)
+          [ -n "$APK" ] || { echo "no APK"; exit 1; }
+          echo "APK=$PWD/$APK" >> "$GITHUB_ENV"
+          ls -la "$APK"
+      - name: Save the build errors
+        if: failure() && steps.build.outcome == 'failure'
+        run: |
+          mkdir -p results/android
+          grep -E "error:|Error|FAILED|undefined" gradle.log | head -n 300 > results/android/build-errors.txt || true
+          tail -n 300 gradle.log > results/android/build-failure.log
+      - name: Phone APK (arm64 only, re-signed)
+        run: |
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          mkdir -p dist
+          cp "$APK" dist/full.apk
+          zip -q -d dist/full.apk 'lib/x86_64/*'
+          "$BT/zipalign" -f -p 4 dist/full.apk dist/aligned.apk
+          "$BT/apksigner" sign --ks ~/.android/debug.keystore --ks-pass pass:android --ks-key-alias androiddebugkey --key-pass pass:android \
+            --out dist/BC-Visualizer-Android-1.0.0.apk dist/aligned.apk
+          "$BT/apksigner" verify --print-certs dist/BC-Visualizer-Android-1.0.0.apk | head -3
+          rm dist/full.apk dist/aligned.apk
+          unzip -l dist/BC-Visualizer-Android-1.0.0.apk | grep "lib/" ; ls -la dist
+      - name: Enable KVM for the emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Emulator self test
+        id: emulator
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_7_pro
+          cores: 4
+          ram-size: 6144M
+          disk-size: 6G
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: bash visualizer/android/ci/emulator-test.sh "$APK" results/android
+      - name: Check the emulator videos
+        if: always()
+        run: |
+          for f in results/android/device/test-*.mp4; do [ -f "$f" ] || continue
+            echo "$(basename "$f"): $(ffprobe -v error -show_entries stream=codec_name,width,height,r_frame_rate -show_entries format=duration -of csv=p=0 "$f" | tr '\n' ' ')"
+          done | tee results/android/ffprobe.txt
+          mkdir -p dist/samples
+          cp results/android/device/test-patterns-random-640x360.mp4 dist/samples/ 2>/dev/null || true
+          rm -f results/android/device/test-*.mp4
+          [ "${{ steps.emulator.outcome }}" = success ] || { echo "emulator test failed"; exit 1; }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android
+          path: |
+            results/
+            dist/
+
+  publish:
+    name: Results + release
+    needs: [phone-ui, android]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: art
+      - name: Commit test results back to the branch
+        run: |
+          R=visualizer/android/ci-results
+          rm -rf "$R"; mkdir -p "$R"
+          cp -r art/phone-ui/ui "$R/ui" 2>/dev/null || true
+          cp -r art/android/results/android "$R/android" 2>/dev/null || true
+          echo "phone-ui: ${{ needs.phone-ui.result }}   android: ${{ needs.android.result }}" > "$R/status.txt"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f "$R"
+          if ! git diff --cached --quiet; then
+            git commit -m "Visualizer Android: test results + screenshots"
+            git pull --rebase origin "$GITHUB_REF_NAME" || true
+            git push origin "HEAD:$GITHUB_REF_NAME"
+          fi
+      - name: Publish a release (when everything passed)
+        if: github.event_name == 'push' && needs.phone-ui.result == 'success' && needs.android.result == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HAS_KEY: ${{ secrets.BCV_ANDROID_KEYSTORE != '' }}
+        run: |
+          TAG="visualizer-android-v1.0.0"
+          KEYNOTE=""
+          [ "$HAS_KEY" = "true" ] || KEYNOTE=" (This build is signed with a one-off key: once the signing-key secret is set up, the next version needs an uninstall before it installs.)"
+          APK=art/android/dist/BC-Visualizer-Android-1.0.0.apk
+          SHOTS=""
+          for s in style patterns-random picker export; do f="art/phone-ui/ui/phone-s26ultra-$s.png"; [ -f "$f" ] && { cp "$f" "phone-$s.png"; SHOTS="$SHOTS phone-$s.png"; }; done
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release upload "$TAG" "$APK" $SHOTS --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$TAG" "$APK" $SHOTS --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest=false \
+              --title "BC Visualizer for Android 1.0.0" \
+              --notes "The PC visualizer's 80 styles and 48 colours on your phone, making YouTube-ready MP4s (1080p, 1440p or 4K, 30 or 60 fps, H.264 or HEVC) with the phone's hardware encoder. Patterns: pick styles or let it choose at random, and it fades between them when the song changes section (or every few seconds), with hard cuts when it slams back in. Renders on all eight cores. Install: open the APK on the phone and allow installs from this source.$KEYNOTE"
+          fi

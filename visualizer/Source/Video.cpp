@@ -14,6 +14,7 @@
 #else
  #include <cstdio>
 #endif
+#include <cstring>
 
 namespace bcv
 {
@@ -191,6 +192,11 @@ private:
 
 std::unique_ptr<VideoEncoder> VideoEncoder::create() { return std::make_unique<MFEncoder>(); }
 
+#elif JUCE_ANDROID
+}
+#include "VideoAndroid.h"
+namespace bcv
+{
 #else
 /** Non-Windows: raw frames into ffmpeg, audio into a temp WAV, muxed on close. */
 class FfmpegEncoder : public VideoEncoder

@@ -1,5 +1,6 @@
 #pragma once
 #include "Visualizers.h"
+#include "Parallel.h"
 #include <map>
 
 namespace bcv
@@ -48,7 +49,11 @@ namespace bcv
     {
     public:
         void render (juce::Graphics& g, juce::Rectangle<float> r, const Frame& f, Viz& viz, const Look& look);
+        /** the same, crossfading from viz to next by mix (0 = all viz, 1 = all next); the reactions carry on across it */
+        void render (juce::Graphics& g, juce::Rectangle<float> r, const Frame& f, Viz& viz, const Look& look, Viz* next, float mix);
         void reset();
+        /** split the pixel work (and the two styles of a crossfade) across these threads; nullptr = all on this one */
+        void setWorkers (Workers* w) { workers = w; }
     private:
         juce::Image backdrop;               // blurred, dimmed cover sized to the frame
         juce::Rectangle<int> backdropSize;
@@ -56,7 +61,9 @@ namespace bcv
         void makeBackdrop (juce::Rectangle<int> size, const juce::Image& cover);
 
         // the style is drawn white on black into a layer, the reactions work on it, then it's coloured
-        juce::Image layer;
+        juce::Image layer, layer2;          // layer2: the incoming style during a crossfade
+        Workers* workers = nullptr;
+        void extractLum (float mix);         // layer (and layer2, mixed in by mix) into lum
         std::vector<juce::uint8> lum, prevLum, cpy, cr, cg, cb, ca;
         std::vector<int> shift, ex1, ex2, ey1, ey2;
         bool lumReady = false;

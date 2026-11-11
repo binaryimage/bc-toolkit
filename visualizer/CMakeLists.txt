@@ -46,6 +46,8 @@ target_sources(BCVisualizer PRIVATE
     Source/Renderer.cpp
     Source/Session.cpp
     Source/Video.cpp
+    Source/Patterns.cpp
+    Source/Parallel.cpp
     ${TK}/Source/Common/Look.cpp
     ${TK}/Source/Common/Widgets.cpp
     ${TK}/Source/Common/LayoutCheck.cpp

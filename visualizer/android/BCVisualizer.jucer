@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="bcvphn" name="BC Visualizer" projectType="guiapp" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" version="1.0.0"
+              companyName="binaryimage" bundleIdentifier="com.binaryimage.bcvisualizer"
+              displaySplashScreen="0" reportAppUsage="0" splashScreenColour="Dark"
+              cppLanguageStandard="17">
+  <MAINGROUP id="grpMain" name="BC Visualizer">
+    <GROUP id="grpApp" name="App">
+      <FILE id="fPhone" name="PhoneMain.cpp" compile="1" resource="0" file="Source/PhoneMain.cpp"/>
+    </GROUP>
+    <GROUP id="grpViz" name="Visualizer">
+      <FILE id="fAnaC" name="Analysis.cpp" compile="1" resource="0" file="../Source/Analysis.cpp"/>
+      <FILE id="fAnaH" name="Analysis.h" compile="0" resource="0" file="../Source/Analysis.h"/>
+      <FILE id="fVizC" name="Visualizers.cpp" compile="1" resource="0" file="../Source/Visualizers.cpp"/>
+      <FILE id="fVizH" name="Visualizers.h" compile="0" resource="0" file="../Source/Visualizers.h"/>
+      <FILE id="fTrip" name="Trippy.cpp" compile="1" resource="0" file="../Source/Trippy.cpp"/>
+      <FILE id="fRenC" name="Renderer.cpp" compile="1" resource="0" file="../Source/Renderer.cpp"/>
+      <FILE id="fRenH" name="Renderer.h" compile="0" resource="0" file="../Source/Renderer.h"/>
+      <FILE id="fSesC" name="Session.cpp" compile="1" resource="0" file="../Source/Session.cpp"/>
+      <FILE id="fSesH" name="Session.h" compile="0" resource="0" file="../Source/Session.h"/>
+      <FILE id="fVidC" name="Video.cpp" compile="1" resource="0" file="../Source/Video.cpp"/>
+      <FILE id="fVidH" name="Video.h" compile="0" resource="0" file="../Source/Video.h"/>
+      <FILE id="fVidA" name="VideoAndroid.h" compile="0" resource="0" file="../Source/VideoAndroid.h"/>
+      <FILE id="fPatC" name="Patterns.cpp" compile="1" resource="0" file="../Source/Patterns.cpp"/>
+      <FILE id="fPatH" name="Patterns.h" compile="0" resource="0" file="../Source/Patterns.h"/>
+      <FILE id="fParC" name="Parallel.cpp" compile="1" resource="0" file="../Source/Parallel.cpp"/>
+      <FILE id="fParH" name="Parallel.h" compile="0" resource="0" file="../Source/Parallel.h"/>
+    </GROUP>
+    <GROUP id="grpCommon" name="Common">
+      <FILE id="fLookC" name="Look.cpp" compile="1" resource="0" file="../../toolkit/pc/Source/Common/Look.cpp"/>
+      <FILE id="fWidC" name="Widgets.cpp" compile="1" resource="0" file="../../toolkit/pc/Source/Common/Widgets.cpp"/>
+      <FILE id="fLayC" name="LayoutCheck.cpp" compile="1" resource="0" file="../../toolkit/pc/Source/Common/LayoutCheck.cpp"/>
+      <FILE id="fDspC" name="Dsp.cpp" compile="1" resource="0" file="../../toolkit/pc/Source/Common/Dsp.cpp"/>
+    </GROUP>
+    <GROUP id="grpRes" name="Resources">
+      <FILE id="rFont1" name="IBMPlexSans-Regular.ttf" compile="0" resource="1"
+            file="../../toolkit/pc/Resources/IBMPlexSans-Regular.ttf"/>
+      <FILE id="rFont2" name="IBMPlexSans-Medium.ttf" compile="0" resource="1"
+            file="../../toolkit/pc/Resources/IBMPlexSans-Medium.ttf"/>
+      <FILE id="rFont3" name="IBMPlexSans-SemiBold.ttf" compile="0" resource="1"
+            file="../../toolkit/pc/Resources/IBMPlexSans-SemiBold.ttf"/>
+      <FILE id="rFont4" name="IBMPlexMono-Medium.ttf" compile="0" resource="1"
+            file="../../toolkit/pc/Resources/IBMPlexMono-Medium.ttf"/>
+      <FILE id="rIcon" name="icon.png" compile="0" resource="0" file="Resources/icon.png"/>
+    </GROUP>
+  </MAINGROUP>
+  <JUCEOPTIONS JUCE_WEB_BROWSER="0" JUCE_USE_CURL="0" JUCE_USE_MP3AUDIOFORMAT="1"
+               JUCE_CONTENT_SHARING="1" JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_USE_ANDROID_OBOE="1"/>
+  <EXPORTFORMATS>
+    <ANDROIDSTUDIO targetFolder="Builds/Android" bigIcon="rIcon" smallIcon="rIcon"
+                   androidMinimumSDK="30" androidTargetSDK="35" androidVersionCode="1"
+                   androidScreenOrientation="portrait" androidInternetNeeded="0"
+                   microphonePermissionNeeded="0" androidReadMediaAudioPermission="0"
+                   androidReadMediaImagesPermission="0" androidReadMediaVideoPermission="0"
+                   androidExternalWriteNeeded="0" androidPushNotifications="0" androidEnableContentSharing="1"
+                   androidTheme="@android:style/Theme.DeviceDefault.NoActionBar"
+                   externalLibraries="mediandk" extraCompilerFlags="-ffp-contract=fast -fno-math-errno">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="0" name="Release" optimisation="3" linkTimeOptimisation="1"
+                       androidArchitectures="arm64-v8a x86_64" headerPath="../../../Source&#10;../../../../toolkit/pc/Source"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors_headless" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../JUCE/modules"/>
+      </MODULEPATHS>
+    </ANDROIDSTUDIO>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_audio_processors_headless" showAllCode="1" useLocalCopy="0"
+            useGlobalPath="0"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+  </MODULES>
+</JUCERPROJECT>

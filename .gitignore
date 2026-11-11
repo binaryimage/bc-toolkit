@@ -1,0 +1,5 @@
+
+# local JUCE checkout and the Android Studio project the Projucer generates (CI makes them)
+/JUCE
+visualizer/android/Builds/
+visualizer/android/JuceLibraryCode/

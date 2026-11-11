@@ -13,6 +13,7 @@ bool loadTrack (const juce::File& file, Track& t, juce::String& error)
     juce::AudioFormatManager fm;
     fm.registerBasicFormats();
     std::unique_ptr<juce::AudioFormatReader> r (fm.createReaderFor (file));
+    if (r == nullptr) r.reset (fm.createReaderFor (file.createInputStream()));   // no (or a wrong) extension: try every format
     if (r == nullptr) { error = "Can't read " + file.getFileName() + " (use WAV, AIFF, FLAC, MP3 or OGG)"; return false; }
     if (r->lengthInSamples <= 0 || r->lengthInSamples > (juce::int64) (r->sampleRate * 60 * 60)) { error = "That file is empty or longer than an hour"; return false; }
     const int n = (int) r->lengthInSamples;
@@ -48,8 +49,12 @@ void ExportJob::run()
 {
     const auto start = juce::Time::getMillisecondCounterHiRes();
     output.getParentDirectory().createDirectory();
+    std::unique_ptr<Workers> workers;
+    if (threads > 1) workers = std::make_unique<Workers> (threads);
     auto enc = VideoEncoder::create();
+    enc->setOptions (hevc, bitrate, workers.get());
     if (! enc->open (output, width, height, fps, error)) { finished = true; return; }
+    encoderInfo = enc->description;
 
     auto all = makeAll();
     const bool reel = look.style < 0;
@@ -58,7 +63,12 @@ void ExportJob::run()
 
     Analyzer an;
     Renderer rr;
+    rr.setWorkers (workers.get());
+    StylePlayer stylePlayer;
+    const bool usePlan = ! reel && ! plan.steps.empty();
     Frame fr;
+    double speedT0 = juce::Time::getMillisecondCounterHiRes();
+    int64_t speedF0 = 0;
     juce::Image img (juce::Image::ARGB, width, height, true, juce::SoftwareImageType());
     const double dur = track.seconds();
     const int64_t total = (int64_t) std::ceil (dur * fps);
@@ -81,7 +91,12 @@ void ExportJob::run()
         fr.index = i;
         {
             juce::Graphics g (img);
-            rr.render (g, img.getBounds().toFloat(), fr, *all[(size_t) current], look);
+            if (usePlan)
+            {
+                auto now = stylePlayer.at (t, plan, all);
+                rr.render (g, img.getBounds().toFloat(), fr, *now.a, look, now.b, now.mix);
+            }
+            else rr.render (g, img.getBounds().toFloat(), fr, *all[(size_t) current], look);
         }
         // audio for this frame goes in first so the muxer always has both streams in step
         const int64_t audioEnd = juce::jmin ((int64_t) nAudio, (i + 1) * (int64_t) Track::rate / fps);
@@ -101,6 +116,29 @@ void ExportJob::run()
         }
         if (! enc->writeFrame (img)) { error = enc->lastError.isNotEmpty() ? enc->lastError : "Writing a frame failed"; break; }
         progress = (double) (i + 1) / (double) total;
+
+        // speed, time left, a thumbnail now and then, and Keep cool
+        const double nowMs = juce::Time::getMillisecondCounterHiRes();
+        if (nowMs - speedT0 > 1500)
+        {
+            framesPerSecond = (double) (i + 1 - speedF0) * 1000.0 / (nowMs - speedT0);
+            secondsLeft = framesPerSecond > 0 ? (double) (total - i - 1) / framesPerSecond : -1.0;
+            speedT0 = nowMs; speedF0 = i + 1;
+            {
+                const int tw = 480, th = juce::jmax (1, tw * height / juce::jmax (1, width));
+                juce::Image small (juce::Image::RGB, tw, th, true, juce::SoftwareImageType());
+                { juce::Graphics gs (small); gs.setImageResamplingQuality (juce::Graphics::mediumResamplingQuality); gs.drawImage (img, small.getBounds().toFloat()); }
+                const juce::ScopedLock l (thumbLock);
+                thumb = small;
+            }
+            ++thumbVersion;
+            const int h = heat ? heat() : 0;
+            heatNow = h;
+            const bool ease = keepCool && h >= 2;     // 2 = moderate: the phone is starting to throttle itself
+            easing = ease;
+            if (workers) workers->setActive (ease ? juce::jmax (2, workers->size() / (h >= 3 ? 4 : 2)) : workers->size());
+        }
+        if (easing) juce::Thread::sleep (heatNow >= 3 ? 20 : 6);
     }
 
     bool closed = enc->close();
