@@ -1,0 +1,17 @@
+{
+  "name": "Maggot",
+  "manufacturer": "binaryimage",
+  "version": "1.0.0",
+  "format": "vst2",
+  "kind": "instrument",
+  "uid": "B9fZ",
+  "numInputs": 0,
+  "numOutputs": 2,
+  "category": "Synth",
+  "file32": "VST/maggot-arm32.so",
+  "file64": "VST/maggot-arm64.so",
+  "description": "Maggot: binaryimage's noise-but-beautiful mangle synth. Morph/fold oscillators, noise, a tuned resonator, a Leviasynth-style weird arp, and tape stop, stutter, reverse, freeze, smear, crush and WRECK.",
+  "author": "binaryimage",
+  "url": "https://github.com/binaryimage/bc-toolkit/tree/mpc-plugins/mpc/maggot",
+  "license": "MIT"
+}

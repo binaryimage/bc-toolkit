@@ -33,6 +33,7 @@ jobs:
           - { dir: dahaka-fm,   name: "Dahaka FM",   kind: instrument }
           - { dir: dahaka-wave, name: "Dahaka Wave", kind: instrument }
           - { dir: dahaka-va,   name: "Dahaka VA",   kind: instrument }
+          - { dir: maggot,      name: Maggot,        kind: instrument }
     steps:
       - uses: actions/checkout@v4
 

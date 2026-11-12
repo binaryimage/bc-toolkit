@@ -1,0 +1,455 @@
+{
+ "kit": {
+  "theme": "mono",
+  "accent": "ffb6e639"
+ },
+ "style": {
+  "background": "ff0c0e09",
+  "accent": "ffb6e639",
+  "text": "ffeae5d3",
+  "muted": "ffa3a78f"
+ },
+ "pages": [
+  {
+   "name": "MAGGOT",
+   "controls": [
+    {
+     "param": "Volume",
+     "widget": "fader"
+    },
+    {
+     "param": "Voice Mode",
+     "widget": "switch"
+    },
+    {
+     "param": "Bend Range",
+     "widget": "knob"
+    },
+    {
+     "param": "Spread",
+     "widget": "knob"
+    },
+    {
+     "param": "WRECK",
+     "widget": "knob"
+    },
+    {
+     "param": "Wheel Dest",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "AT>Cutoff",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Glitch",
+     "widget": "knob"
+    },
+    {
+     "param": "Tape Stop",
+     "widget": "switch"
+    },
+    {
+     "param": "Stutter",
+     "widget": "switch"
+    },
+    {
+     "param": "Reverse",
+     "widget": "switch"
+    },
+    {
+     "param": "Freeze",
+     "widget": "switch"
+    }
+   ]
+  },
+  {
+   "name": "OSC",
+   "controls": [
+    {
+     "param": "O1 Shape",
+     "widget": "knob"
+    },
+    {
+     "param": "O1 Fold",
+     "widget": "knob"
+    },
+    {
+     "param": "O1 Level",
+     "widget": "fader"
+    },
+    {
+     "param": "FM",
+     "widget": "knob"
+    },
+    {
+     "param": "O2 Shape",
+     "widget": "knob"
+    },
+    {
+     "param": "O2 Semi",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "O2 Fine",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "O2 Stack",
+     "widget": "knob"
+    },
+    {
+     "param": "O2 Level",
+     "widget": "fader"
+    },
+    {
+     "param": "Ring",
+     "widget": "knob"
+    },
+    {
+     "param": "Noise Type",
+     "widget": "switch"
+    },
+    {
+     "param": "Noise Color",
+     "widget": "knob"
+    },
+    {
+     "param": "Noise",
+     "widget": "fader"
+    },
+    "empty",
+    "empty",
+    "empty"
+   ]
+  },
+  {
+   "name": "RES/FLT",
+   "controls": [
+    {
+     "param": "Res Mix",
+     "widget": "knob"
+    },
+    {
+     "param": "Res Decay",
+     "widget": "knob"
+    },
+    {
+     "param": "Res Tone",
+     "widget": "knob"
+    },
+    {
+     "param": "Res Pitch",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Flt Type",
+     "widget": "switch"
+    },
+    {
+     "param": "Cutoff",
+     "widget": "knob"
+    },
+    {
+     "param": "Reso",
+     "widget": "knob"
+    },
+    {
+     "param": "Flt Drive",
+     "widget": "knob"
+    },
+    {
+     "param": "Flt Env",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Key Track",
+     "widget": "knob"
+    },
+    {
+     "param": "Filter FM",
+     "widget": "knob"
+    },
+    {
+     "param": "Vel>Filter",
+     "widget": "knob"
+    }
+   ]
+  },
+  {
+   "name": "ENV",
+   "controls": [
+    {
+     "param": "Amp Attack",
+     "widget": "fader"
+    },
+    {
+     "param": "Amp Decay",
+     "widget": "fader"
+    },
+    {
+     "param": "Amp Sustain",
+     "widget": "fader"
+    },
+    {
+     "param": "Amp Release",
+     "widget": "fader"
+    },
+    {
+     "param": "Flt Attack",
+     "widget": "fader"
+    },
+    {
+     "param": "Flt Decay",
+     "widget": "fader"
+    },
+    {
+     "param": "Flt Sustain",
+     "widget": "fader"
+    },
+    {
+     "param": "Flt Release",
+     "widget": "fader"
+    },
+    {
+     "param": "Mod Attack",
+     "widget": "fader"
+    },
+    {
+     "param": "Mod Decay",
+     "widget": "fader"
+    },
+    {
+     "param": "MEnv Dest",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "MEnv Amount",
+     "widget": "knob",
+     "polarity": "bipolar"
+    }
+   ]
+  },
+  {
+   "name": "LFO",
+   "controls": [
+    {
+     "param": "LFO1 Shape",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "LFO1 Rate",
+     "widget": "knob",
+     "visibleWhen": {
+      "param": "LFO1 Sync",
+      "choice": "Off"
+     }
+    },
+    {
+     "param": "LFO1 Sync",
+     "widget": "switch"
+    },
+    {
+     "param": "LFO1 Div",
+     "widget": "slider",
+     "overlay": "menu",
+     "visibleWhen": {
+      "param": "LFO1 Sync",
+      "choice": "On"
+     }
+    },
+    {
+     "param": "LFO1 Dest",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "LFO1 Amount",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    "empty",
+    "empty",
+    {
+     "param": "LFO2 Shape",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "LFO2 Rate",
+     "widget": "knob"
+    },
+    {
+     "param": "LFO2 Dest",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "LFO2 Amount",
+     "widget": "knob",
+     "polarity": "bipolar"
+    }
+   ]
+  },
+  {
+   "name": "ARP",
+   "controls": [
+    {
+     "param": "Arp On",
+     "widget": "switch"
+    },
+    {
+     "param": "Arp Mode",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Arp Rate",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Arp Octaves",
+     "widget": "knob"
+    },
+    {
+     "param": "Arp Gate",
+     "widget": "knob"
+    },
+    {
+     "param": "Arp Swing",
+     "widget": "knob"
+    },
+    {
+     "param": "Arp Length",
+     "widget": "knob"
+    },
+    {
+     "param": "Arp Hold",
+     "widget": "switch"
+    },
+    {
+     "param": "Ratchet",
+     "widget": "knob"
+    },
+    {
+     "param": "Ratchet Prob",
+     "widget": "knob"
+    },
+    {
+     "param": "Note Prob",
+     "widget": "knob"
+    },
+    {
+     "param": "Oct Jump",
+     "widget": "knob"
+    },
+    {
+     "param": "Mutate",
+     "widget": "knob"
+    },
+    {
+     "param": "Accent",
+     "widget": "knob"
+    },
+    "empty",
+    "empty"
+   ]
+  },
+  {
+   "name": "MANGLE",
+   "controls": [
+    {
+     "param": "Grind",
+     "widget": "knob"
+    },
+    {
+     "param": "Bits",
+     "widget": "knob"
+    },
+    {
+     "param": "Downsample",
+     "widget": "knob"
+    },
+    {
+     "param": "Wow",
+     "widget": "knob"
+    },
+    {
+     "param": "Ring Freq",
+     "widget": "knob"
+    },
+    {
+     "param": "Ring Mix",
+     "widget": "knob"
+    },
+    {
+     "param": "Smear",
+     "widget": "knob"
+    },
+    {
+     "param": "Smear Size",
+     "widget": "knob"
+    },
+    {
+     "param": "Smear Pitch",
+     "widget": "knob"
+    },
+    {
+     "param": "Stop Time",
+     "widget": "knob"
+    },
+    {
+     "param": "Stutter Div",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Reverse Div",
+     "widget": "slider",
+     "overlay": "menu"
+    }
+   ]
+  },
+  {
+   "name": "SPACE",
+   "controls": [
+    {
+     "param": "Delay Time",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Delay Fdbk",
+     "widget": "knob"
+    },
+    {
+     "param": "Delay Mix",
+     "widget": "fader"
+    },
+    "empty",
+    {
+     "param": "Rev Size",
+     "widget": "knob"
+    },
+    {
+     "param": "Rev Damp",
+     "widget": "knob"
+    },
+    {
+     "param": "Rev Mix",
+     "widget": "fader"
+    },
+    "empty"
+   ]
+  }
+ ]
+}
