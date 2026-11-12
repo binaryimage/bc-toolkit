@@ -356,65 +356,7 @@ private:
             addProgram(name, std::move(v));
         };
 
-        program("Init", {}, {}, {}, true);
-
-        // Mono bass: S1 a fat closed saw/pulse, S2 the same note through sync growl. Wheel = snarl.
-        program("Morph Grind Bass",
-            {{kVoiceMode, 1}, {kDistDrive, 35}, {kDistMix, 35}, {kDistTone, 4500}},
-            {{sO1Wave, 0}, {sO2Wave, 1}, {sO2PW, 35}, {sO2Semi, -12}, {sO2Fine, 4}, {sO2Level, 85},
-             {sFType, 0}, {sCutoff, 160}, {sReso, 30}, {sFEnv, 55}, {sFDrive, 55}, {sKeyTrk, 40},
-             {sFA, 1}, {sFD, 220}, {sFS, 10}, {sFR, 120}, {sAA, 1}, {sAD, 400}, {sAS, 90}, {sAR, 90}, {sHPF, 28}},
-            {{sSync, 1}, {sO1Pitch, 17}, {sCutoff, 420}, {sReso, 45}, {sFType, 1}, {sFDrive, 80}, {sFEnv, 45}, {sFeedback, 25}},
-            true);
-
-        // Sync lead with a pitch-EG sweep on osc 1. S2 pushes the sync further and adds ring mod.
-        program("Sync Wire",
-            {{kVoiceMode, 1}, {kDlyMix, 22}, {kDlyFdbk, 40}, {kRevMix, 18}, {kDistDrive, 25}, {kDistMix, 25}},
-            {{sSync, 1}, {sO1Pitch, 7}, {sO1Wave, 0}, {sO2Wave, 0}, {sO2Level, 0}, {sPegAmt, 24}, {sPegDec, 260}, {sPegO1, 1},
-             {sFType, 2}, {sCutoff, 3200}, {sReso, 25}, {sFEnv, 20}, {sAA, 3}, {sAD, 500}, {sAS, 80}, {sAR, 200}},
-            {{sO1Pitch, 31}, {sRing, 35}, {sCutoff, 1800}, {sReso, 50}, {sFType, 3}},
-            true);
-
-        // Poly pad: S1 dark detuned saws, S2 hollow ring-mod/band-pass air. Slow wheel morph.
-        program("Cinder Pad",
-            {{kVoiceMode, 0}, {kSpread, 80}, {kModType, 0}, {kModMix, 45}, {kModDepth, 60}, {kRevMix, 40}, {kRevSize, 85}, {kLfo2Rate, 0.12f}},
-            {{sO1Wave, 0}, {sO2Wave, 0}, {sO2Fine, 11}, {sFType, 2}, {sCutoff, 650}, {sReso, 15}, {sFEnv, 25},
-             {sFA, 1800}, {sFD, 3000}, {sFS, 40}, {sFR, 2500}, {sAA, 1500}, {sAD, 2000}, {sAS, 90}, {sAR, 3000}, {sL2Filt, 25}},
-            {{sO2Semi, 7}, {sRing, 40}, {sFType, 3}, {sCutoff, 1400}, {sReso, 45}, {sHPF, 180}, {sNoise, 12}, {sL1PWM, 30}, {sO1Wave, 1}},
-            true);
-
-        // Six stacked voices, everything driven. S2 opens it up into a wall.
-        program("Furnace Unison",
-            {{kVoiceMode, 2}, {kUniVoices, 6}, {kUniDetune, 22}, {kSpread, 90}, {kDistDrive, 45}, {kDistMix, 40}},
-            {{sO1Wave, 0}, {sO2Wave, 0}, {sO2Semi, -12}, {sFType, 0}, {sCutoff, 700}, {sReso, 20}, {sFDrive, 70},
-             {sFEnv, 35}, {sFD, 600}, {sFS, 40}, {sAD, 600}, {sAS, 95}, {sAR, 180}, {sHPF, 40}},
-            {{sCutoff, 2600}, {sReso, 30}, {sFeedback, 35}},
-            true);
-
-        // Metallic hits for industrial percussion: FM + ring through a band-pass. Short and nasty.
-        program("Ring Clank",
-            {{kVoiceMode, 0}, {kRevMix, 20}, {kRevSize, 40}, {kVelFilt, 60}},
-            {{sO1Wave, 3}, {sO2Wave, 1}, {sO2Semi, 7}, {sO2Fine, 31}, {sFM, 55}, {sRing, 70}, {sO1Level, 40}, {sO2Level, 20},
-             {sFType, 3}, {sCutoff, 1900}, {sReso, 55}, {sFEnv, 30}, {sFD, 120}, {sFS, 0}, {sAA, 1}, {sAD, 260}, {sAS, 0}, {sAR, 220},
-             {sPegAmt, -12}, {sPegDec, 40}, {sNoise, 10}},
-            {{sO2Semi, 13}, {sFM, 85}, {sCutoff, 900}, {sAD, 700}},
-            true);
-
-        // VCA feedback screaming through a resonant 18 dB filter, slowly breathing. A drone, hold a note.
-        program("Feedback Drone",
-            {{kVoiceMode, 1}, {kLfo1Rate, 0.09f}, {kRevMix, 35}, {kRevSize, 90}, {kDlyMix, 15}},
-            {{sO1Wave, 0}, {sO2Wave, 1}, {sO2Semi, -5}, {sFeedback, 80}, {sNoise, 18}, {sFType, 1}, {sCutoff, 380}, {sReso, 62},
-             {sFDrive, 60}, {sFEnv, 10}, {sAA, 900}, {sAS, 100}, {sAR, 3000}, {sL1Filt, 35}, {sL2Pitch, 0.08f}},
-            {{sFType, 4}, {sCutoff, 900}, {sReso, 70}, {sFeedback, 95}},
-            true);
-
-        // Felt-not-heard sub: triangle/sine, tiny click from the pitch EG. S2 adds grit.
-        program("Sub Pressure",
-            {{kVoiceMode, 1}},
-            {{sO1Wave, 2}, {sO2Wave, 3}, {sO2Semi, -12}, {sO2Level, 70}, {sFType, 0}, {sCutoff, 220}, {sReso, 5}, {sFEnv, 25},
-             {sFD, 140}, {sFS, 0}, {sAA, 1}, {sAD, 500}, {sAS, 85}, {sAR, 80}, {sPegAmt, 12}, {sPegDec, 18}},
-            {{sO1Wave, 0}, {sCutoff, 480}, {sFDrive, 75}, {sReso, 25}},
-            true);
+        #include "janus_presets.inc"
     }
 
     // ----- copy worker (never on the audio thread) ---------------------------

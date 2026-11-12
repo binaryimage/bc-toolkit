@@ -50,8 +50,20 @@ distortion, chorus/flanger, delay and reverb.
 
 ## Presets
 
-Init, Morph Grind Bass, Sync Wire, Cinder Pad, Furnace Unison, Ring Clank, Feedback Drone,
-Sub Pressure. Every one of them does something with the mod wheel.
+There are 64, grouped by prefix so they're easy to find in the PRESET list. Every one of them does
+something on the mod wheel (Scene 1 to Scene 2), and they're level-matched.
+
+| Prefix | Type | Count |
+|---|---|---|
+| BA | Bass | 16 |
+| RF | Riffs and heavy leads (power-chord walls, sync screams) | 10 |
+| PD | Pads | 10 |
+| DR | Drones and textures | 8 |
+| PC | Percussion (kick, snare, hats, metal hits) | 8 |
+| PL | Plucks and sequence sounds | 6 |
+| FX | Effects | 5 |
+
+Plus Init.
 
 ## Not in this version
 
