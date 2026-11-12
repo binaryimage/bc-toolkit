@@ -1,0 +1,84 @@
+name: Build MPC plugins
+
+# Builds binaryimage's MPC standalone plugins with Akai's MPC Plugin SDK: native (tests) +
+# arm32 (Gen1 MPCs) + arm64 (Live III / XL). Each plugin runs the SDK host simulator, then
+# is zipped and published as its own GitHub release (<slug>-mpc-v<version>).
+
+on:
+  push:
+    branches: [mpc-plugins]
+    paths: ["mpc/**", ".github/workflows/mpc-plugins.yml"]
+  workflow_dispatch:
+
+concurrency:
+  group: mpc-plugins-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  SDK_COMMIT: febd2ca5bd9eb16c4a412837196e145566bc981b
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { dir: janus,   name: Janus,   kind: instrument }
+          - { dir: chimera, name: Chimera, kind: effect }
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Skip plugins that aren't in this commit
+        id: have
+        run: test -f "mpc/${{ matrix.dir }}/plugin.json" && echo "ok=1" >> "$GITHUB_OUTPUT" || echo "ok=0" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-python@v5
+        if: steps.have.outputs.ok == '1'
+        with:
+          python-version: "3.12"
+
+      - name: Get Akai's MPC Plugin SDK (pinned)
+        if: steps.have.outputs.ok == '1'
+        run: |
+          git clone https://github.com/inmusic-software/mpc-plugin-builder-sdk sdk
+          git -C sdk checkout "$SDK_COMMIT"
+
+      - name: Build native + arm32 + arm64 and validate
+        if: steps.have.outputs.ok == '1'
+        run: |
+          cp -r "mpc/${{ matrix.dir }}" "sdk/plugins/${{ matrix.name }}"
+          cd sdk && python tools/build.py "plugins/${{ matrix.name }}"
+          file "plugins/${{ matrix.name }}/build/"*" - VST - "*/VST/*.so
+
+      - name: Host simulator (default, tiny and big blocks)
+        if: steps.have.outputs.ok == '1'
+        run: |
+          cd sdk
+          LIB=$(ls plugins/${{ matrix.name }}/build/native/*.so)
+          .sdk-tools/host_sim "$LIB" test --seconds 4
+          .sdk-tools/host_sim "$LIB" test --seconds 2 --block 32
+          .sdk-tools/host_sim "$LIB" test --seconds 2 --block 512 --playing
+
+      - name: Package
+        if: steps.have.outputs.ok == '1'
+        run: |
+          cd sdk && python tools/package.py "plugins/${{ matrix.name }}" --out ../dist && ls -l ../dist
+
+      - name: Publish release
+        if: steps.have.outputs.ok == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(python -c "import json;print(json.load(open('mpc/${{ matrix.dir }}/plugin.json'))['version'])")
+          TAG="${{ matrix.dir }}-mpc-v$V"
+          NOTES="mpc/${{ matrix.dir }}/RELEASE_NOTES.md"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/*.zip --clobber
+          else
+            gh release create "$TAG" dist/*.zip --target "$GITHUB_SHA" --title "${{ matrix.name }} $V for MPC" --notes-file "$NOTES"
+          fi

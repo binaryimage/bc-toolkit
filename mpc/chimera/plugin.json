@@ -1,0 +1,17 @@
+{
+  "name": "Chimera",
+  "manufacturer": "binaryimage",
+  "version": "1.0.0",
+  "format": "vst2",
+  "kind": "effect",
+  "uid": "BR0w",
+  "numInputs": 2,
+  "numOutputs": 2,
+  "category": "Effect",
+  "file32": "VST/chimera-arm32.so",
+  "file64": "VST/chimera-arm64.so",
+  "description": "Chimera: Juno-style chorus, triple delay (7 types, serial/parallel) and an 8-type reverb with freeze, into a 4-channel mixer and 5-band EQ.",
+  "author": "binaryimage",
+  "url": "https://github.com/binaryimage/bc-toolkit/tree/mpc-plugins/mpc/chimera",
+  "license": "MIT"
+}

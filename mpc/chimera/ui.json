@@ -1,0 +1,360 @@
+{
+ "kit": {
+  "theme": "mono",
+  "accent": "ffc8a24a"
+ },
+ "style": {
+  "background": "ff1c1a17",
+  "accent": "ffc8a24a",
+  "text": "fff3eee4",
+  "muted": "ffb5ab98"
+ },
+ "pages": [
+  {
+   "name": "CHORUS",
+   "controls": [
+    {
+     "param": "Chorus On",
+     "widget": "switch"
+    },
+    {
+     "param": "Cho Mode",
+     "widget": "switch"
+    },
+    {
+     "param": "Cho Rate",
+     "widget": "knob"
+    },
+    {
+     "param": "Cho Depth",
+     "widget": "knob"
+    },
+    {
+     "param": "Cho Width",
+     "widget": "knob"
+    },
+    {
+     "param": "Cho Tone",
+     "widget": "knob"
+    },
+    {
+     "param": "Cho Hiss",
+     "widget": "knob"
+    },
+    "empty"
+   ]
+  },
+  {
+   "name": "DLY A/B",
+   "controls": [
+    {
+     "param": "A On",
+     "widget": "switch"
+    },
+    {
+     "param": "A Type",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "A Sync",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "A Time",
+     "widget": "knob",
+     "visibleWhen": {
+      "param": "A Sync",
+      "choice": "Free"
+     }
+    },
+    {
+     "param": "A Feedback",
+     "widget": "knob"
+    },
+    {
+     "param": "A Tone",
+     "widget": "knob"
+    },
+    {
+     "param": "A Mod",
+     "widget": "knob"
+    },
+    {
+     "param": "A Level",
+     "widget": "fader"
+    },
+    {
+     "param": "B On",
+     "widget": "switch"
+    },
+    {
+     "param": "B Type",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "B Sync",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "B Time",
+     "widget": "knob",
+     "visibleWhen": {
+      "param": "B Sync",
+      "choice": "Free"
+     }
+    },
+    {
+     "param": "B Feedback",
+     "widget": "knob"
+    },
+    {
+     "param": "B Tone",
+     "widget": "knob"
+    },
+    {
+     "param": "B Mod",
+     "widget": "knob"
+    },
+    {
+     "param": "B Level",
+     "widget": "fader"
+    }
+   ]
+  },
+  {
+   "name": "DLY C",
+   "controls": [
+    {
+     "param": "C On",
+     "widget": "switch"
+    },
+    {
+     "param": "C Type",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C Sync",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C Time",
+     "widget": "knob",
+     "visibleWhen": {
+      "param": "C Sync",
+      "choice": "Free"
+     }
+    },
+    {
+     "param": "C Feedback",
+     "widget": "knob"
+    },
+    {
+     "param": "C Tone",
+     "widget": "knob"
+    },
+    {
+     "param": "C Mod",
+     "widget": "knob"
+    },
+    {
+     "param": "C Level",
+     "widget": "fader"
+    },
+    {
+     "param": "Delay On",
+     "widget": "switch"
+    },
+    {
+     "param": "Dly Routing",
+     "widget": "switch"
+    },
+    "empty",
+    "empty"
+   ]
+  },
+  {
+   "name": "REVERB",
+   "controls": [
+    {
+     "param": "Reverb On",
+     "widget": "switch"
+    },
+    {
+     "param": "Rev Type",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Freeze",
+     "widget": "switch"
+    },
+    {
+     "param": "Decay",
+     "widget": "knob"
+    },
+    {
+     "param": "Pre-Delay",
+     "widget": "knob"
+    },
+    {
+     "param": "Rev Size",
+     "widget": "knob"
+    },
+    {
+     "param": "Rev Tone",
+     "widget": "knob"
+    },
+    {
+     "param": "Low End",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Rev Mod",
+     "widget": "knob"
+    },
+    {
+     "param": "Special",
+     "widget": "knob"
+    },
+    "empty",
+    "empty"
+   ]
+  },
+  {
+   "name": "MIXER",
+   "controls": [
+    {
+     "param": "Dry Level",
+     "widget": "fader"
+    },
+    {
+     "param": "Cho Level",
+     "widget": "fader"
+    },
+    {
+     "param": "Dly Level",
+     "widget": "fader"
+    },
+    {
+     "param": "Rev Level",
+     "widget": "fader"
+    },
+    {
+     "param": "Dry Pan",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Cho Pan",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Dly Pan",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Rev Pan",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Dry Mute",
+     "widget": "switch"
+    },
+    {
+     "param": "Cho Mute",
+     "widget": "switch"
+    },
+    {
+     "param": "Dly Mute",
+     "widget": "switch"
+    },
+    {
+     "param": "Rev Mute",
+     "widget": "switch"
+    },
+    {
+     "param": "Dry Solo",
+     "widget": "switch"
+    },
+    {
+     "param": "Cho Solo",
+     "widget": "switch"
+    },
+    {
+     "param": "Dly Solo",
+     "widget": "switch"
+    },
+    {
+     "param": "Rev Solo",
+     "widget": "switch"
+    }
+   ]
+  },
+  {
+   "name": "EQ",
+   "controls": [
+    {
+     "param": "EQ On",
+     "widget": "switch"
+    },
+    {
+     "param": "Low Cut",
+     "widget": "knob"
+    },
+    {
+     "param": "High Cut",
+     "widget": "knob"
+    },
+    {
+     "param": "Output",
+     "widget": "fader"
+    },
+    {
+     "param": "Low Freq",
+     "widget": "knob"
+    },
+    {
+     "param": "Low Gain",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Mid Freq",
+     "widget": "knob"
+    },
+    {
+     "param": "Mid Gain",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Mid Q",
+     "widget": "knob"
+    },
+    {
+     "param": "High Freq",
+     "widget": "knob"
+    },
+    {
+     "param": "High Gain",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Chain",
+     "widget": "switch"
+    }
+   ]
+  }
+ ]
+}
