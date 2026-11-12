@@ -1,0 +1,87 @@
+name: Build Janus (MPC plugin)
+
+# Builds the Janus synth for Akai MPC standalone hardware with Akai's MPC Plugin SDK:
+# native (for testing) + arm32 (Gen1 MPCs) + arm64 (Live III / XL), runs the SDK's host
+# simulator and a preset render check, then publishes the zip as a GitHub release.
+
+on:
+  push:
+    branches: [janus-mpc]
+    paths: ["mpc/janus/**", ".github/workflows/janus-mpc.yml"]
+  workflow_dispatch:
+
+concurrency:
+  group: janus-mpc-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  SDK_COMMIT: febd2ca5bd9eb16c4a412837196e145566bc981b
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Get Akai's MPC Plugin SDK (pinned)
+        run: |
+          git clone https://github.com/inmusic-software/mpc-plugin-builder-sdk sdk
+          git -C sdk checkout "$SDK_COMMIT"
+
+      - name: Build native + arm32 + arm64 and validate
+        run: |
+          cp -r mpc/janus sdk/plugins/Janus
+          cd sdk
+          python tools/build.py plugins/Janus
+
+      - name: Check the ARM libraries
+        run: |
+          cd "sdk/plugins/Janus/build/binaryimage - VST - Janus"
+          find . -type f | sort
+          file VST/*.so
+
+      - name: Host simulator (default, tiny and big blocks)
+        run: |
+          cd sdk
+          LIB=plugins/Janus/build/native/janus.so
+          .sdk-tools/host_sim $LIB test --seconds 4 --notes 36,48,55,60,63
+          .sdk-tools/host_sim $LIB test --seconds 2 --block 32 --notes 36,43,48
+          .sdk-tools/host_sim $LIB test --seconds 2 --block 512 --playing --notes 36,43,48
+
+      - name: Render every preset (riff + mod-wheel morph), then a 10-voice all-FX stress pass
+        run: |
+          g++ -O2 -std=c++17 -Isdk/framework mpc/janus/tools/render.cpp -o render -ldl
+          mkdir -p renders stress
+          ./render sdk/plugins/Janus/build/native/janus.so renders 8
+          STRESS=1 ./render sdk/plugins/Janus/build/native/janus.so stress 5
+
+      - name: Package
+        run: |
+          cd sdk
+          python tools/package.py plugins/Janus --out ../dist
+          ls -l ../dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: janus-mpc
+          path: dist/*.zip
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(python -c "import json;print(json.load(open('mpc/janus/plugin.json'))['version'])")
+          TAG="janus-mpc-v$V"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/*.zip --clobber
+          else
+            gh release create "$TAG" dist/*.zip --target "$GITHUB_SHA" --title "Janus $V for MPC" --notes-file mpc/janus/RELEASE_NOTES.md
+          fi

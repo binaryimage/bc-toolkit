@@ -1,0 +1,543 @@
+{
+ "kit": {
+  "theme": "mono",
+  "accent": "ff4f8fe0"
+ },
+ "pages": [
+  {
+   "name": "MAIN",
+   "controls": [
+    {
+     "param": "Morph",
+     "widget": "knob"
+    },
+    {
+     "param": "Volume",
+     "widget": "fader"
+    },
+    {
+     "param": "Voice Mode",
+     "widget": "switch"
+    },
+    {
+     "param": "Wheel Morph",
+     "widget": "switch"
+    },
+    {
+     "param": "Uni Voices",
+     "widget": "knob"
+    },
+    {
+     "param": "Uni Detune",
+     "widget": "knob"
+    },
+    {
+     "param": "Spread",
+     "widget": "knob"
+    },
+    {
+     "param": "Glide",
+     "widget": "knob"
+    },
+    {
+     "param": "Vel>Amp",
+     "widget": "knob"
+    },
+    {
+     "param": "Vel>Filter",
+     "widget": "knob"
+    },
+    {
+     "param": "AT>Filter",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Bend Range",
+     "widget": "knob"
+    },
+    {
+     "param": "Copy S1>S2",
+     "widget": "switch"
+    },
+    {
+     "param": "Copy S2>S1",
+     "widget": "switch"
+    },
+    "empty",
+    "empty"
+   ]
+  },
+  {
+   "name": "S1 OSC",
+   "controls": [
+    {
+     "param": "S1 O1 Wave",
+     "widget": "switch"
+    },
+    {
+     "param": "S1 O1 PW",
+     "widget": "knob"
+    },
+    {
+     "param": "S1 O1 Pitch",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "S1 Sync",
+     "widget": "switch"
+    },
+    {
+     "param": "S1 O2 Wave",
+     "widget": "switch"
+    },
+    {
+     "param": "S1 O2 PW",
+     "widget": "knob"
+    },
+    {
+     "param": "S1 O2 Semi",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "S1 O2 Fine",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "S1 O1 Level",
+     "widget": "fader"
+    },
+    {
+     "param": "S1 O2 Level",
+     "widget": "fader"
+    },
+    {
+     "param": "S1 Ring",
+     "widget": "fader"
+    },
+    {
+     "param": "S1 Noise",
+     "widget": "fader"
+    },
+    {
+     "param": "S1 FM",
+     "widget": "knob"
+    },
+    {
+     "param": "S1 Feedback",
+     "widget": "knob"
+    },
+    "empty",
+    "empty"
+   ]
+  },
+  {
+   "name": "S1 FILT",
+   "controls": [
+    {
+     "param": "S1 Cutoff",
+     "widget": "knob"
+    },
+    {
+     "param": "S1 Reso",
+     "widget": "knob"
+    },
+    {
+     "param": "S1 F Env Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "S1 Key Track",
+     "widget": "knob"
+    },
+    {
+     "param": "S1 F Type",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "S1 F Drive",
+     "widget": "knob"
+    },
+    {
+     "param": "S1 HPF",
+     "widget": "knob"
+    },
+    "empty",
+    {
+     "param": "S1 F Attack",
+     "widget": "fader"
+    },
+    {
+     "param": "S1 F Decay",
+     "widget": "fader"
+    },
+    {
+     "param": "S1 F Sustain",
+     "widget": "fader"
+    },
+    {
+     "param": "S1 F Release",
+     "widget": "fader"
+    }
+   ]
+  },
+  {
+   "name": "S1 AMP",
+   "controls": [
+    {
+     "param": "S1 A Attack",
+     "widget": "fader"
+    },
+    {
+     "param": "S1 A Decay",
+     "widget": "fader"
+    },
+    {
+     "param": "S1 A Sustain",
+     "widget": "fader"
+    },
+    {
+     "param": "S1 A Release",
+     "widget": "fader"
+    },
+    {
+     "param": "S1 PEG Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "S1 PEG Decay",
+     "widget": "knob"
+    },
+    {
+     "param": "S1 PEG O1 Only",
+     "widget": "switch"
+    },
+    "empty",
+    {
+     "param": "S1 L1>Pitch",
+     "widget": "knob"
+    },
+    {
+     "param": "S1 L1>Filter",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "S1 L1>PWM",
+     "widget": "knob"
+    },
+    {
+     "param": "S1 L1>Amp",
+     "widget": "knob"
+    },
+    {
+     "param": "S1 L2>Pitch",
+     "widget": "knob"
+    },
+    {
+     "param": "S1 L2>Filter",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    "empty",
+    "empty"
+   ]
+  },
+  {
+   "name": "S2 OSC",
+   "controls": [
+    {
+     "param": "S2 O1 Wave",
+     "widget": "switch"
+    },
+    {
+     "param": "S2 O1 PW",
+     "widget": "knob"
+    },
+    {
+     "param": "S2 O1 Pitch",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "S2 Sync",
+     "widget": "switch"
+    },
+    {
+     "param": "S2 O2 Wave",
+     "widget": "switch"
+    },
+    {
+     "param": "S2 O2 PW",
+     "widget": "knob"
+    },
+    {
+     "param": "S2 O2 Semi",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "S2 O2 Fine",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "S2 O1 Level",
+     "widget": "fader"
+    },
+    {
+     "param": "S2 O2 Level",
+     "widget": "fader"
+    },
+    {
+     "param": "S2 Ring",
+     "widget": "fader"
+    },
+    {
+     "param": "S2 Noise",
+     "widget": "fader"
+    },
+    {
+     "param": "S2 FM",
+     "widget": "knob"
+    },
+    {
+     "param": "S2 Feedback",
+     "widget": "knob"
+    },
+    "empty",
+    "empty"
+   ]
+  },
+  {
+   "name": "S2 FILT",
+   "controls": [
+    {
+     "param": "S2 Cutoff",
+     "widget": "knob"
+    },
+    {
+     "param": "S2 Reso",
+     "widget": "knob"
+    },
+    {
+     "param": "S2 F Env Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "S2 Key Track",
+     "widget": "knob"
+    },
+    {
+     "param": "S2 F Type",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "S2 F Drive",
+     "widget": "knob"
+    },
+    {
+     "param": "S2 HPF",
+     "widget": "knob"
+    },
+    "empty",
+    {
+     "param": "S2 F Attack",
+     "widget": "fader"
+    },
+    {
+     "param": "S2 F Decay",
+     "widget": "fader"
+    },
+    {
+     "param": "S2 F Sustain",
+     "widget": "fader"
+    },
+    {
+     "param": "S2 F Release",
+     "widget": "fader"
+    }
+   ]
+  },
+  {
+   "name": "S2 AMP",
+   "controls": [
+    {
+     "param": "S2 A Attack",
+     "widget": "fader"
+    },
+    {
+     "param": "S2 A Decay",
+     "widget": "fader"
+    },
+    {
+     "param": "S2 A Sustain",
+     "widget": "fader"
+    },
+    {
+     "param": "S2 A Release",
+     "widget": "fader"
+    },
+    {
+     "param": "S2 PEG Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "S2 PEG Decay",
+     "widget": "knob"
+    },
+    {
+     "param": "S2 PEG O1 Only",
+     "widget": "switch"
+    },
+    "empty",
+    {
+     "param": "S2 L1>Pitch",
+     "widget": "knob"
+    },
+    {
+     "param": "S2 L1>Filter",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "S2 L1>PWM",
+     "widget": "knob"
+    },
+    {
+     "param": "S2 L1>Amp",
+     "widget": "knob"
+    },
+    {
+     "param": "S2 L2>Pitch",
+     "widget": "knob"
+    },
+    {
+     "param": "S2 L2>Filter",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    "empty",
+    "empty"
+   ]
+  },
+  {
+   "name": "LFO",
+   "controls": [
+    {
+     "param": "LFO1 Wave",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "LFO1 Rate",
+     "widget": "knob",
+     "visibleWhen": {
+      "param": "LFO1 Sync",
+      "choice": "Off"
+     }
+    },
+    {
+     "param": "LFO1 Sync",
+     "widget": "switch"
+    },
+    {
+     "param": "LFO1 Div",
+     "widget": "slider",
+     "overlay": "menu",
+     "visibleWhen": {
+      "param": "LFO1 Sync",
+      "choice": "On"
+     }
+    },
+    {
+     "param": "LFO2 Wave",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "LFO2 Rate",
+     "widget": "knob"
+    },
+    "empty",
+    "empty"
+   ]
+  },
+  {
+   "name": "FX",
+   "controls": [
+    {
+     "param": "Dist Drive",
+     "widget": "knob"
+    },
+    {
+     "param": "Dist Tone",
+     "widget": "knob"
+    },
+    {
+     "param": "Dist Mix",
+     "widget": "fader"
+    },
+    "empty",
+    {
+     "param": "Mod Type",
+     "widget": "switch"
+    },
+    {
+     "param": "Mod Rate",
+     "widget": "knob"
+    },
+    {
+     "param": "Mod Depth",
+     "widget": "knob"
+    },
+    {
+     "param": "Mod Mix",
+     "widget": "fader"
+    },
+    {
+     "param": "Delay Time",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Delay Fdbk",
+     "widget": "knob"
+    },
+    {
+     "param": "Delay Tone",
+     "widget": "knob"
+    },
+    {
+     "param": "Delay Mix",
+     "widget": "fader"
+    },
+    {
+     "param": "Rev Size",
+     "widget": "knob"
+    },
+    {
+     "param": "Rev Damp",
+     "widget": "knob"
+    },
+    {
+     "param": "Rev Mix",
+     "widget": "fader"
+    },
+    "empty"
+   ]
+  }
+ ],
+ "style": {
+  "background": "ff141618"
+ }
+}

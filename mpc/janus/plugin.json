@@ -1,0 +1,17 @@
+{
+  "name": "Janus",
+  "manufacturer": "binaryimage",
+  "version": "1.0.0",
+  "format": "vst2",
+  "kind": "instrument",
+  "uid": "B82r",
+  "numInputs": 0,
+  "numOutputs": 2,
+  "category": "Synth",
+  "file32": "VST/janus-arm32.so",
+  "file64": "VST/janus-arm64.so",
+  "description": "Janus: a 10-voice AN1x-style virtual analogue with two morphable Scenes, sync/FM/ring/feedback oscillators, a multimode filter plus HPF, and a distortion/chorus/delay/reverb chain.",
+  "author": "binaryimage",
+  "url": "https://github.com/binaryimage/bc-toolkit/tree/janus-mpc/mpc/janus",
+  "license": "MIT"
+}
