@@ -1,7 +1,7 @@
 {
  "kit": {
   "theme": "mono",
-  "accent": "ff4f8fe0"
+  "accent": "ff2f6fd8"
  },
  "pages": [
   {
@@ -538,6 +538,9 @@
   }
  ],
  "style": {
-  "background": "ff141618"
+  "background": "ff464b53",
+  "accent": "ff2f6fd8",
+  "text": "fff2f4f7",
+  "muted": "ffb9c0ca"
  }
 }
