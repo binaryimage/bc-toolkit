@@ -1,0 +1,469 @@
+{
+ "kit": {
+  "theme": "mono",
+  "accent": "ffd0763a"
+ },
+ "style": {
+  "background": "ff17181a",
+  "accent": "ffd0763a",
+  "text": "fff1f1f2",
+  "muted": "ffa9abb0"
+ },
+ "pages": [
+  {
+   "name": "MAIN",
+   "controls": [
+    {
+     "param": "Master",
+     "widget": "fader"
+    },
+    {
+     "param": "Voice Mode",
+     "widget": "switch"
+    },
+    {
+     "param": "Glide",
+     "widget": "knob"
+    },
+    {
+     "param": "Bend Range",
+     "widget": "knob"
+    },
+    {
+     "param": "Algorithm",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "FM Depth",
+     "widget": "knob"
+    },
+    {
+     "param": "Feedback",
+     "widget": "knob"
+    },
+    {
+     "param": "FM Level",
+     "widget": "fader"
+    },
+    {
+     "param": "Noise",
+     "widget": "knob"
+    },
+    "empty",
+    "empty",
+    "empty"
+   ]
+  },
+  {
+   "name": "OP A",
+   "controls": [
+    {
+     "param": "A Wave",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "A Coarse",
+     "widget": "knob"
+    },
+    {
+     "param": "A Fine",
+     "widget": "knob"
+    },
+    {
+     "param": "A Level",
+     "widget": "fader"
+    },
+    {
+     "param": "A Velocity",
+     "widget": "knob"
+    },
+    "empty",
+    "empty",
+    "empty",
+    {
+     "param": "A Attack",
+     "widget": "fader"
+    },
+    {
+     "param": "A Decay",
+     "widget": "fader"
+    },
+    {
+     "param": "A Sustain",
+     "widget": "fader"
+    },
+    {
+     "param": "A Release",
+     "widget": "fader"
+    }
+   ]
+  },
+  {
+   "name": "OP B",
+   "controls": [
+    {
+     "param": "B Wave",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "B Coarse",
+     "widget": "knob"
+    },
+    {
+     "param": "B Fine",
+     "widget": "knob"
+    },
+    {
+     "param": "B Level",
+     "widget": "fader"
+    },
+    {
+     "param": "B Velocity",
+     "widget": "knob"
+    },
+    "empty",
+    "empty",
+    "empty",
+    {
+     "param": "B Attack",
+     "widget": "fader"
+    },
+    {
+     "param": "B Decay",
+     "widget": "fader"
+    },
+    {
+     "param": "B Sustain",
+     "widget": "fader"
+    },
+    {
+     "param": "B Release",
+     "widget": "fader"
+    }
+   ]
+  },
+  {
+   "name": "OP C",
+   "controls": [
+    {
+     "param": "C Wave",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C Coarse",
+     "widget": "knob"
+    },
+    {
+     "param": "C Fine",
+     "widget": "knob"
+    },
+    {
+     "param": "C Level",
+     "widget": "fader"
+    },
+    {
+     "param": "C Velocity",
+     "widget": "knob"
+    },
+    "empty",
+    "empty",
+    "empty",
+    {
+     "param": "C Attack",
+     "widget": "fader"
+    },
+    {
+     "param": "C Decay",
+     "widget": "fader"
+    },
+    {
+     "param": "C Sustain",
+     "widget": "fader"
+    },
+    {
+     "param": "C Release",
+     "widget": "fader"
+    }
+   ]
+  },
+  {
+   "name": "OP D",
+   "controls": [
+    {
+     "param": "D Wave",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "D Coarse",
+     "widget": "knob"
+    },
+    {
+     "param": "D Fine",
+     "widget": "knob"
+    },
+    {
+     "param": "D Level",
+     "widget": "fader"
+    },
+    {
+     "param": "D Velocity",
+     "widget": "knob"
+    },
+    "empty",
+    "empty",
+    "empty",
+    {
+     "param": "D Attack",
+     "widget": "fader"
+    },
+    {
+     "param": "D Decay",
+     "widget": "fader"
+    },
+    {
+     "param": "D Sustain",
+     "widget": "fader"
+    },
+    {
+     "param": "D Release",
+     "widget": "fader"
+    }
+   ]
+  },
+  {
+   "name": "FILTER",
+   "controls": [
+    {
+     "param": "Flt Mode",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Cutoff",
+     "widget": "knob"
+    },
+    {
+     "param": "Resonance",
+     "widget": "knob"
+    },
+    {
+     "param": "Drive",
+     "widget": "knob"
+    },
+    {
+     "param": "Flt Env",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Key Track",
+     "widget": "knob"
+    },
+    {
+     "param": "Flt Vel",
+     "widget": "knob"
+    },
+    "empty",
+    {
+     "param": "Flt Attack",
+     "widget": "fader"
+    },
+    {
+     "param": "Flt Decay",
+     "widget": "fader"
+    },
+    {
+     "param": "Flt Sustain",
+     "widget": "fader"
+    },
+    {
+     "param": "Flt Release",
+     "widget": "fader"
+    }
+   ]
+  },
+  {
+   "name": "ENV",
+   "controls": [
+    {
+     "param": "Amp Attack",
+     "widget": "fader"
+    },
+    {
+     "param": "Amp Decay",
+     "widget": "fader"
+    },
+    {
+     "param": "Amp Sustain",
+     "widget": "fader"
+    },
+    {
+     "param": "Amp Release",
+     "widget": "fader"
+    },
+    {
+     "param": "Amp Vel",
+     "widget": "knob"
+    },
+    "empty",
+    "empty",
+    "empty",
+    {
+     "param": "Mod Attack",
+     "widget": "fader"
+    },
+    {
+     "param": "Mod Decay",
+     "widget": "fader"
+    },
+    {
+     "param": "Mod Sustain",
+     "widget": "fader"
+    },
+    {
+     "param": "Mod Release",
+     "widget": "fader"
+    }
+   ]
+  },
+  {
+   "name": "MOD 1-4",
+   "controls": [
+    {
+     "param": "M1 Source",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "M1 Dest",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "M1 Amount",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    "empty",
+    {
+     "param": "M2 Source",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "M2 Dest",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "M2 Amount",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    "empty",
+    {
+     "param": "M3 Source",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "M3 Dest",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "M3 Amount",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    "empty",
+    {
+     "param": "M4 Source",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "M4 Dest",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "M4 Amount",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    "empty"
+   ]
+  },
+  {
+   "name": "LFO/MOD",
+   "controls": [
+    {
+     "param": "LFO1 Shape",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "LFO1 Rate",
+     "widget": "knob"
+    },
+    {
+     "param": "LFO1 Retrig",
+     "widget": "switch"
+    },
+    "empty",
+    {
+     "param": "LFO2 Shape",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "LFO2 Rate",
+     "widget": "knob"
+    },
+    {
+     "param": "LFO2 Retrig",
+     "widget": "switch"
+    },
+    "empty",
+    {
+     "param": "M5 Source",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "M5 Dest",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "M5 Amount",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    "empty",
+    {
+     "param": "M6 Source",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "M6 Dest",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "M6 Amount",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    "empty"
+   ]
+  }
+ ]
+}

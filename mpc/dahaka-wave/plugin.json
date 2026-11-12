@@ -1,0 +1,17 @@
+{
+  "name": "Dahaka Wave",
+  "manufacturer": "binaryimage",
+  "version": "1.0.0",
+  "format": "vst2",
+  "kind": "instrument",
+  "uid": "BNl7",
+  "numInputs": 0,
+  "numOutputs": 2,
+  "category": "Synth",
+  "file32": "VST/dahaka-wave-arm32.so",
+  "file64": "VST/dahaka-wave-arm64.so",
+  "description": "Dahaka Wave: Two wavetable oscillators (Hydrasynth-style): 8 tables x 32 frames with FM-Lin, Sync, Phase Warp and Wavestack mutators. One head of binaryimage's Dahaka.",
+  "author": "binaryimage",
+  "url": "https://github.com/binaryimage/bc-toolkit/tree/mpc-plugins/mpc/dahaka-wave",
+  "license": "MIT"
+}

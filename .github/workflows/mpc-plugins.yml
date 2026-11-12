@@ -30,6 +30,9 @@ jobs:
         include:
           - { dir: janus,   name: Janus,   kind: instrument }
           - { dir: chimera, name: Chimera, kind: effect }
+          - { dir: dahaka-fm,   name: "Dahaka FM",   kind: instrument }
+          - { dir: dahaka-wave, name: "Dahaka Wave", kind: instrument }
+          - { dir: dahaka-va,   name: "Dahaka VA",   kind: instrument }
     steps:
       - uses: actions/checkout@v4
 
@@ -59,7 +62,7 @@ jobs:
         if: steps.have.outputs.ok == '1'
         run: |
           cd sdk
-          LIB=$(ls plugins/${{ matrix.name }}/build/native/*.so)
+          LIB=$(ls "plugins/${{ matrix.name }}/build/native/"*.so)
           .sdk-tools/host_sim "$LIB" test --seconds 4
           .sdk-tools/host_sim "$LIB" test --seconds 2 --block 32
           .sdk-tools/host_sim "$LIB" test --seconds 2 --block 512 --playing

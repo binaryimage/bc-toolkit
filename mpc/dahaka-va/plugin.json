@@ -1,0 +1,17 @@
+{
+  "name": "Dahaka VA",
+  "manufacturer": "binaryimage",
+  "version": "1.0.0",
+  "format": "vst2",
+  "kind": "instrument",
+  "uid": "BbZT",
+  "numInputs": 0,
+  "numOutputs": 2,
+  "category": "Synth",
+  "file32": "VST/dahaka-va-arm32.so",
+  "file64": "VST/dahaka-va-arm64.so",
+  "description": "Dahaka VA: Two virtual-analog oscillators with 7-voice unison, VA2 hard sync, a sub oscillator and analog drift. One head of binaryimage's Dahaka.",
+  "author": "binaryimage",
+  "url": "https://github.com/binaryimage/bc-toolkit/tree/mpc-plugins/mpc/dahaka-va",
+  "license": "MIT"
+}
