@@ -1,0 +1,211 @@
+{
+ "kit": {
+  "theme": "mono",
+  "accent": "ffd8b25a"
+ },
+ "style": {
+  "background": "ff110708",
+  "accent": "ffd8b25a",
+  "text": "fff2e6d6",
+  "muted": "ffad9a86"
+ },
+ "pages": [
+  {
+   "name": "CHOIR",
+   "controls": [
+    {
+     "param": "Section",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Vowel",
+     "widget": "knob"
+    },
+    {
+     "param": "Open",
+     "widget": "knob"
+    },
+    {
+     "param": "Formant",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Singers",
+     "widget": "knob"
+    },
+    {
+     "param": "Spread",
+     "widget": "knob"
+    },
+    {
+     "param": "Drift",
+     "widget": "knob"
+    },
+    {
+     "param": "Breath",
+     "widget": "knob"
+    },
+    {
+     "param": "Brightness",
+     "widget": "knob"
+    },
+    {
+     "param": "Consonant",
+     "widget": "knob"
+    },
+    {
+     "param": "Volume",
+     "widget": "fader"
+    },
+    {
+     "param": "Octave",
+     "widget": "knob"
+    }
+   ]
+  },
+  {
+   "name": "MOTION",
+   "controls": [
+    {
+     "param": "Vowel LFO",
+     "widget": "knob"
+    },
+    {
+     "param": "Vowel Rate",
+     "widget": "knob"
+    },
+    {
+     "param": "Vibrato",
+     "widget": "knob"
+    },
+    {
+     "param": "Vib Rate",
+     "widget": "knob"
+    },
+    {
+     "param": "Vib Delay",
+     "widget": "knob"
+    },
+    {
+     "param": "Wheel Dest",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Bend Range",
+     "widget": "knob"
+    },
+    {
+     "param": "Glide",
+     "widget": "knob"
+    },
+    {
+     "param": "Velocity",
+     "widget": "knob"
+    },
+    "empty",
+    "empty",
+    "empty"
+   ]
+  },
+  {
+   "name": "SYNTH",
+   "controls": [
+    {
+     "param": "Morph",
+     "widget": "knob"
+    },
+    {
+     "param": "Synth Wave",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Cutoff",
+     "widget": "knob"
+    },
+    {
+     "param": "Reso",
+     "widget": "knob"
+    },
+    {
+     "param": "Flt Env",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Sub",
+     "widget": "knob"
+    },
+    "empty",
+    "empty"
+   ]
+  },
+  {
+   "name": "ENV",
+   "controls": [
+    {
+     "param": "Attack",
+     "widget": "knob"
+    },
+    {
+     "param": "Decay",
+     "widget": "knob"
+    },
+    {
+     "param": "Sustain",
+     "widget": "knob"
+    },
+    {
+     "param": "Release",
+     "widget": "knob"
+    }
+   ]
+  },
+  {
+   "name": "FX",
+   "controls": [
+    {
+     "param": "Ensemble",
+     "widget": "knob"
+    },
+    {
+     "param": "Width",
+     "widget": "knob"
+    },
+    {
+     "param": "Tone",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    "empty",
+    {
+     "param": "Echo",
+     "widget": "knob"
+    },
+    {
+     "param": "Echo Time",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Echo Fbk",
+     "widget": "knob"
+    },
+    "empty",
+    {
+     "param": "Hall",
+     "widget": "knob"
+    },
+    {
+     "param": "Hall Size",
+     "widget": "knob"
+    },
+    "empty",
+    "empty"
+   ]
+  }
+ ]
+}

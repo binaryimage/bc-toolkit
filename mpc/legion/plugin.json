@@ -1,0 +1,17 @@
+{
+  "name": "Legion",
+  "manufacturer": "binaryimage",
+  "version": "1.0.0",
+  "format": "vst2",
+  "kind": "instrument",
+  "uid": "BlG8",
+  "numInputs": 0,
+  "numOutputs": 2,
+  "category": "Synth",
+  "file32": "VST/legion-arm32.so",
+  "file64": "VST/legion-arm64.so",
+  "description": "Legion: a choir synth. A crowd of singers per note through real vowel formants (bass, tenor, alto, soprano), with Open, vowel LFO, breath, consonants, a Morph into a synth made from the same voices, ensemble, echo and hall.",
+  "author": "binaryimage",
+  "url": "https://github.com/binaryimage/bc-toolkit/tree/mpc-plugins/mpc/legion",
+  "license": "MIT"
+}
