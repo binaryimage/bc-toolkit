@@ -1,0 +1,97 @@
+{
+ "kit": {
+  "theme": "mono",
+  "accent": "ff8fb8e0"
+ },
+ "style": {
+  "background": "ff090c12",
+  "accent": "ff8fb8e0",
+  "text": "ffe2eaf2",
+  "muted": "ff8e9aa8"
+ },
+ "pages": [
+  {
+   "name": "BANSHEE",
+   "controls": [
+    {
+     "param": "Voices",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Rate",
+     "widget": "knob"
+    },
+    {
+     "param": "Depth",
+     "widget": "knob"
+    },
+    {
+     "param": "Drift",
+     "widget": "knob"
+    },
+    {
+     "param": "Detune",
+     "widget": "knob"
+    },
+    {
+     "param": "Wail",
+     "widget": "knob"
+    },
+    {
+     "param": "Wail Pitch",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Cry",
+     "widget": "knob"
+    },
+    {
+     "param": "Mix",
+     "widget": "fader"
+    },
+    {
+     "param": "Output",
+     "widget": "fader"
+    },
+    {
+     "param": "Space",
+     "widget": "knob"
+    },
+    "empty"
+   ]
+  },
+  {
+   "name": "SPIRIT",
+   "controls": [
+    {
+     "param": "Cry Rate",
+     "widget": "knob"
+    },
+    {
+     "param": "Air",
+     "widget": "knob"
+    },
+    {
+     "param": "Feedback",
+     "widget": "knob"
+    },
+    {
+     "param": "Width",
+     "widget": "knob"
+    },
+    {
+     "param": "Tone",
+     "widget": "knob"
+    },
+    {
+     "param": "Low Cut",
+     "widget": "knob"
+    },
+    "empty",
+    "empty"
+   ]
+  }
+ ]
+}

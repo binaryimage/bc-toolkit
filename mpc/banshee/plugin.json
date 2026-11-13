@@ -1,0 +1,17 @@
+{
+  "name": "Banshee",
+  "manufacturer": "binaryimage",
+  "version": "1.0.0",
+  "format": "vst2",
+  "kind": "effect",
+  "uid": "BbS6",
+  "numInputs": 2,
+  "numOutputs": 2,
+  "category": "Effect",
+  "file32": "VST/banshee-arm32.so",
+  "file64": "VST/banshee-arm64.so",
+  "description": "Banshee: a sorrow chorus. Wide detuned voices with a seasick drift, a pitched Wail, a moaning vowel Cry, breath noise and a dark reverb behind it.",
+  "author": "binaryimage",
+  "url": "https://github.com/binaryimage/bc-toolkit/tree/mpc-plugins/mpc/banshee",
+  "license": "MIT"
+}
