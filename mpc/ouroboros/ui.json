@@ -1,0 +1,98 @@
+{
+ "kit": {
+  "theme": "mono",
+  "accent": "ff3fbf95"
+ },
+ "style": {
+  "background": "ff07100e",
+  "accent": "ff3fbf95",
+  "text": "ffd9efe6",
+  "muted": "ff86a69a"
+ },
+ "pages": [
+  {
+   "name": "REVERSE",
+   "controls": [
+    {
+     "param": "Mode",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Sync",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Chaos",
+     "widget": "knob"
+    },
+    {
+     "param": "Free Time",
+     "widget": "knob"
+    },
+    {
+     "param": "Freeze",
+     "widget": "switch"
+    },
+    {
+     "param": "Flip",
+     "widget": "switch"
+    },
+    {
+     "param": "Length",
+     "widget": "knob"
+    },
+    {
+     "param": "Jitter",
+     "widget": "knob"
+    },
+    {
+     "param": "Mix",
+     "widget": "fader"
+    },
+    {
+     "param": "Output",
+     "widget": "fader"
+    },
+    "empty",
+    "empty"
+   ]
+  },
+  {
+   "name": "SHAPE",
+   "controls": [
+    {
+     "param": "Pitch",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Feedback",
+     "widget": "knob"
+    },
+    {
+     "param": "Fade",
+     "widget": "knob"
+    },
+    {
+     "param": "Width",
+     "widget": "knob"
+    },
+    {
+     "param": "Ghost",
+     "widget": "knob"
+    },
+    {
+     "param": "Ghost Size",
+     "widget": "knob"
+    },
+    {
+     "param": "Tone",
+     "widget": "knob"
+    },
+    "empty"
+   ]
+  }
+ ]
+}

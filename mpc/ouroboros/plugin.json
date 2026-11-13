@@ -1,0 +1,17 @@
+{
+  "name": "Ouroboros",
+  "manufacturer": "binaryimage",
+  "version": "1.0.0",
+  "format": "vst2",
+  "kind": "effect",
+  "uid": "BoU3",
+  "numInputs": 2,
+  "numOutputs": 2,
+  "category": "Effect",
+  "file32": "VST/ouroboros-arm32.so",
+  "file64": "VST/ouroboros-arm64.so",
+  "description": "Ouroboros: a chaotic reverser. Grabs what just played and throws it back at you backwards, on the beat or free: Chaos, Backmask, Swell and Spiral modes, reversed-reverb Ghost swells, Freeze and Flip.",
+  "author": "binaryimage",
+  "url": "https://github.com/binaryimage/bc-toolkit/tree/mpc-plugins/mpc/ouroboros",
+  "license": "MIT"
+}
