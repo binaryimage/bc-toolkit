@@ -1,0 +1,17 @@
+{
+  "name": "Mare",
+  "manufacturer": "binaryimage",
+  "version": "1.0.0",
+  "format": "vst2",
+  "kind": "effect",
+  "uid": "BmR2",
+  "numInputs": 2,
+  "numOutputs": 2,
+  "category": "Effect",
+  "file32": "VST/mare-arm32.so",
+  "file64": "VST/mare-arm64.so",
+  "description": "Mare: a nightmare delay. Ping-pong echoes that sink in pitch, flip backwards, smear and rot a little more on every repeat, with wobble, duck and freeze.",
+  "author": "binaryimage",
+  "url": "https://github.com/binaryimage/bc-toolkit/tree/mpc-plugins/mpc/mare",
+  "license": "MIT"
+}
