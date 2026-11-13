@@ -1,0 +1,17 @@
+{
+  "name": "Fenrir",
+  "manufacturer": "binaryimage",
+  "version": "1.0.0",
+  "format": "vst2",
+  "kind": "effect",
+  "uid": "BfN9",
+  "numInputs": 2,
+  "numOutputs": 2,
+  "category": "Effect",
+  "file32": "VST/fenrir-arm32.so",
+  "file64": "VST/fenrir-arm64.so",
+  "description": "Fenrir: brutal distortion. Two stages from six types (tube, fuzz, rectify, fold, diode, crush), Bite, Starve, Howl feedback, a noise gate and a rhythmic Chop gate locked to the MPC's clock.",
+  "author": "binaryimage",
+  "url": "https://github.com/binaryimage/bc-toolkit/tree/mpc-plugins/mpc/fenrir",
+  "license": "MIT"
+}

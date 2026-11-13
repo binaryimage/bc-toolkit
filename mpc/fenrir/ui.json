@@ -1,0 +1,110 @@
+{
+ "kit": {
+  "theme": "mono",
+  "accent": "ffd23028"
+ },
+ "style": {
+  "background": "ff0e0808",
+  "accent": "ffd23028",
+  "text": "fff0dcd8",
+  "muted": "ffa88a86"
+ },
+ "pages": [
+  {
+   "name": "FENRIR",
+   "controls": [
+    {
+     "param": "Drive 1",
+     "widget": "knob"
+    },
+    {
+     "param": "Type 1",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Drive 2",
+     "widget": "knob"
+    },
+    {
+     "param": "Type 2",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Bite",
+     "widget": "knob"
+    },
+    {
+     "param": "Bite Freq",
+     "widget": "knob"
+    },
+    {
+     "param": "Starve",
+     "widget": "knob"
+    },
+    {
+     "param": "Howl",
+     "widget": "knob"
+    },
+    {
+     "param": "Tight",
+     "widget": "knob"
+    },
+    {
+     "param": "Gate",
+     "widget": "knob"
+    },
+    {
+     "param": "Mix",
+     "widget": "fader"
+    },
+    {
+     "param": "Output",
+     "widget": "fader"
+    }
+   ]
+  },
+  {
+   "name": "CHOP/EQ",
+   "controls": [
+    {
+     "param": "Chop",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Chop Rate",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Chop Depth",
+     "widget": "knob"
+    },
+    {
+     "param": "Chop Shape",
+     "widget": "knob"
+    },
+    {
+     "param": "Low",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Mid",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "High Cut",
+     "widget": "knob"
+    },
+    {
+     "param": "Width",
+     "widget": "knob"
+    }
+   ]
+  }
+ ]
+}
