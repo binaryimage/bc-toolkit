@@ -1,0 +1,17 @@
+{
+  "name": "Grendel",
+  "manufacturer": "binaryimage",
+  "version": "1.0.0",
+  "format": "vst2",
+  "kind": "effect",
+  "uid": "BgR7",
+  "numInputs": 2,
+  "numOutputs": 2,
+  "category": "Effect",
+  "file32": "VST/grendel-arm32.so",
+  "file64": "VST/grendel-arm64.so",
+  "description": "Grendel: a tape abomination. Drive, wow, flutter, dropouts, tape eat, crush and hiss, a Tape Stop button, a Rewind button and a Possessed knob that throws all of it at you.",
+  "author": "binaryimage",
+  "url": "https://github.com/binaryimage/bc-toolkit/tree/mpc-plugins/mpc/grendel",
+  "license": "MIT"
+}

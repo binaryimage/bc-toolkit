@@ -34,6 +34,13 @@ jobs:
           - { dir: dahaka-wave, name: "Dahaka Wave", kind: instrument }
           - { dir: dahaka-va,   name: "Dahaka VA",   kind: instrument }
           - { dir: maggot,      name: Maggot,        kind: instrument }
+          - { dir: grendel,     name: Grendel,       kind: effect }
+          - { dir: ouroboros,   name: Ouroboros,     kind: effect }
+          - { dir: fenrir,      name: Fenrir,        kind: effect }
+          - { dir: moloch,      name: Moloch,        kind: effect }
+          - { dir: mare,        name: Mare,          kind: effect }
+          - { dir: banshee,     name: Banshee,       kind: effect }
+          - { dir: legion,      name: Legion,        kind: instrument }
     steps:
       - uses: actions/checkout@v4
 

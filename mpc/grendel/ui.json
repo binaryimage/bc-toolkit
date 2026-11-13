@@ -1,0 +1,107 @@
+{
+ "kit": {
+  "theme": "mono",
+  "accent": "ffd2782d"
+ },
+ "style": {
+  "background": "ff120c08",
+  "accent": "ffd2782d",
+  "text": "ffeee0cc",
+  "muted": "ffa8957f"
+ },
+ "pages": [
+  {
+   "name": "GRENDEL",
+   "controls": [
+    {
+     "param": "Tape Stop",
+     "widget": "switch"
+    },
+    {
+     "param": "Rewind",
+     "widget": "switch"
+    },
+    {
+     "param": "Possessed",
+     "widget": "knob"
+    },
+    {
+     "param": "Grid",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Stop Time",
+     "widget": "knob"
+    },
+    {
+     "param": "Start Time",
+     "widget": "knob"
+    },
+    {
+     "param": "Tape Eat",
+     "widget": "knob"
+    },
+    {
+     "param": "Dropouts",
+     "widget": "knob"
+    },
+    {
+     "param": "Mix",
+     "widget": "fader"
+    },
+    {
+     "param": "Output",
+     "widget": "fader"
+    },
+    "empty",
+    "empty"
+   ]
+  },
+  {
+   "name": "TAPE",
+   "controls": [
+    {
+     "param": "Drive",
+     "widget": "knob"
+    },
+    {
+     "param": "Age",
+     "widget": "knob"
+    },
+    {
+     "param": "Tone",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Hiss",
+     "widget": "knob"
+    },
+    {
+     "param": "Wow",
+     "widget": "knob"
+    },
+    {
+     "param": "Wow Rate",
+     "widget": "knob"
+    },
+    {
+     "param": "Flutter",
+     "widget": "knob"
+    },
+    {
+     "param": "Width",
+     "widget": "knob"
+    },
+    {
+     "param": "Crush",
+     "widget": "knob"
+    },
+    "empty",
+    "empty",
+    "empty"
+   ]
+  }
+ ]
+}
