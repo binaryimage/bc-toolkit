@@ -1,0 +1,704 @@
+{
+ "kit": {
+  "theme": "mono",
+  "accent": "ffc84b31"
+ },
+ "style": {
+  "background": "ff141110",
+  "accent": "ffc84b31",
+  "text": "fff3ece6",
+  "muted": "ffaa9e94"
+ },
+ "pages": [
+  {
+   "name": "MAIN",
+   "controls": [
+    {
+     "param": "Volume",
+     "widget": "fader"
+    },
+    {
+     "param": "Routing",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Grit",
+     "widget": "knob"
+    },
+    {
+     "param": "Glue",
+     "widget": "knob"
+    },
+    {
+     "param": "Accent",
+     "widget": "knob"
+    },
+    "empty",
+    "empty",
+    "empty"
+   ]
+  },
+  {
+   "name": "KICKS",
+   "controls": [
+    {
+     "param": "Kick Tune",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Kick Decay",
+     "widget": "knob"
+    },
+    {
+     "param": "Kick Punch",
+     "widget": "knob"
+    },
+    {
+     "param": "Kick Click",
+     "widget": "knob"
+    },
+    {
+     "param": "Kick Level",
+     "widget": "knob"
+    },
+    {
+     "param": "Kick Pan",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Kick Drive",
+     "widget": "knob"
+    },
+    {
+     "param": "Kick Out",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Kick 2 Tune",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Kick 2 Decay",
+     "widget": "knob"
+    },
+    {
+     "param": "Kick 2 Sweep",
+     "widget": "knob"
+    },
+    {
+     "param": "Kick 2 Sub",
+     "widget": "knob"
+    },
+    {
+     "param": "Kick 2 Level",
+     "widget": "knob"
+    },
+    {
+     "param": "Kick 2 Pan",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Kick 2 Drive",
+     "widget": "knob"
+    },
+    {
+     "param": "Kick 2 Out",
+     "widget": "slider",
+     "overlay": "menu"
+    }
+   ]
+  },
+  {
+   "name": "SNR/CLAP",
+   "controls": [
+    {
+     "param": "Snare Tune",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Snare Decay",
+     "widget": "knob"
+    },
+    {
+     "param": "Snare Snappy",
+     "widget": "knob"
+    },
+    {
+     "param": "Snare Tone",
+     "widget": "knob"
+    },
+    {
+     "param": "Snare Level",
+     "widget": "knob"
+    },
+    {
+     "param": "Snare Pan",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Snare Drive",
+     "widget": "knob"
+    },
+    {
+     "param": "Snare Out",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Clap Tune",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Clap Decay",
+     "widget": "knob"
+    },
+    {
+     "param": "Clap Spread",
+     "widget": "knob"
+    },
+    {
+     "param": "Clap Tone",
+     "widget": "knob"
+    },
+    {
+     "param": "Clap Level",
+     "widget": "knob"
+    },
+    {
+     "param": "Clap Pan",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Clap Drive",
+     "widget": "knob"
+    },
+    {
+     "param": "Clap Out",
+     "widget": "slider",
+     "overlay": "menu"
+    }
+   ]
+  },
+  {
+   "name": "RIM/FM",
+   "controls": [
+    {
+     "param": "Rim Tune",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Rim Decay",
+     "widget": "knob"
+    },
+    {
+     "param": "Rim Click",
+     "widget": "knob"
+    },
+    {
+     "param": "Rim Ring",
+     "widget": "knob"
+    },
+    {
+     "param": "Rim Level",
+     "widget": "knob"
+    },
+    {
+     "param": "Rim Pan",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Rim Drive",
+     "widget": "knob"
+    },
+    {
+     "param": "Rim Out",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "FM Drum Tune",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "FM Drum Decay",
+     "widget": "knob"
+    },
+    {
+     "param": "FM Drum FM",
+     "widget": "knob"
+    },
+    {
+     "param": "FM Drum Ratio",
+     "widget": "knob"
+    },
+    {
+     "param": "FM Drum Level",
+     "widget": "knob"
+    },
+    {
+     "param": "FM Drum Pan",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "FM Drum Drive",
+     "widget": "knob"
+    },
+    {
+     "param": "FM Drum Out",
+     "widget": "slider",
+     "overlay": "menu"
+    }
+   ]
+  },
+  {
+   "name": "TOMS",
+   "controls": [
+    {
+     "param": "Low Tom Tune",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Low Tom Decay",
+     "widget": "knob"
+    },
+    {
+     "param": "Low Tom Bend",
+     "widget": "knob"
+    },
+    {
+     "param": "Low Tom Noise",
+     "widget": "knob"
+    },
+    {
+     "param": "Low Tom Level",
+     "widget": "knob"
+    },
+    {
+     "param": "Low Tom Pan",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Low Tom Drive",
+     "widget": "knob"
+    },
+    {
+     "param": "Low Tom Out",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Mid Tom Tune",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Mid Tom Decay",
+     "widget": "knob"
+    },
+    {
+     "param": "Mid Tom Bend",
+     "widget": "knob"
+    },
+    {
+     "param": "Mid Tom Noise",
+     "widget": "knob"
+    },
+    {
+     "param": "Mid Tom Level",
+     "widget": "knob"
+    },
+    {
+     "param": "Mid Tom Pan",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Mid Tom Drive",
+     "widget": "knob"
+    },
+    {
+     "param": "Mid Tom Out",
+     "widget": "slider",
+     "overlay": "menu"
+    }
+   ]
+  },
+  {
+   "name": "TOM/CYM",
+   "controls": [
+    {
+     "param": "High Tom Tune",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "High Tom Decay",
+     "widget": "knob"
+    },
+    {
+     "param": "High Tom Bend",
+     "widget": "knob"
+    },
+    {
+     "param": "High Tom Noise",
+     "widget": "knob"
+    },
+    {
+     "param": "High Tom Level",
+     "widget": "knob"
+    },
+    {
+     "param": "High Tom Pan",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "High Tom Drive",
+     "widget": "knob"
+    },
+    {
+     "param": "High Tom Out",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Cymbal Tune",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Cymbal Decay",
+     "widget": "knob"
+    },
+    {
+     "param": "Cymbal Tone",
+     "widget": "knob"
+    },
+    {
+     "param": "Cymbal Metal",
+     "widget": "knob"
+    },
+    {
+     "param": "Cymbal Level",
+     "widget": "knob"
+    },
+    {
+     "param": "Cymbal Pan",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Cymbal Drive",
+     "widget": "knob"
+    },
+    {
+     "param": "Cymbal Out",
+     "widget": "slider",
+     "overlay": "menu"
+    }
+   ]
+  },
+  {
+   "name": "HATS",
+   "controls": [
+    {
+     "param": "Closed Hat Tune",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Closed Hat Decay",
+     "widget": "knob"
+    },
+    {
+     "param": "Closed Hat Tone",
+     "widget": "knob"
+    },
+    {
+     "param": "Closed Hat Metal",
+     "widget": "knob"
+    },
+    {
+     "param": "Closed Hat Level",
+     "widget": "knob"
+    },
+    {
+     "param": "Closed Hat Pan",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Closed Hat Drive",
+     "widget": "knob"
+    },
+    {
+     "param": "Closed Hat Out",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Open Hat Tune",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Open Hat Decay",
+     "widget": "knob"
+    },
+    {
+     "param": "Open Hat Tone",
+     "widget": "knob"
+    },
+    {
+     "param": "Open Hat Metal",
+     "widget": "knob"
+    },
+    {
+     "param": "Open Hat Level",
+     "widget": "knob"
+    },
+    {
+     "param": "Open Hat Pan",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Open Hat Drive",
+     "widget": "knob"
+    },
+    {
+     "param": "Open Hat Out",
+     "widget": "slider",
+     "overlay": "menu"
+    }
+   ]
+  },
+  {
+   "name": "MOTHER",
+   "controls": [
+    {
+     "param": "VCO1 Wave",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "VCO2 Wave",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "VCO1 Level",
+     "widget": "knob"
+    },
+    {
+     "param": "VCO2 Level",
+     "widget": "knob"
+    },
+    {
+     "param": "Mother Tune",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "VCO2 Tune",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "1>2 FM",
+     "widget": "knob"
+    },
+    {
+     "param": "Hard Sync",
+     "widget": "switch"
+    },
+    {
+     "param": "Noise Level",
+     "widget": "knob"
+    },
+    {
+     "param": "Cutoff",
+     "widget": "knob"
+    },
+    {
+     "param": "Resonance",
+     "widget": "knob"
+    },
+    {
+     "param": "Filter Mode",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Pitch EG",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Pitch EG Decay",
+     "widget": "knob"
+    },
+    {
+     "param": "Filter EG",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Filter EG Decay",
+     "widget": "knob"
+    }
+   ]
+  },
+  {
+   "name": "MO AMP",
+   "controls": [
+    {
+     "param": "Mother Decay",
+     "widget": "knob"
+    },
+    {
+     "param": "Mother Level",
+     "widget": "knob"
+    },
+    {
+     "param": "Mother Pan",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Mother Drive",
+     "widget": "knob"
+    },
+    {
+     "param": "Mother Out",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Noise>VCF",
+     "widget": "knob"
+    },
+    {
+     "param": "Seq Vel>VCF",
+     "widget": "knob"
+    },
+    {
+     "param": "Seq Pitch To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Seq Mode",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Seq Rate",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Seq Length",
+     "widget": "knob"
+    },
+    {
+     "param": "Swing",
+     "widget": "knob"
+    }
+   ]
+  },
+  {
+   "name": "MO SEQ",
+   "controls": [
+    {
+     "param": "Pitch 1",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Pitch 2",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Pitch 3",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Pitch 4",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Pitch 5",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Pitch 6",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Pitch 7",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Pitch 8",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Velocity 1",
+     "widget": "knob"
+    },
+    {
+     "param": "Velocity 2",
+     "widget": "knob"
+    },
+    {
+     "param": "Velocity 3",
+     "widget": "knob"
+    },
+    {
+     "param": "Velocity 4",
+     "widget": "knob"
+    },
+    {
+     "param": "Velocity 5",
+     "widget": "knob"
+    },
+    {
+     "param": "Velocity 6",
+     "widget": "knob"
+    },
+    {
+     "param": "Velocity 7",
+     "widget": "knob"
+    },
+    {
+     "param": "Velocity 8",
+     "widget": "knob"
+    }
+   ]
+  }
+ ]
+}

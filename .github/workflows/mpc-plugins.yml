@@ -42,6 +42,7 @@ jobs:
           - { dir: banshee,     name: Banshee,       kind: effect }
           - { dir: legion,      name: Legion,        kind: instrument }
           - { dir: golem,       name: Golem,         kind: instrument }
+          - { dir: behemoth,    name: Behemoth,      kind: instrument }
     steps:
       - uses: actions/checkout@v4
 

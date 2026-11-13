@@ -1,0 +1,17 @@
+{
+  "name": "Behemoth",
+  "manufacturer": "binaryimage",
+  "version": "1.0.0",
+  "format": "vst2",
+  "kind": "instrument",
+  "uid": "BhM5",
+  "numInputs": 0,
+  "numOutputs": 16,
+  "category": "Synth",
+  "file32": "VST/behemoth-arm32.so",
+  "file64": "VST/behemoth-arm64.so",
+  "description": "Behemoth: an analog-style drum machine. 12 kit drums on their own pads plus a DFAM-style Mother voice with an 8-step sequencer, per-drum drive, 8 stereo outputs for routing each drum to its own mixer channel, Grit and Glue.",
+  "author": "binaryimage",
+  "url": "https://github.com/binaryimage/bc-toolkit/tree/mpc-plugins/mpc/behemoth",
+  "license": "MIT"
+}

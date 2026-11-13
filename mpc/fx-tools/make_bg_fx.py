@@ -119,6 +119,21 @@ elif style == 'legion':     # cathedral: gothic arches, gold leaf on crimson bla
         figs += np.exp(-(((xx - fx) / s) ** 2 + ((yy - fy) / (s * 2.6)) ** 2)) * (yy > fy - s * 3)
     img += layer(np.clip(figs, 0, 1) * 0.6, [30, 8, 8])
     img += layer(wordmark('LEGION', 210, H - 265, font='/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf', spacing=30), [48, 32, 8])
+elif style == 'behemoth':   # cracked hide: dark leather plates, ember seams, tusks
+    img = np.stack([16 + 12 * n1, 10 + 6 * n1, 8 + 4 * n2], -1)
+    pts = np.stack([rng.random(90) * W, rng.random(90) * H], -1).astype(np.float32)
+    d1 = np.full((H, W), 1e9, np.float32); d2 = np.full((H, W), 1e9, np.float32)
+    for px, py in pts:
+        dd = np.hypot(xx - px, yy - py); closer = dd < d1
+        d2 = np.where(closer, d1, np.minimum(d2, dd)); d1 = np.where(closer, dd, d1)
+    seam = np.clip(1.0 - (d2 - d1) / 5.0, 0, 1) ** 2
+    img += layer(seam * (0.4 + 0.6 * fbm(3, 6)), [70, 26, 10])
+    img *= (1.0 - 0.3 * np.clip(d1 / 70.0, 0, 1))[..., None]
+    for k in (-1, 1):
+        cx = W / 2 + k * 470
+        tusk = np.exp(-((np.hypot(xx - cx, (yy - 40) * 1.2) - 150) / 9) ** 2) * (yy < 230)
+        img += layer(tusk, [60, 50, 40])
+    img += layer(wordmark('BEHEMOTH', 170, H - 230, spacing=8), [58, 22, 10])
 else:
     raise SystemExit('unknown style ' + style)
 

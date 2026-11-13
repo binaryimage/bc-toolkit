@@ -20,7 +20,7 @@ int main(int argc, char** argv)
     D(effOpen, 0, 0, 0, 0); D(effSetSampleRate, 0, 0, 0, sr); D(effSetBlockSize, 0, blk, 0, 0); D(effMainsChanged, 0, 1, 0, 0);
     memset(&ti, 0, sizeof ti); ti.sampleRate = sr; ti.tempo = 120; ti.flags = 0x2 | 0x200 | 0x400;
     unsigned s = 7; auto rnd = [&]() { s = s * 1664525u + 1013904223u; return ((s >> 8) & 0xFFFFFF) / 16777216.0f; };
-    std::vector<float> L(blk), R(blk); float* outs[2] = {L.data(), R.data()};
+    std::vector<std::vector<float>> ob(e->numOutputs, std::vector<float>(blk)); std::vector<float*> outsv(e->numOutputs); for (int c = 0; c < e->numOutputs; c++) outsv[c] = ob[c].data(); float** outs = outsv.data(); std::vector<float>& L = ob[0]; std::vector<float>& R = ob[1];
     bool held[128] = {}; float pk = 0; int bad = 0; std::vector<double> bt;
     const int N = (int)(secs * sr);
     for (int pos = 0; pos < N; pos += blk)
@@ -42,7 +42,7 @@ int main(int argc, char** argv)
         if (!ev.empty()) D(effProcessEvents, 0, 0, ve, 0);
         auto a = std::chrono::steady_clock::now(); e->processReplacing(e, nullptr, outs, blk); auto b = std::chrono::steady_clock::now();
         bt.push_back(std::chrono::duration<double, std::micro>(b - a).count());
-        for (int i = 0; i < blk; i++) { if (!std::isfinite(L[i]) || !std::isfinite(R[i])) bad++; pk = std::max(pk, std::max(fabsf(L[i]), fabsf(R[i]))); }
+        for (int c = 0; c < e->numOutputs; c++) for (int i = 0; i < blk; i++) { if (!std::isfinite(ob[c][i])) bad++; pk = std::max(pk, fabsf(ob[c][i])); } (void)L; (void)R;
     }
     std::sort(bt.begin(), bt.end()); double budget = 1e6 * blk / sr;
     printf("block %d: peak %.1f dB, NaN %d, cpu median %.1f%% p99 %.1f%%\n", blk, 20 * log10(pk + 1e-9), bad, 100 * bt[bt.size() / 2] / budget, 100 * bt[(size_t)(bt.size() * 0.99)] / budget);
