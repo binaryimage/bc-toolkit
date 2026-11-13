@@ -1,0 +1,1140 @@
+{
+ "kit": {
+  "theme": "mono",
+  "accent": "ffd9822b"
+ },
+ "style": {
+  "background": "ff2a2b2d",
+  "accent": "ffd9822b",
+  "text": "fff4f4f2",
+  "muted": "ffa9abae"
+ },
+ "pages": [
+  {
+   "name": "GOLEM",
+   "controls": [
+    {
+     "param": "Volume",
+     "widget": "fader"
+    },
+    {
+     "param": "Voice Mode",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Retrig",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Glide",
+     "widget": "knob"
+    },
+    {
+     "param": "Cutoff",
+     "widget": "knob"
+    },
+    {
+     "param": "Resonance",
+     "widget": "knob"
+    },
+    {
+     "param": "VCF Type",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Reverb",
+     "widget": "knob"
+    },
+    {
+     "param": "Seq Mode",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Bend Range",
+     "widget": "knob"
+    },
+    {
+     "param": "Velocity",
+     "widget": "knob"
+    },
+    {
+     "param": "Pan",
+     "widget": "knob",
+     "polarity": "bipolar"
+    }
+   ]
+  },
+  {
+   "name": "PATCH",
+   "controls": [
+    {
+     "param": "Unplug All",
+     "widget": "switch"
+    }
+   ]
+  },
+  {
+   "name": "VCO",
+   "controls": [
+    {
+     "param": "VCO1 Tune",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "VCO1 Fine",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "VCO1 FM",
+     "widget": "knob"
+    },
+    {
+     "param": "Sync",
+     "widget": "switch"
+    },
+    {
+     "param": "VCO2 Tune",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "VCO2 Fine",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "VCO2 PW",
+     "widget": "knob"
+    },
+    {
+     "param": "VCO2 PWM",
+     "widget": "knob"
+    },
+    {
+     "param": "VCO3 Tune",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "VCO3 Fine",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "VCO3 PW",
+     "widget": "knob"
+    },
+    {
+     "param": "VCO3 FM",
+     "widget": "knob"
+    },
+    {
+     "param": "VCO2 FM",
+     "widget": "knob"
+    },
+    {
+     "param": "VCO3 LF",
+     "widget": "switch"
+    },
+    {
+     "param": "VCO3 KBD",
+     "widget": "switch"
+    },
+    "empty"
+   ]
+  },
+  {
+   "name": "MIXER",
+   "controls": [
+    {
+     "param": "VCO1 Level",
+     "widget": "knob"
+    },
+    {
+     "param": "VCO1 Wave",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "VCO2 Level",
+     "widget": "knob"
+    },
+    {
+     "param": "VCO2 Wave",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "VCO3 Level",
+     "widget": "knob"
+    },
+    {
+     "param": "VCO3 Wave",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Noise Level",
+     "widget": "knob"
+    },
+    {
+     "param": "Noise Color",
+     "widget": "knob"
+    },
+    {
+     "param": "Ring Level",
+     "widget": "knob"
+    },
+    {
+     "param": "Drive",
+     "widget": "knob"
+    },
+    "empty",
+    "empty"
+   ]
+  },
+  {
+   "name": "VCF/VCA",
+   "controls": [
+    {
+     "param": "Cutoff",
+     "widget": "knob"
+    },
+    {
+     "param": "Resonance",
+     "widget": "knob"
+    },
+    {
+     "param": "VCF KBD",
+     "widget": "knob"
+    },
+    {
+     "param": "VCF Env",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "VCF FM",
+     "widget": "knob"
+    },
+    {
+     "param": "VCF Type",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "VCA Env",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "VCA Init",
+     "widget": "knob"
+    }
+   ]
+  },
+  {
+   "name": "ENV",
+   "controls": [
+    {
+     "param": "Attack",
+     "widget": "knob"
+    },
+    {
+     "param": "Decay",
+     "widget": "knob"
+    },
+    {
+     "param": "Sustain",
+     "widget": "knob"
+    },
+    {
+     "param": "Release",
+     "widget": "knob"
+    },
+    {
+     "param": "AR Attack",
+     "widget": "knob"
+    },
+    {
+     "param": "AR Release",
+     "widget": "knob"
+    },
+    "empty",
+    "empty"
+   ]
+  },
+  {
+   "name": "S&H/REV",
+   "controls": [
+    {
+     "param": "S&H Rate",
+     "widget": "knob"
+    },
+    {
+     "param": "S&H Sync",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "S&H Source",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Lag",
+     "widget": "knob"
+    },
+    {
+     "param": "Reverb",
+     "widget": "knob"
+    },
+    {
+     "param": "Rev Decay",
+     "widget": "knob"
+    },
+    {
+     "param": "Rev Tone",
+     "widget": "knob"
+    },
+    {
+     "param": "Pan",
+     "widget": "knob",
+     "polarity": "bipolar"
+    }
+   ]
+  },
+  {
+   "name": "SEQ",
+   "controls": [
+    {
+     "param": "Seq Mode",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Seq Rate",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Seq Free Hz",
+     "widget": "knob"
+    },
+    {
+     "param": "Seq Length",
+     "widget": "knob"
+    },
+    {
+     "param": "Seq Dir",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Quantize",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Seq Range",
+     "widget": "knob"
+    },
+    {
+     "param": "Seq Gate",
+     "widget": "knob"
+    },
+    {
+     "param": "Seq Transpose",
+     "widget": "switch"
+    },
+    "empty",
+    "empty",
+    "empty"
+   ]
+  },
+  {
+   "name": "SEQ A",
+   "controls": [
+    {
+     "param": "A1",
+     "widget": "knob"
+    },
+    {
+     "param": "A2",
+     "widget": "knob"
+    },
+    {
+     "param": "A3",
+     "widget": "knob"
+    },
+    {
+     "param": "A4",
+     "widget": "knob"
+    },
+    {
+     "param": "A5",
+     "widget": "knob"
+    },
+    {
+     "param": "A6",
+     "widget": "knob"
+    },
+    {
+     "param": "A7",
+     "widget": "knob"
+    },
+    {
+     "param": "A8",
+     "widget": "knob"
+    },
+    {
+     "param": "A9",
+     "widget": "knob"
+    },
+    {
+     "param": "A10",
+     "widget": "knob"
+    },
+    {
+     "param": "A11",
+     "widget": "knob"
+    },
+    {
+     "param": "A12",
+     "widget": "knob"
+    },
+    {
+     "param": "A13",
+     "widget": "knob"
+    },
+    {
+     "param": "A14",
+     "widget": "knob"
+    },
+    {
+     "param": "A15",
+     "widget": "knob"
+    },
+    {
+     "param": "A16",
+     "widget": "knob"
+    }
+   ]
+  },
+  {
+   "name": "SEQ B",
+   "controls": [
+    {
+     "param": "B1",
+     "widget": "knob"
+    },
+    {
+     "param": "B2",
+     "widget": "knob"
+    },
+    {
+     "param": "B3",
+     "widget": "knob"
+    },
+    {
+     "param": "B4",
+     "widget": "knob"
+    },
+    {
+     "param": "B5",
+     "widget": "knob"
+    },
+    {
+     "param": "B6",
+     "widget": "knob"
+    },
+    {
+     "param": "B7",
+     "widget": "knob"
+    },
+    {
+     "param": "B8",
+     "widget": "knob"
+    },
+    {
+     "param": "B9",
+     "widget": "knob"
+    },
+    {
+     "param": "B10",
+     "widget": "knob"
+    },
+    {
+     "param": "B11",
+     "widget": "knob"
+    },
+    {
+     "param": "B12",
+     "widget": "knob"
+    },
+    {
+     "param": "B13",
+     "widget": "knob"
+    },
+    {
+     "param": "B14",
+     "widget": "knob"
+    },
+    {
+     "param": "B15",
+     "widget": "knob"
+    },
+    {
+     "param": "B16",
+     "widget": "knob"
+    }
+   ]
+  },
+  {
+   "name": "SEQ C",
+   "controls": [
+    {
+     "param": "C1",
+     "widget": "knob"
+    },
+    {
+     "param": "C2",
+     "widget": "knob"
+    },
+    {
+     "param": "C3",
+     "widget": "knob"
+    },
+    {
+     "param": "C4",
+     "widget": "knob"
+    },
+    {
+     "param": "C5",
+     "widget": "knob"
+    },
+    {
+     "param": "C6",
+     "widget": "knob"
+    },
+    {
+     "param": "C7",
+     "widget": "knob"
+    },
+    {
+     "param": "C8",
+     "widget": "knob"
+    },
+    {
+     "param": "C9",
+     "widget": "knob"
+    },
+    {
+     "param": "C10",
+     "widget": "knob"
+    },
+    {
+     "param": "C11",
+     "widget": "knob"
+    },
+    {
+     "param": "C12",
+     "widget": "knob"
+    },
+    {
+     "param": "C13",
+     "widget": "knob"
+    },
+    {
+     "param": "C14",
+     "widget": "knob"
+    },
+    {
+     "param": "C15",
+     "widget": "knob"
+    },
+    {
+     "param": "C16",
+     "widget": "knob"
+    }
+   ]
+  },
+  {
+   "name": "STEPS",
+   "controls": [
+    {
+     "param": "Step 1",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Step 2",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Step 3",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Step 4",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Step 5",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Step 6",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Step 7",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Step 8",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Step 9",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Step 10",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Step 11",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Step 12",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Step 13",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Step 14",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Step 15",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Step 16",
+     "widget": "slider",
+     "overlay": "menu"
+    }
+   ]
+  },
+  {
+   "name": "AMT 1-15",
+   "controls": [
+    {
+     "param": "C1 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C2 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C3 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C4 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C5 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C6 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C7 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C8 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C9 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C10 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C11 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C12 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C13 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C14 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C15 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    "empty"
+   ]
+  },
+  {
+   "name": "AMT16-30",
+   "controls": [
+    {
+     "param": "C16 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C17 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C18 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C19 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C20 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C21 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C22 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C23 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C24 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C25 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C26 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C27 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C28 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C29 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "C30 Amt",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    "empty"
+   ]
+  },
+  {
+   "name": "CBL 1-8",
+   "controls": [
+    {
+     "param": "C1 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C1 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C2 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C2 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C3 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C3 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C4 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C4 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C5 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C5 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C6 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C6 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C7 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C7 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C8 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C8 To",
+     "widget": "slider",
+     "overlay": "menu"
+    }
+   ]
+  },
+  {
+   "name": "CBL 9-16",
+   "controls": [
+    {
+     "param": "C9 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C9 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C10 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C10 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C11 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C11 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C12 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C12 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C13 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C13 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C14 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C14 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C15 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C15 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C16 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C16 To",
+     "widget": "slider",
+     "overlay": "menu"
+    }
+   ]
+  },
+  {
+   "name": "CBL17-24",
+   "controls": [
+    {
+     "param": "C17 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C17 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C18 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C18 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C19 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C19 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C20 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C20 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C21 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C21 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C22 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C22 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C23 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C23 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C24 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C24 To",
+     "widget": "slider",
+     "overlay": "menu"
+    }
+   ]
+  },
+  {
+   "name": "CBL25-30",
+   "controls": [
+    {
+     "param": "C25 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C25 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C26 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C26 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C27 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C27 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C28 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C28 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C29 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C29 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C30 From",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "C30 To",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    "empty",
+    "empty",
+    "empty",
+    "empty"
+   ]
+  }
+ ]
+}

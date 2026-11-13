@@ -1,0 +1,17 @@
+{
+  "name": "Golem",
+  "manufacturer": "binaryimage",
+  "version": "1.0.0",
+  "format": "vst2",
+  "kind": "instrument",
+  "uid": "BgL6",
+  "numInputs": 0,
+  "numOutputs": 2,
+  "category": "Synth",
+  "file32": "VST/golem-arm32.so",
+  "file64": "VST/golem-arm64.so",
+  "description": "Golem: an ARP 2600-style semi-modular synth. Three VCOs, 4012/4072 ladder filter, ring mod, S&H, lag, ADSR and AR, spring reverb, a 1601-style 16-step sequencer and 30 colour-coded patch cables you plug in by touch.",
+  "author": "binaryimage",
+  "url": "https://github.com/binaryimage/bc-toolkit/tree/mpc-plugins/mpc/golem",
+  "license": "MIT"
+}

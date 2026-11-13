@@ -10,7 +10,7 @@ if mode == 'fx':
     out = subprocess.run(['/home/claude/fx-shared/fxrender', so, '-', '8'], capture_output=True, text=True).stdout
     rx = re.compile(r'^\s*\d+ (.+?)\s+gain\s+([-+\d.]+) dB')
 else:
-    out = subprocess.run(['/home/claude/janus-tools/render', so, '/tmp/lv_render'], capture_output=True, text=True).stdout
+    out = subprocess.run([os.environ.get('RENDER', '/home/claude/janus-tools/render'), so, '/tmp/lv_render'], capture_output=True, text=True).stdout
     rx = re.compile(r'^p99 [\d.]+%\s+\d+ (.+?)\s+peak\s+([-\d.]+) dB')
 new = {}
 worst = 0
