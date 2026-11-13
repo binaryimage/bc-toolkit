@@ -1,0 +1,17 @@
+{
+  "name": "Moloch",
+  "manufacturer": "binaryimage",
+  "version": "1.0.0",
+  "format": "vst2",
+  "kind": "effect",
+  "uid": "BmL4",
+  "numInputs": 2,
+  "numOutputs": 2,
+  "category": "Effect",
+  "file32": "VST/moloch-arm32.so",
+  "file64": "VST/moloch-arm64.so",
+  "description": "Moloch: a pitch nightmare. Up to three pitch-shifted copies jump to random intervals from a scale on the beat, glide, and spiral up or down through a Climb feedback loop.",
+  "author": "binaryimage",
+  "url": "https://github.com/binaryimage/bc-toolkit/tree/mpc-plugins/mpc/moloch",
+  "license": "MIT"
+}

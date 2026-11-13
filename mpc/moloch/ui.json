@@ -1,0 +1,103 @@
+{
+ "kit": {
+  "theme": "mono",
+  "accent": "ffe8862c"
+ },
+ "style": {
+  "background": "ff0e0906",
+  "accent": "ffe8862c",
+  "text": "fff2e2d0",
+  "muted": "ffab9580"
+ },
+ "pages": [
+  {
+   "name": "MOLOCH",
+   "controls": [
+    {
+     "param": "Scale",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Range",
+     "widget": "knob"
+    },
+    {
+     "param": "Chaos",
+     "widget": "knob"
+    },
+    {
+     "param": "Slew",
+     "widget": "knob"
+    },
+    {
+     "param": "Sync",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Free Time",
+     "widget": "knob"
+    },
+    {
+     "param": "Hold",
+     "widget": "switch"
+    },
+    {
+     "param": "Bend",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Mix",
+     "widget": "fader"
+    },
+    {
+     "param": "Output",
+     "widget": "fader"
+    },
+    "empty",
+    "empty"
+   ]
+  },
+  {
+   "name": "SPIRAL",
+   "controls": [
+    {
+     "param": "Voices",
+     "widget": "slider",
+     "overlay": "menu"
+    },
+    {
+     "param": "Spread",
+     "widget": "knob"
+    },
+    {
+     "param": "Detune",
+     "widget": "knob"
+    },
+    {
+     "param": "Tone",
+     "widget": "knob"
+    },
+    {
+     "param": "Feedback",
+     "widget": "knob"
+    },
+    {
+     "param": "Climb",
+     "widget": "knob",
+     "polarity": "bipolar"
+    },
+    {
+     "param": "Grain",
+     "widget": "knob"
+    },
+    {
+     "param": "Smear",
+     "widget": "knob"
+    }
+   ]
+  }
+ ]
+}
