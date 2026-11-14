@@ -1,0 +1,13 @@
+plan for the 40 s demo (random, follow the song):
+  0:00.0  cut         -> 72 Snowflake
+  0:28.8  fade 2.5 s  -> 24 Halftone
+
+plan (picked, every 16 s):
+  0:00.0  cut         -> 1 Ridge Lines
+  0:14.8  fade 2.5 s  -> 13 Polar Wave
+  0:30.8  fade 2.5 s  -> 41 Heart Monitor
+
+song scan: 0 events in 0:24.0
+PASS  patterns-random-640x360: 3620 KB, 1.7 s (142.3 fps), , 2 styles
+PASS  patterns-follow-1280x720: 13438 KB, 4.5 s (52.8 fps), , 1 styles
+PASS  single-1080p30: 39865 KB, 10.3 s (23.3 fps), , 1 styles
