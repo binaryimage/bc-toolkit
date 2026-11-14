@@ -424,7 +424,7 @@ struct FernStyle : FracPoints
         curl = follow (curl, 0.025f * std::sin ((float) f.t * 0.23f) + 0.04f * (zl (f, 12, 17) - 0.3f) * k, 3, dt);
         prepare (0.35f);
         fern.bend = bend; fern.curl = curl;
-        fern.run (den, 90000, 0.185f * (1 + 0.05f * zl (f, 0, 2) * k), 0, 0.95f, 1);
+        fern.run (den, 90000, 0.15f * (1 + 0.05f * zl (f, 0, 2) * k), -0.05f, 0.8f, 1);
         show (p, 2.0f + 2.0f * zl (f, 26, 31) * k);
     }
 };
@@ -511,7 +511,7 @@ struct HilbertStyle : Viz
     }
     void draw (Graphics& g, Rectangle<float> r, const Frame& f, const Palette& p, float k) override
     {
-        constexpr int n = 64;
+        constexpr int n = 32;
         if (pts.empty()) for (int d = 0; d < n * n; ++d) { auto q = d2xy (n, d); pts.push_back ({ (q.x + 0.5f) / n - 0.5f, (q.y + 0.5f) / n - 0.5f }); }
         const float dt = (float) f.dt;
         spin += dt * (0.02f + 0.08f * f.drone);
@@ -521,7 +521,7 @@ struct HilbertStyle : Viz
         const float bendAmt = 0.45f * zl (f, 3, 6) * k;             // corners pulled toward their neighbours' middle
         const float cs = std::cos (spin), sn = std::sin (spin);
         auto place = [&] (Point<float> q) { return Point<float> (c.x + (q.x * cs - q.y * sn) * side, c.y + (q.x * sn + q.y * cs) * side); };
-        const int N = (int) pts.size(), chunk = 64;
+        const int N = (int) pts.size(), chunk = 16;
         for (int i0 = 0; i0 < N - 1; i0 += chunk)
         {
             Path path;
@@ -535,8 +535,8 @@ struct HilbertStyle : Viz
             const float u = (float) i0 / (float) N;
             const float band = f.bands[(size_t) juce::jmin (kBands - 1, (int) (u * kBands))];
             const float head = std::exp (-std::pow ((u - (run - std::floor (run))) * 12.0f, 2.0f));    // the light running along
-            g.setColour (p.fgA (0.3f + 0.55f * band * k + 0.6f * head));
-            g.strokePath (path, PathStrokeType (pxw (r, 1.6f + 2.5f * head), PathStrokeType::curved, PathStrokeType::rounded));
+            g.setColour (p.fgA (0.45f + 0.5f * band * k + 0.6f * head));
+            g.strokePath (path, PathStrokeType (pxw (r, 3.0f + 4.0f * head), PathStrokeType::curved, PathStrokeType::rounded));
         }
     }
 };
@@ -560,9 +560,9 @@ struct LevyStyle : Viz
     {
         spin += (float) f.dt * (0.03f + 0.1f * f.drone);
         const float ang = juce::jlimit (0.35f, 1.1f, 0.7854f + 0.18f * std::sin ((float) f.t * 0.13f) + 0.2f * (zl (f, 7, 11) - 0.3f) * k + 0.12f * zh (f, 22, 25) * k);
-        pts.clear(); pts.reserve (4100);
+        pts.clear(); pts.reserve (1100);
         pts.push_back ({ 0, 0 });
-        build ({ 0, 0 }, { std::cos (spin), std::sin (spin) }, 12, ang);
+        build ({ 0, 0 }, { std::cos (spin), std::sin (spin) }, 10, ang);
         auto b = Rectangle<float>::findAreaContainingPoints (pts.data(), (int) pts.size());
         const float sc = juce::jmin (r.getWidth() * 0.85f / juce::jmax (1e-4f, b.getWidth()), r.getHeight() * 0.85f / juce::jmax (1e-4f, b.getHeight()));
         const float dt = (float) f.dt;
@@ -570,7 +570,7 @@ struct LevyStyle : Viz
         fx = follow (fx, b.getCentreX(), 4, dt); fy = follow (fy, b.getCentreY(), 4, dt); fs = follow (fs, sc, 4, dt);
         const auto c = r.getCentre();
         auto place = [&] (Point<float> q) { return Point<float> (c.x + (q.x - fx) * fs, c.y + (q.y - fy) * fs); };
-        const int N = (int) pts.size(), chunk = 64;
+        const int N = (int) pts.size(), chunk = 16;
         for (int i0 = 0; i0 < N - 1; i0 += chunk)
         {
             Path path;
@@ -579,7 +579,7 @@ struct LevyStyle : Viz
             for (int i = i0 + 1; i <= i1; ++i) path.lineTo (place (pts[(size_t) i]));
             const float u = (float) i0 / (float) N;
             g.setColour (p.fgA (0.4f + 0.6f * f.bands[(size_t) juce::jmin (kBands - 1, (int) (u * kBands))] * k));
-            g.strokePath (path, PathStrokeType (pxw (r, 1.5f)));
+            g.strokePath (path, PathStrokeType (pxw (r, 2.4f), PathStrokeType::curved, PathStrokeType::rounded));
         }
     }
 };
@@ -645,16 +645,16 @@ struct TSquareStyle : Viz
     void reset() override { t = 0; }
     void square (Graphics& g, Point<float> c, float s, float rot, int depth, const Frame& f, float k, Rectangle<float> r, const Palette& p)
     {
-        const int z0 = juce::jmin (kZones - 5, (5 - depth) * 5);
+        const int z0 = juce::jmin (kZones - 5, (4 - depth) * 6);
         const float lv = zl (f, z0, z0 + 4);
-        const float rr = rot + 0.06f * (5 - depth) * std::sin (t * 0.6f + (float) depth) * (0.5f + lv * k);
+        const float rr = rot + 0.06f * (4 - depth) * std::sin (t * 0.6f + (float) depth) * (0.5f + lv * k);
         Path sq;
         sq.addRectangle (-s, -s, s * 2, s * 2);
         sq.applyTransform (juce::AffineTransform::rotation (rr).translated (c.x, c.y));
-        g.setColour (p.fgA (0.08f + 0.22f * lv * k));
+        g.setColour (p.fgA (0.04f + 0.12f * lv * k));
         g.fillPath (sq);
-        g.setColour (p.fgA (0.4f + 0.6f * lv * k));
-        g.strokePath (sq, PathStrokeType (pxw (r, 0.8f + depth * 0.25f)));
+        g.setColour (p.fgA (0.45f + 0.55f * lv * k));
+        g.strokePath (sq, PathStrokeType (pxw (r, 1.4f + depth * 0.5f)));
         if (depth == 0) return;
         for (int i = 0; i < 4; ++i)
         {
@@ -666,7 +666,7 @@ struct TSquareStyle : Viz
     void draw (Graphics& g, Rectangle<float> r, const Frame& f, const Palette& p, float k) override
     {
         t += (float) f.dt * (0.5f + f.energy * k);
-        square (g, r.getCentre(), r.getHeight() * 0.22f * (1 + 0.08f * zl (f, 0, 2) * k), t * 0.03f, 5, f, k, r, p);
+        square (g, r.getCentre(), r.getHeight() * 0.22f * (1 + 0.08f * zl (f, 0, 2) * k), t * 0.03f, 4, f, k, r, p);
     }
 };
 }

@@ -151,7 +151,7 @@ RolledPalette rollPalette (juce::uint32 seed)
     const int dark = r.nextInt (n), hot = (dark + 1 + r.nextInt (n - 1)) % n;
     for (int i = 0; i < n; ++i)
     {
-        float sat = 0.55f + 0.45f * r.nextFloat(), val = 0.6f + 0.4f * r.nextFloat();
+        float sat = 0.72f + 0.28f * r.nextFloat(), val = 0.62f + 0.38f * r.nextFloat();
         if (i == dark) { val = 0.16f + 0.16f * r.nextFloat(); sat = 0.7f + 0.3f * r.nextFloat(); }
         if (i == hot)  { val = 1.0f; sat = 0.1f + 0.45f * r.nextFloat(); }
         p.stops.push_back (juce::Colour::fromHSV (hue - std::floor (hue), sat, val, 1.0f).getARGB());
