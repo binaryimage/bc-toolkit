@@ -1,0 +1,173 @@
+name: Build + test binaryimage Plugins (PC VST3)
+
+# The MPC plugins (Janus, Maggot, Legion, Grendel, Ouroboros, Fenrir, Moloch, Mare, Banshee) as Windows
+# VST3s. Each plugin's MPC source is built unchanged with the bridge in desktop-plugins/bridge.
+# Every push builds and tests; running it by hand (workflow_dispatch, publish=yes) also publishes a release.
+
+on:
+  push:
+    branches: [desktop-plugins]
+    paths: ["desktop-plugins/**", "mpc/janus/**", "mpc/maggot/**", "mpc/legion/**", "mpc/grendel/**", "mpc/ouroboros/**",
+            "mpc/fenrir/**", "mpc/moloch/**", "mpc/mare/**", "mpc/banshee/**", ".github/workflows/desktop-plugins.yml",
+            "!desktop-plugins/ci-results/**"]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish a release when everything passes (yes/no)"
+        default: "no"
+
+concurrency:
+  group: desktop-plugins-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 150
+    defaults:
+      run:
+        shell: bash
+    env:
+      PLUGINS: "Janus Maggot Legion Grendel Ouroboros Fenrir Moloch Mare Banshee"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read version
+        run: echo "BCP_VERSION=$(sed -n 's/^project(BCPlugins VERSION \([0-9.]*\)).*/\1/p' desktop-plugins/CMakeLists.txt)" >> "$GITHUB_ENV"
+
+      - name: Get JUCE 8.0.15
+        run: git clone --depth 1 --branch 8.0.15 https://github.com/juce-framework/JUCE.git JUCE
+
+      - name: Build (clang-cl)
+        id: build
+        run: |
+          set -o pipefail
+          targets=""
+          for p in $PLUGINS; do targets="$targets --target ${p}_VST3 --target ${p}Check"; done
+          {
+            cmake -S desktop-plugins -B build -G "Visual Studio 17 2022" -A x64 -T ClangCL -DBCP_JUCE_DIR="$GITHUB_WORKSPACE/JUCE" &&
+            cmake --build build --config Release --parallel 4 $targets --target VST3Probe
+          } 2>&1 | tee build.log
+
+      - name: Save the build log if the build failed
+        if: failure() && steps.build.outcome == 'failure'
+        run: |
+          mkdir -p desktop-plugins/ci-results
+          grep -E " error |error:|error LNK|fatal error" build.log | head -n 300 > desktop-plugins/ci-results/build-errors.txt || true
+          tail -n 300 build.log > desktop-plugins/ci-results/build-failure.log
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f desktop-plugins/ci-results
+          git commit -m "binaryimage Plugins: build failed: log"
+          git pull --rebase origin "$GITHUB_REF_NAME" || true
+          git push origin "HEAD:$GITHUB_REF_NAME"
+
+      - name: Check every plugin (all presets, block sizes, state, every tab of the window)
+        id: checks
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path desktop-plugins/ci-results/shots | Out-Null
+          Remove-Item desktop-plugins/ci-results/shots/* -ErrorAction SilentlyContinue
+          $ok = $true
+          foreach ($p in $env:PLUGINS.Split(" ")) {
+            $exe = "build/${p}Check_artefacts/Release/${p}Check.exe"
+            $proc = Start-Process -FilePath $exe -ArgumentList "desktop-plugins/ci-results/shots" -PassThru -NoNewWindow -Wait
+            if ($proc.ExitCode -ne 0) { $ok = $false; "$p check FAILED" }
+          }
+          Get-Content desktop-plugins/ci-results/shots/*-check.txt | Out-File desktop-plugins/ci-results/checks.txt
+          Get-Content desktop-plugins/ci-results/checks.txt
+          if (-not $ok) { throw "a plugin check failed" }
+
+      - name: Stage the VST3s
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path stage/VST3, dist | Out-Null
+          foreach ($p in $env:PLUGINS.Split(" ")) {
+            Copy-Item -Recurse "build/${p}_artefacts/Release/VST3/${p}.vst3" "stage/VST3/"
+          }
+          Copy-Item desktop-plugins/README.txt stage/
+          Get-ChildItem -Recurse stage | Select-Object -ExpandProperty FullName
+
+      - name: Load each VST3 the way a DAW does
+        id: probe
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $paths = $env:PLUGINS.Split(" ") | ForEach-Object { "$PWD\stage\VST3\$_.vst3" }
+          & "build/VST3Probe_artefacts/Release/VST3Probe.exe" @paths 2>&1 | Tee-Object desktop-plugins/ci-results/vst3-probe.txt
+          if ($LASTEXITCODE -ne 0) { throw "a VST3 failed to load or play" }
+
+      - name: Build the installer
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress | Out-Null }
+          & $iscc /DStage="$PWD\stage" /DAppVersion="$env:BCP_VERSION" /O"$PWD\dist" desktop-plugins/installer/BCPlugins.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed" }
+
+      - name: Installer test (silent install, the VST3s land where Ableton looks, uninstall)
+        id: install
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $out = "desktop-plugins/ci-results/installer-test.txt"
+          $setup = (Get-ChildItem dist/binaryimage-Plugins-Setup-*.exe)[0].FullName
+          Start-Process $setup -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART' -Wait
+          $dir = "${env:CommonProgramFiles}\VST3\binaryimage"
+          $found = $env:PLUGINS.Split(" ") | Where-Object { Test-Path "$dir\$_.vst3\Contents\x86_64-win\$_.vst3" }
+          "installed: $($found.Count) of 9 in $dir" | Tee-Object $out
+          $paths = $env:PLUGINS.Split(" ") | ForEach-Object { "$dir\$_.vst3" }
+          & "build/VST3Probe_artefacts/Release/VST3Probe.exe" @paths 2>&1 | Tee-Object -Append $out
+          $probe = $LASTEXITCODE
+          Start-Process "$dir\unins000.exe" -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART' -Wait
+          Start-Sleep 3
+          $left = $env:PLUGINS.Split(" ") | Where-Object { Test-Path "$dir\$_.vst3" }
+          "uninstalled: $($left.Count -eq 0)" | Tee-Object -Append $out
+          if ($found.Count -ne 9 -or $probe -ne 0 -or $left.Count -ne 0) { throw "installer test failed" }
+
+      - name: Package
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "stage/*" -DestinationPath "dist/binaryimage-Plugins-$env:BCP_VERSION-VST3.zip" -Force
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: binaryimage-Plugins
+          path: |
+            dist/*.exe
+            dist/*.zip
+
+      - name: Publish a release (run by hand with publish=yes, everything passed)
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.publish == 'yes' && steps.checks.outcome == 'success' && steps.probe.outcome == 'success' && steps.install.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="binaryimage-plugins-pc-v$BCP_VERSION"
+          SETUP=$(ls dist/binaryimage-Plugins-Setup-*.exe)
+          ZIP="dist/binaryimage-Plugins-$BCP_VERSION-VST3.zip"
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release upload "$TAG" "$SETUP" "$ZIP" --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$TAG" "$SETUP" "$ZIP" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest=false \
+              --title "binaryimage Plugins for PC $BCP_VERSION (VST3)" \
+              --notes "Janus, Maggot and Legion (synths) and Grendel, Ouroboros, Fenrir, Moloch, Mare and Banshee (effects) as VST3s for Ableton on Windows. Same sound engines and presets as the MPC versions, and the same tabs, knobs and skins in the plugin window. Run the installer: the plugins go to C:\\Program Files\\Common Files\\VST3\\binaryimage, then rescan plug-ins in Ableton. The zip has the same VST3s for copying by hand."
+          fi
+
+      - name: Commit test results back to the branch
+        if: always() && steps.build.outcome == 'success'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          echo "checks: ${{ steps.checks.outcome }}   vst3 load: ${{ steps.probe.outcome }}   installer: ${{ steps.install.outcome }}" > desktop-plugins/ci-results/status.txt
+          git add -f desktop-plugins/ci-results
+          if ! git diff --cached --quiet; then
+            git commit -m "binaryimage Plugins $BCP_VERSION: test results + screenshots"
+            git pull --rebase origin "$GITHUB_REF_NAME" || true
+            git push origin "HEAD:$GITHUB_REF_NAME"
+          fi
