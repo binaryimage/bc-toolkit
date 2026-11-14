@@ -309,8 +309,9 @@ public:
         combo (tintBox, tintNames(), look.tint, [this] (int i) { look.tint = i; }, lookPane);
         combo (bgBox, backgroundNames(), look.background, [this] (int i) { look.background = i; }, lookPane);
         combo (textBox, textNames(), look.text, [this] (int i) { look.text = i; }, lookPane);
-        juce::StringArray sizes; for (auto& s : videoSizes()) sizes.add (s.label);
+        juce::StringArray sizes; for (auto& s : videoSizes()) sizes.add (s.label.upToFirstOccurrenceOf (" (", false, false));
         combo (sizeBox, sizes, sizeIndex, [this] (int i) { sizeIndex = i; }, *this);
+        sizeBox.setTooltip ("1080p = 1920 x 1080, 1440p = 2560 x 1440, 4K = 3840 x 2160. 1440p gets YouTube's better encoder.");
         combo (fpsBox, { "30 fps", "60 fps" }, fps60 ? 1 : 0, [this] (int i) { fps60 = i == 1; }, *this);
         if (! VideoEncoder::hevcAvailable()) hevc = false;
         combo (codecBox, VideoEncoder::hevcAvailable() ? juce::StringArray { "H.264", "HEVC" } : juce::StringArray { "H.264" }, hevc ? 1 : 0, [this] (int i) { hevc = i == 1; }, *this);
@@ -477,11 +478,11 @@ public:
         {
             auto threeC = s.removeFromBottom (30);
             auto three = s.removeFromBottom (18);
-            const int cw = (threeC.getWidth() - 16) / 3;
-            sizeBox.setBounds (threeC.removeFromLeft (cw)); threeC.removeFromLeft (8);
+            const int cw = (threeC.getWidth() - 16) * 27 / 100, sw = threeC.getWidth() - 16 - 2 * cw;
+            sizeBox.setBounds (threeC.removeFromLeft (sw)); threeC.removeFromLeft (8);
             fpsBox.setBounds (threeC.removeFromLeft (cw)); threeC.removeFromLeft (8);
             codecBox.setBounds (threeC);
-            labels[6]->setBounds (three.removeFromLeft (cw)); three.removeFromLeft (8);
+            labels[6]->setBounds (three.removeFromLeft (sw)); three.removeFromLeft (8);
             labels[7]->setBounds (three.removeFromLeft (cw)); three.removeFromLeft (8);
             labels[8]->setBounds (three);
         }
@@ -677,6 +678,8 @@ public:
         else if (scanning) info = "Listening to the track for section changes...";
         else if (patterns.mode == Patterns::picked && patterns.picks.size() < 2)
             info = "Pick at least two styles to switch between (" + juce::String ((int) patterns.picks.size()) + " picked).";
+        else if (switches == 0 && patterns.when == Patterns::followSong)
+            info = juce::String ("No section changes heard in this track, so it would stay on one style. Use Every few secs to switch on a timer, or lower Shortest.");
         else
             info = (patterns.mode == Patterns::random ? juce::String ("Random from all ") + juce::String ((int) all.size())
                                                       : juce::String ((int) patterns.picks.size()) + " picked" + (patterns.shuffle ? ", shuffled" : ", in order"))
@@ -972,7 +975,7 @@ private:
         frame.duration = track.seconds();
         {
             juce::Graphics g (target);
-            if (patterns.mode != Patterns::single && plan.switches())
+            if (patterns.mode != Patterns::single && ! plan.steps.empty())
             {
                 auto now = stylePlayer.at (clockT, plan, all);
                 renderer.render (g, target.getBounds().toFloat(), frame, *now.a, look, now.b, now.mix);
