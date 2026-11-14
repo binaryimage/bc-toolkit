@@ -49,7 +49,7 @@ jobs:
           targets=""
           for p in $PLUGINS; do targets="$targets --target ${p}_VST3 --target ${p}Check"; done
           {
-            cmake -S desktop-plugins -B build -G "Visual Studio 17 2022" -A x64 -T ClangCL -DBCP_JUCE_DIR="$GITHUB_WORKSPACE/JUCE" &&
+            cmake -S desktop-plugins -B build -A x64 -T ClangCL -DBCP_JUCE_DIR="$GITHUB_WORKSPACE/JUCE" &&
             cmake --build build --config Release --parallel 4 $targets --target VST3Probe
           } 2>&1 | tee build.log
 
