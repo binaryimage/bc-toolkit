@@ -1,0 +1,4 @@
+test-hevc-960x540-60.mp4: hevc,960,540,60/1 aac,0/0 5.000000 
+test-patterns-follow-1280x720.mp4: h264,1280,720,30/1 aac,0/0 5.000000 
+test-patterns-random-640x360.mp4: h264,640,360,30/1 aac,0/0 5.000000 
+test-single-720p30.mp4: h264,1280,720,30/1 aac,0/0 5.000000 

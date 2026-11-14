@@ -1,0 +1,25 @@
+0 export failures, 0 layout problems, 4 cores
+plan for the 40 s demo (random, follow the song):
+  0:00.0  cut         -> 72 Snowflake
+  0:28.8  fade 2.5 s  -> 24 Halftone
+
+plan (picked, every 16 s):
+  0:00.0  cut         -> 1 Ridge Lines
+  0:14.8  fade 2.5 s  -> 13 Polar Wave
+  0:30.8  fade 2.5 s  -> 41 Heart Monitor
+
+song scan: 0 events in 0:24.0
+PASS  patterns-random-640x360: 3620 KB, 1.7 s (143.1 fps), , 2 styles
+PASS  patterns-follow-1280x720: 13438 KB, 4.6 s (52.3 fps), , 1 styles
+PASS  single-1080p30: 39865 KB, 10.5 s (22.8 fps), , 1 styles
+PASS  hevc-960x540-60: 2906 KB, 5.1 s (95.0 fps), , 2 styles
+PASS  1 core and 4 cores draw the same picture (0 rows differ)
+weird.flac: 4 events: 15.2 19.2(slam) 28.7 34.3(slam)
+plan (random, follow the song, 4-12 s, cut on slams):
+  0:00.0  cut         -> 56 Feedback Loop
+  0:11.0  fade 2.0 s  -> 3 Phosphor X/Y
+  0:19.2  cut         -> 40 Dust & Grain
+  0:27.7  fade 2.0 s  -> 58 Hypno Spiral
+  0:34.3  cut         -> 63 Coral Growth
+
+speed at 1080p: 1 core 32.7 ms/frame, 4 cores 23.3 ms, crossfade on 4 cores 39.6 ms
