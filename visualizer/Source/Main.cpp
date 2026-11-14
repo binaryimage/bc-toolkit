@@ -309,7 +309,7 @@ public:
         combo (tintBox, tintNames(), look.tint, [this] (int i) { look.tint = i; }, lookPane);
         combo (bgBox, backgroundNames(), look.background, [this] (int i) { look.background = i; }, lookPane);
         combo (textBox, textNames(), look.text, [this] (int i) { look.text = i; }, lookPane);
-        juce::StringArray sizes; for (auto& s : videoSizes()) sizes.add (s.label.upToFirstOccurrenceOf (" (", false, false));
+        juce::StringArray sizes; for (auto& s : videoSizes()) sizes.add (juce::String (s.label).upToFirstOccurrenceOf (" (", false, false));
         combo (sizeBox, sizes, sizeIndex, [this] (int i) { sizeIndex = i; }, *this);
         sizeBox.setTooltip ("1080p = 1920 x 1080, 1440p = 2560 x 1440, 4K = 3840 x 2160. 1440p gets YouTube's better encoder.");
         combo (fpsBox, { "30 fps", "60 fps" }, fps60 ? 1 : 0, [this] (int i) { fps60 = i == 1; }, *this);
