@@ -336,4 +336,5 @@ private:
 };
 
 std::unique_ptr<VideoEncoder> VideoEncoder::create() { return std::make_unique<AndroidEncoder>(); }
+bool VideoEncoder::hevcAvailable() { return true; }   // the phone UI checks the codec list itself
 }

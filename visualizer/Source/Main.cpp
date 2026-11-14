@@ -29,6 +29,8 @@ class Preview : public Screen
 {
 public:
     juce::Image frame;
+    juce::String overlay;                 // "Rendering 42%" while an export runs and the preview is paused
+    std::function<void()> onDoubleClick;
     juce::Rectangle<int> videoArea() const
     {
         auto a = screenArea().reduced (6);
@@ -39,6 +41,88 @@ public:
     {
         // the preview renders at a lighter resolution and is scaled up here (the export renders at full size)
         if (frame.isValid()) { g.setImageResamplingQuality (juce::Graphics::mediumResamplingQuality); g.drawImage (frame, videoArea().toFloat()); }
+        if (overlay.isNotEmpty())
+        {
+            auto r = videoArea().toFloat();
+            auto pill = juce::Rectangle<float> (r.getX() + 12, r.getY() + 12, 190, 30);
+            g.setColour (juce::Colours::black.withAlpha (0.65f)); g.fillRoundedRectangle (pill, 6);
+            g.setColour (col::text); g.setFont (font (13.5f, 2));
+            g.drawText (overlay, pill, juce::Justification::centred);
+        }
+    }
+    void mouseDoubleClick (const juce::MouseEvent&) override { if (onDoubleClick) onDoubleClick(); }
+};
+
+/** The video filling the whole screen (F11 or double-click; Esc, F11 or double-click again to leave). */
+class FullView : public juce::Component
+{
+public:
+    juce::Image frame;
+    std::function<void()> onExit;
+    juce::Rectangle<int> videoArea() const
+    {
+        auto a = getLocalBounds();
+        int w = juce::jmin (a.getWidth(), a.getHeight() * 16 / 9);
+        return a.withSizeKeepingCentre (w, w * 9 / 16);
+    }
+    void paint (juce::Graphics& g) override
+    {
+        g.fillAll (juce::Colours::black);
+        if (frame.isValid()) { g.setImageResamplingQuality (juce::Graphics::mediumResamplingQuality); g.drawImage (frame, videoArea().toFloat()); }
+    }
+    void mouseDoubleClick (const juce::MouseEvent&) override { if (onExit) onExit(); }
+};
+
+/** Which style plays when: one block per style, fades shaded, hard cuts as bright lines. Click to jump there. */
+class Timeline : public juce::Component
+{
+public:
+    const Plan* plan = nullptr;
+    double duration = 0, playhead = 0;
+    juce::String note;
+    std::function<void (double)> onSeek;
+
+    void setPlayhead (double t) { if (std::abs (t - playhead) > 0.02) { playhead = t; repaint(); } }
+    void paint (juce::Graphics& g) override
+    {
+        auto r = getLocalBounds().toFloat();
+        drawScreen (g, r, 5);
+        auto in = r.reduced (3);
+        if (note.isNotEmpty() || plan == nullptr || duration <= 0 || plan->steps.empty())
+        {
+            g.setColour (col::text3); g.setFont (font (12));
+            g.drawText (note, in.reduced (6, 0), juce::Justification::centredLeft);
+            return;
+        }
+        auto xAt = [&] (double t) { return in.getX() + in.getWidth() * (float) juce::jlimit (0.0, 1.0, t / duration); };
+        const auto& st = plan->steps;
+        for (size_t i = 0; i < st.size(); ++i)
+        {
+            const double a = st[i].fadeStart + st[i].fade, b = i + 1 < st.size() ? st[i + 1].fadeStart : duration;
+            auto seg = juce::Rectangle<float> (xAt (a), in.getY(), xAt (b) - xAt (a), in.getHeight());
+            g.setColour (col::white.withAlpha (i % 2 ? 0.10f : 0.20f));
+            g.fillRect (seg);
+            if (st[i].fade > 0)
+            {
+                auto fr = juce::Rectangle<float> (xAt (st[i].fadeStart), in.getY(), xAt (a) - xAt (st[i].fadeStart), in.getHeight());
+                g.setGradientFill (juce::ColourGradient (col::white.withAlpha (i % 2 ? 0.20f : 0.10f), fr.getX(), 0,
+                                                         col::white.withAlpha (i % 2 ? 0.10f : 0.20f), fr.getRight(), 0, false));
+                g.fillRect (fr);
+            }
+            else if (i > 0) { g.setColour (col::white.withAlpha (0.85f)); g.fillRect (xAt (a) - 1, in.getY(), 2.0f, in.getHeight()); }
+            if (seg.getWidth() > 22)
+            {
+                g.setColour (col::text2); g.setFont (monoFont (11));
+                g.drawText (juce::String (st[i].style + 1), seg.reduced (3, 0), juce::Justification::centredLeft, false);
+            }
+        }
+        g.setColour (col::white);
+        g.fillRect (xAt (playhead) - 1, r.getY(), 2.0f, r.getHeight());
+    }
+    void mouseDrag (const juce::MouseEvent& e) override { if (duration > 0) setPlayhead (duration * juce::jlimit (0.0, 1.0, (double) e.x / juce::jmax (1, getWidth()))); }
+    void mouseUp (const juce::MouseEvent& e) override
+    {
+        if (duration > 0 && onSeek) onSeek (duration * juce::jlimit (0.0, 1.0, (double) e.x / juce::jmax (1, getWidth())));
     }
 };
 
@@ -64,6 +148,88 @@ public:
     void selectedRowsChanged (int row) override { if (row >= 0 && onPick) onPick (row); }
 };
 
+/** Click styles to add them to the pattern (numbered in the order picked); click again to take one out. */
+class PickList : public juce::ListBoxModel
+{
+public:
+    std::vector<std::unique_ptr<Viz>>* all = nullptr;
+    std::vector<int>* picks = nullptr;
+    std::function<void()> onChange;
+    int getNumRows() override { return all ? (int) all->size() : 0; }
+    void paintListBoxItem (int row, juce::Graphics& g, int w, int h, bool) override
+    {
+        auto r = juce::Rectangle<float> (0, 0, (float) w, (float) h).reduced (2, 1.5f);
+        const auto it = std::find (picks->begin(), picks->end(), row);
+        const bool on = it != picks->end();
+        auto box = r.removeFromLeft (34).withSizeKeepingCentre (24, 24);
+        if (on) drawKey (g, box, true, false, false, 5); else drawScreen (g, box, 5);
+        if (on)
+        {
+            g.setColour (col::black); g.setFont (monoFont (12));
+            g.drawText (juce::String ((int) (it - picks->begin()) + 1), box, juce::Justification::centred);
+        }
+        g.setColour (col::text3); g.setFont (monoFont (12));
+        g.drawText (juce::String (row + 1).paddedLeft ('0', 2), r.removeFromLeft (30).translated (4, 0), juce::Justification::centredLeft);
+        g.setColour (on ? col::text : col::text2); g.setFont (font (14.5f, on ? 2 : 0));
+        g.drawText ((*all)[(size_t) row]->name(), r, juce::Justification::centredLeft);
+    }
+    void listBoxItemClicked (int row, const juce::MouseEvent&) override
+    {
+        auto it = std::find (picks->begin(), picks->end(), row);
+        if (it != picks->end()) picks->erase (it); else picks->push_back (row);
+        if (onChange) onChange();
+    }
+};
+
+/** Sits over the style list while you pick styles for a pattern. */
+class PickerPanel : public juce::Component
+{
+public:
+    PickerPanel()
+    {
+        title = makeLabel ("PICK STYLES", 12, col::text3, 2);
+        hint = makeLabel ("Click the styles you want, in the order you want them. Click again to take one out.", 12.5f, col::text2);
+        hint->setJustificationType (juce::Justification::topLeft);
+        count = makeLabel ({}, 12, col::text3, 3);
+        count->setJustificationType (juce::Justification::centredRight);
+        list.setRowHeight (30);
+        list.setColour (juce::ListBox::backgroundColourId, juce::Colours::transparentBlack);
+        allBtn = makeButton ("All", [this] { picks->clear(); for (int i = 0; i < model.getNumRows(); ++i) picks->push_back (i); changed(); });
+        noneBtn = makeButton ("None", [this] { picks->clear(); changed(); });
+        doneBtn = makeButton ("Done", [this] { if (onDone) onDone(); });
+        for (juce::Component* c : std::initializer_list<juce::Component*> { title.get(), hint.get(), count.get(), &list, allBtn.get(), noneBtn.get(), doneBtn.get() }) addAndMakeVisible (c);
+    }
+    ~PickerPanel() override { list.setModel (nullptr); }
+    void attach (std::vector<std::unique_ptr<Viz>>& all, std::vector<int>& p)
+    {
+        model.all = &all; model.picks = &p; picks = &p;
+        model.onChange = [this] { changed(); };
+        list.setModel (&model);
+    }
+    void refresh() { list.updateContent(); list.repaint(); count->setText (juce::String ((int) picks->size()) + " picked", juce::dontSendNotification); }
+    void paint (juce::Graphics& g) override { g.fillAll (col::bg); drawScreen (g, getLocalBounds().toFloat().reduced (1), 8); }
+    void resized() override
+    {
+        auto r = getLocalBounds().reduced (10, 8);
+        auto top = r.removeFromTop (22); count->setBounds (top.removeFromRight (90)); title->setBounds (top);
+        hint->setBounds (r.removeFromTop (36)); r.removeFromTop (4);
+        auto b = r.removeFromBottom (32); r.removeFromBottom (8);
+        const int bw = (b.getWidth() - 12) / 3;
+        allBtn->setBounds (b.removeFromLeft (bw)); b.removeFromLeft (6);
+        noneBtn->setBounds (b.removeFromLeft (bw)); b.removeFromLeft (6);
+        doneBtn->setBounds (b);
+        list.setBounds (r);
+    }
+    std::function<void()> onDone, onChange;
+private:
+    PickList model;
+    std::vector<int>* picks = nullptr;
+    juce::ListBox list;
+    std::unique_ptr<juce::Label> title, hint, count;
+    std::unique_ptr<juce::TextButton> allBtn, noneBtn, doneBtn;
+    void changed() { refresh(); if (onChange) onChange(); }
+};
+
 // ------------------------------------------------------------ main component
 
 class MainComponent : public juce::Component, public juce::FileDragAndDropTarget, private juce::Timer
@@ -76,13 +242,25 @@ public:
 
         addAndMakeVisible (stylesSlab); addAndMakeVisible (previewSlab); addAndMakeVisible (settingsSlab);
         stylesModel.all = &all;
-        stylesModel.onPick = [this] (int i) { look.style = i; all[(size_t) i]->reset(); blurb->setText (all[(size_t) i]->blurb(), juce::dontSendNotification); savePrefs(); redrawIfPaused(); };
+        stylesModel.onPick = [this] (int i)
+        {
+            look.style = i; all[(size_t) i]->reset(); blurb->setText (all[(size_t) i]->blurb(), juce::dontSendNotification); savePrefs();
+            if (patterns.mode == Patterns::single) patternsChanged();
+            redrawIfPaused();
+        };
         styles.setModel (&stylesModel);
         styles.setRowHeight (30);
         styles.setColour (juce::ListBox::backgroundColourId, juce::Colours::transparentBlack);
         addAndMakeVisible (styles);
 
         addAndMakeVisible (preview);
+        preview.onDoubleClick = [this] { setFullscreen (true); };
+        addChildComponent (full);
+        full.onExit = [this] { setFullscreen (false); };
+        addAndMakeVisible (timeline);
+        timeline.onSeek = [this] (double t) { seek (t); };
+        fullBtn = makeButton ("Full screen", [this] { setFullscreen (true); });
+        fullBtn->setTooltip ("F11 or double-click the preview. Esc to come back.");
         openBtn = makeButton ("Open track...", [this] { chooseTrack(); });
         playBtn = makeButton ("Play", [this] { togglePlay(); });
         stopBtn = makeButton ("Stop", [this] { stop(); });
@@ -94,24 +272,27 @@ public:
         position.setRange (0, 1, 0);
         position.onDragStart = [this] { scrubbing = true; };
         position.onDragEnd = [this] { scrubbing = false; seek (position.getValue() * track.seconds()); };
-        for (juce::Component* c : std::initializer_list<juce::Component*> { openBtn.get(), playBtn.get(), stopBtn.get(), trackLabel.get(), timeLabel.get(), &position }) addAndMakeVisible (c);
+        for (juce::Component* c : std::initializer_list<juce::Component*> { openBtn.get(), playBtn.get(), stopBtn.get(), fullBtn.get(), trackLabel.get(), timeLabel.get(), &position }) addAndMakeVisible (c);
 
-        // settings: Look / Effects tabs (scrolling if the window is short), export pinned underneath
-        for (auto* t : { &lookTab, &fxTab })
+        // settings: Look / Effects / Patterns tabs (scrolling if the window is short), export pinned underneath
+        for (auto* t : { &lookTab, &fxTab, &patTab })
         {
             t->setRadioGroupId (41); t->setClickingTogglesState (true);
-            t->onClick = [this] { prefs().setValue ("tab", fxTab.getToggleState() ? 1 : 0); showTab(); };
+            t->onClick = [this] { prefs().setValue ("tab", currentTab()); showTab(); };
             addAndMakeVisible (t);
         }
-        lookTab.setButtonText ("Look"); fxTab.setButtonText ("Effects");
-        (prefs().getIntValue ("tab", 0) == 1 ? fxTab : lookTab).setToggleState (true, juce::dontSendNotification);
+        lookTab.setButtonText ("Look"); fxTab.setButtonText ("Effects"); patTab.setButtonText ("Patterns");
+        {
+            const int t = prefs().getIntValue ("tab", 0);
+            (t == 1 ? fxTab : t == 2 ? patTab : lookTab).setToggleState (true, juce::dontSendNotification);
+        }
         addAndMakeVisible (paneView);
         paneView.setScrollBarsShown (true, false);
         paneView.setScrollBarThickness (8);
 
         auto label = [this] (const juce::String& s, juce::Component& parent) { auto l = makeLabel (s, 12, col::text3, 1); parent.addAndMakeVisible (*l); labels.push_back (std::move (l)); };
         label ("Title", lookPane); label ("Artist", lookPane); label ("Colour", lookPane); label ("Background", lookPane); label ("Text", lookPane); label ("Intensity", lookPane);
-        label ("Size", *this); label ("Frame rate", *this);
+        label ("Size", *this); label ("Frame rate", *this); label ("Codec", *this);
         for (auto* e : { &titleEd, &artistEd })
         {
             e->setFont (font (15));
@@ -131,6 +312,16 @@ public:
         juce::StringArray sizes; for (auto& s : videoSizes()) sizes.add (s.label);
         combo (sizeBox, sizes, sizeIndex, [this] (int i) { sizeIndex = i; }, *this);
         combo (fpsBox, { "30 fps", "60 fps" }, fps60 ? 1 : 0, [this] (int i) { fps60 = i == 1; }, *this);
+        if (! VideoEncoder::hevcAvailable()) hevc = false;
+        combo (codecBox, VideoEncoder::hevcAvailable() ? juce::StringArray { "H.264", "HEVC" } : juce::StringArray { "H.264" }, hevc ? 1 : 0, [this] (int i) { hevc = i == 1; }, *this);
+        codecBox.setTooltip (VideoEncoder::hevcAvailable() ? "H.264 plays anywhere. HEVC makes files about 40% smaller; YouTube takes both."
+                                                            : "This PC has no HEVC encoder (Microsoft's HEVC Video Extensions add one), so videos are H.264.");
+        codecBox.setEnabled (VideoEncoder::hevcAvailable());
+        responsiveBtn.setButtonText ("Keep the PC responsive");
+        responsiveBtn.setTooltip ("Renders on fewer cores with short breaks, so Ableton and the rest stay smooth. Slower export.");
+        responsiveBtn.setToggleState (responsive, juce::dontSendNotification);
+        responsiveBtn.onClick = [this] { responsive = responsiveBtn.getToggleState(); if (job) job->keepCool = responsive; savePrefs(); };
+        addAndMakeVisible (responsiveBtn);
         combo (reactBox, reactionNames(), look.reactions, [this] (int i) { look.reactions = i; fxReactBox.setSelectedItemIndex (i, juce::dontSendNotification); renderer.reset(); }, lookPane);
         reactLbl = makeLabel ("Reactions", 12, col::text3, 1); lookPane.addAndMakeVisible (*reactLbl);
         intensity.setSliderStyle (juce::Slider::LinearHorizontal);
@@ -197,6 +388,11 @@ public:
         styleLock.onClick = [this] { prefs().setValue ("lockStyle", styleLock.getToggleState()); };
         styleLockLbl = makeLabel ("Keep style", 12, col::text3, 1);
         addAndMakeVisible (*styleLockLbl);
+        buildPatternsPane();
+        addChildComponent (picker);
+        picker.attach (all, patterns.picks);
+        picker.onDone = [this] { showPicker (false); };
+        picker.onChange = [this] { patternsEdited(); };
         showTab();
 
         // audio out
@@ -205,6 +401,7 @@ public:
         player.setSource (&transport);
 
         styles.selectRow (juce::jlimit (0, (int) all.size() - 1, look.style));
+        syncPatternControls();
         if (track.loaded() == false) { setDemoTrack (track, 32); attachTrack(); trackLabel->setText ("Demo loop. Open a track or drop one here.", juce::dontSendNotification); titleEd.setText ("Demo loop", true); }
         startTimerHz (30);   // the videos are 30 or 60 fps; 30 keeps the preview steady
         setSize (1480, 900);
@@ -213,6 +410,8 @@ public:
     ~MainComponent() override
     {
         stopTimer();
+        ++scanGeneration;
+        loader.removeAllJobs (true, 10000);
         if (job) job->stopThread (15000);
         transport.setSource (nullptr);
         player.setSource (nullptr);
@@ -239,34 +438,53 @@ public:
             styles.setBounds (sc);
         }
 
+        picker.setBounds (stylesSlab.getBounds());
         auto p = previewSlab.content() + previewSlab.getPosition();
         auto top = p.removeFromTop (34);
         openBtn->setBounds (top.removeFromLeft (130));
         top.removeFromLeft (12);
         trackLabel->setBounds (top);
         auto bottom = p.removeFromBottom (36);
-        const bool ownRow = bottom.getWidth() < 90 + 8 + 90 + 12 + 120 + 160;   // narrow window: slider above the buttons
+        const bool ownRow = bottom.getWidth() < 90 + 8 + 90 + 12 + 110 + 12 + 120 + 160;   // narrow window: slider above the buttons
         if (ownRow) { position.setBounds (p.removeFromBottom (28)); p.removeFromBottom (4); }
         playBtn->setBounds (bottom.removeFromLeft (90)); bottom.removeFromLeft (8);
         stopBtn->setBounds (bottom.removeFromLeft (90)); bottom.removeFromLeft (12);
+        fullBtn->setBounds (bottom.removeFromLeft (110)); bottom.removeFromLeft (12);
         timeLabel->setBounds (bottom.removeFromRight (juce::jmin (120, bottom.getWidth())));
         if (! ownRow) position.setBounds (bottom.reduced (0, 8));
-        p.removeFromBottom (8); p.removeFromTop (8);
+        p.removeFromBottom (6);
+        timeline.setBounds (p.removeFromBottom (22));
+        p.removeFromBottom (6); p.removeFromTop (8);
         preview.setBounds (p);
+        if (fullscreen) full.setBounds (getLocalBounds());
 
         auto s = settingsSlab.content() + settingsSlab.getPosition();
         auto tabs = s.removeFromTop (32);
-        lookTab.setBounds (tabs.removeFromLeft (tabs.getWidth() / 2 - 3)); tabs.removeFromLeft (6); fxTab.setBounds (tabs);
+        {
+            const int tw = (tabs.getWidth() - 12) / 3;
+            lookTab.setBounds (tabs.removeFromLeft (tw)); tabs.removeFromLeft (6);
+            fxTab.setBounds (tabs.removeFromLeft (tw)); tabs.removeFromLeft (6);
+            patTab.setBounds (tabs);
+        }
         s.removeFromTop (8);
         folderBtn->setBounds (s.removeFromBottom (30)); s.removeFromBottom (4);
         status->setBounds (s.removeFromBottom (34)); s.removeFromBottom (4);
         progress.setBounds (s.removeFromBottom (22)); s.removeFromBottom (6);
         auto ex = s.removeFromBottom (40); exportBtn->setBounds (ex.removeFromLeft (ex.getWidth() * 2 / 3 - 4)); ex.removeFromLeft (8); cancelBtn->setBounds (ex);
-        s.removeFromBottom (8);
-        auto twoC = s.removeFromBottom (30);
-        sizeBox.setBounds (twoC.removeFromLeft (twoC.getWidth() / 2)); fpsBox.setBounds (twoC.withTrimmedLeft (8));
-        auto two = s.removeFromBottom (18);
-        labels[6]->setBounds (two.removeFromLeft (two.getWidth() / 2)); labels[7]->setBounds (two.withTrimmedLeft (8));
+        s.removeFromBottom (6);
+        responsiveBtn.setBounds (s.removeFromBottom (26));
+        s.removeFromBottom (4);
+        {
+            auto threeC = s.removeFromBottom (30);
+            auto three = s.removeFromBottom (18);
+            const int cw = (threeC.getWidth() - 16) / 3;
+            sizeBox.setBounds (threeC.removeFromLeft (cw)); threeC.removeFromLeft (8);
+            fpsBox.setBounds (threeC.removeFromLeft (cw)); threeC.removeFromLeft (8);
+            codecBox.setBounds (threeC);
+            labels[6]->setBounds (three.removeFromLeft (cw)); three.removeFromLeft (8);
+            labels[7]->setBounds (three.removeFromLeft (cw)); three.removeFromLeft (8);
+            labels[8]->setBounds (three);
+        }
         s.removeFromBottom (8);
         paneView.setBounds (s);
         layoutPanes();
@@ -312,12 +530,205 @@ public:
             fxAllOn->setBounds (b.removeFromLeft (b.getWidth() / 2 - 4)); b.removeFromLeft (8); fxAllOff->setBounds (b);
             fxPane.setSize (w, s.getY() + 4);
         }
+        {
+            auto s = juce::Rectangle<int> (0, 0, w, 2000);
+            auto rowOf = [&] (juce::OwnedArray<juce::TextButton>& btns, int h)
+            {
+                auto r = s.removeFromTop (h);
+                const int bw = (r.getWidth() - (btns.size() - 1) * 6) / juce::jmax (1, btns.size());
+                for (int i = 0; i < btns.size(); ++i) { btns[i]->setBounds (i == btns.size() - 1 ? r : r.removeFromLeft (bw)); if (i < btns.size() - 1) r.removeFromLeft (6); }
+            };
+            modeLbl->setBounds (s.removeFromTop (18)); rowOf (modeBtns, 30); s.removeFromTop (8);
+            patternsInfo->setBounds (s.removeFromTop (54)); s.removeFromTop (4);
+            auto pr = s.removeFromTop (30); pickBtn->setBounds (pr.removeFromLeft (pr.getWidth() * 3 / 5 - 4)); pr.removeFromLeft (8); rerollBtn->setBounds (pr);
+            s.removeFromTop (4);
+            shuffleBtn.setBounds (s.removeFromTop (26)); s.removeFromTop (8);
+            whenLbl->setBounds (s.removeFromTop (18)); rowOf (whenBtns, 30); s.removeFromTop (8);
+            if (patterns.when == Patterns::timer)
+            {
+                everyLbl->setBounds (s.removeFromTop (18)); everyBox.setBounds (s.removeFromTop (30)); s.removeFromTop (8);
+            }
+            else
+            {
+                minLbl->setBounds (s.removeFromTop (18)); minSlider.setBounds (s.removeFromTop (26)); s.removeFromTop (6);
+                maxLbl->setBounds (s.removeFromTop (18)); maxSlider.setBounds (s.removeFromTop (26)); s.removeFromTop (6);
+            }
+            fadeLbl->setBounds (s.removeFromTop (18)); fadeSlider.setBounds (s.removeFromTop (26)); s.removeFromTop (6);
+            cutBtn.setBounds (s.removeFromTop (26));
+            patPane.setSize (w, s.getY() + 4);
+        }
     }
+
+    int currentTab() const { return fxTab.getToggleState() ? 1 : patTab.getToggleState() ? 2 : 0; }
 
     void showTab()
     {
-        paneView.setViewedComponent (fxTab.getToggleState() ? &fxPane : &lookPane, false);
+        const int t = currentTab();
+        paneView.setViewedComponent (t == 1 ? &fxPane : t == 2 ? &patPane : &lookPane, false);
         layoutPanes();
+    }
+
+    // ---------------------------------------------------------------- patterns
+    void buildPatternsPane()
+    {
+        auto paneLabel = [this] (const juce::String& s) { auto l = makeLabel (s, 12, col::text3, 1); patPane.addAndMakeVisible (*l); return l; };
+        modeLbl = paneLabel ("Styles in the video");
+        whenLbl = paneLabel ("When it switches");
+        const auto modes = Patterns::modeNames(), whens = juce::StringArray { "Follow the song", "Every few secs" };
+        for (int i = 0; i < modes.size(); ++i)
+        {
+            auto* b = modeBtns.add (new juce::TextButton (modes[i]));
+            b->setRadioGroupId (61); b->setClickingTogglesState (true);
+            b->onClick = [this, i] { if (modeBtns[i]->getToggleState() && patterns.mode != i) { patterns.mode = i; patternsEdited(); } };
+            patPane.addAndMakeVisible (b);
+        }
+        modeBtns[0]->setTooltip ("One style all the way through (the one picked on the left).");
+        modeBtns[1]->setTooltip ("Switches between the styles you pick, in order or shuffled.");
+        modeBtns[2]->setTooltip ("Switches between random styles. Re-roll for a different set.");
+        for (int i = 0; i < whens.size(); ++i)
+        {
+            auto* b = whenBtns.add (new juce::TextButton (whens[i]));
+            b->setRadioGroupId (62); b->setClickingTogglesState (true);
+            b->onClick = [this, i] { if (whenBtns[i]->getToggleState() && patterns.when != i) { patterns.when = i; patternsEdited(); } };
+            patPane.addAndMakeVisible (b);
+        }
+        whenBtns[0]->setTooltip ("Switches when the music changes section; hard cuts when it slams back in.");
+        whenBtns[1]->setTooltip ("Switches on a steady timer.");
+        patternsInfo = makeLabel ({}, 12.5f, col::text2);
+        patternsInfo->setJustificationType (juce::Justification::topLeft);
+        patPane.addAndMakeVisible (*patternsInfo);
+        pickBtn = makeButton ("Pick styles", [this] { showPicker (true); });
+        rerollBtn = makeButton ("Re-roll", [this] { patterns.seed = (juce::uint32) juce::Random::getSystemRandom().nextInt() | 1u; patternsEdited(); });
+        rerollBtn->setTooltip ("A new random order (same settings).");
+        patPane.addAndMakeVisible (*pickBtn); patPane.addAndMakeVisible (*rerollBtn);
+        auto slider = [this] (juce::Slider& sl, double lo, double hi, double step, double v)
+        {
+            sl.setSliderStyle (juce::Slider::LinearHorizontal);
+            sl.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
+            sl.setRange (lo, hi, step);
+            sl.setValue (v, juce::dontSendNotification);
+            sl.onValueChange = [this] { readPatternSliders(); };
+            sl.onDragEnd = [this] { patternsEdited(); };
+            patPane.addAndMakeVisible (sl);
+        };
+        minLbl = paneLabel ({}); maxLbl = paneLabel ({}); fadeLbl = paneLabel ({});
+        everyLbl = paneLabel ("Switch every");
+        slider (minSlider, 2, 60, 1, patterns.minSeconds);
+        slider (maxSlider, 4, 120, 1, patterns.maxSeconds);
+        slider (fadeSlider, 0.5, 8, 0.5, patterns.fadeSeconds);
+        for (auto v : Patterns::everyChoices()) everyBox.addItem (juce::String ((int) v) + " seconds", (int) v);
+        styleCombo (everyBox);
+        everyBox.onChange = [this] { patterns.everySeconds = everyBox.getSelectedId(); patternsEdited(); };
+        patPane.addAndMakeVisible (everyBox);
+        cutBtn.setButtonText ("Hard cut when it slams back in");
+        cutBtn.onClick = [this] { patterns.cutOnSlams = cutBtn.getToggleState(); patternsEdited(); };
+        shuffleBtn.setButtonText ("Shuffle the picked styles");
+        shuffleBtn.onClick = [this] { patterns.shuffle = shuffleBtn.getToggleState(); patternsEdited(); };
+        patPane.addAndMakeVisible (cutBtn); patPane.addAndMakeVisible (shuffleBtn);
+    }
+
+    void readPatternSliders()
+    {
+        patterns.minSeconds = minSlider.getValue();
+        patterns.maxSeconds = juce::jmax (maxSlider.getValue(), patterns.minSeconds + 1);
+        patterns.fadeSeconds = fadeSlider.getValue();
+        minLbl->setText ("Shortest: " + juce::String ((int) patterns.minSeconds) + " s on a style", juce::dontSendNotification);
+        maxLbl->setText ("Longest: " + juce::String ((int) patterns.maxSeconds) + " s on a style", juce::dontSendNotification);
+        fadeLbl->setText ("Fade between styles: " + juce::String (patterns.fadeSeconds, 1) + " s", juce::dontSendNotification);
+    }
+
+    void patternsEdited() { savePrefs(); syncPatternControls(); patternsChanged(); }
+
+    void syncPatternControls()
+    {
+        for (int i = 0; i < modeBtns.size(); ++i) modeBtns[i]->setToggleState (patterns.mode == i, juce::dontSendNotification);
+        for (int i = 0; i < whenBtns.size(); ++i) whenBtns[i]->setToggleState (patterns.when == i, juce::dontSendNotification);
+        const bool sw = patterns.mode != Patterns::single;
+        for (auto* b : whenBtns) b->setEnabled (sw);
+        for (juce::Component* c : std::initializer_list<juce::Component*> { &minSlider, &maxSlider, &fadeSlider, &everyBox, &cutBtn }) c->setEnabled (sw);
+        const bool timerMode = patterns.when == Patterns::timer;
+        minSlider.setVisible (! timerMode); maxSlider.setVisible (! timerMode); minLbl->setVisible (! timerMode); maxLbl->setVisible (! timerMode);
+        everyBox.setVisible (timerMode); everyLbl->setVisible (timerMode);
+        everyBox.setSelectedId ((int) patterns.everySeconds, juce::dontSendNotification);
+        if (everyBox.getSelectedId() == 0) everyBox.setSelectedId (16, juce::dontSendNotification);
+        minSlider.setValue (patterns.minSeconds, juce::dontSendNotification);
+        maxSlider.setValue (patterns.maxSeconds, juce::dontSendNotification);
+        fadeSlider.setValue (patterns.fadeSeconds, juce::dontSendNotification);
+        cutBtn.setToggleState (patterns.cutOnSlams, juce::dontSendNotification);
+        cutBtn.setEnabled (sw && ! timerMode);
+        shuffleBtn.setToggleState (patterns.shuffle, juce::dontSendNotification);
+        shuffleBtn.setEnabled (patterns.mode == Patterns::picked);
+        pickBtn->setButtonText ("Pick styles (" + juce::String ((int) patterns.picks.size()) + ")");
+        rerollBtn->setEnabled (patterns.mode == Patterns::random || (patterns.mode == Patterns::picked && patterns.shuffle));
+        readPatternSliders();
+        layoutPanes();
+    }
+
+    void patternsChanged()
+    {
+        plan = makePlan (patterns, events, look.style, (int) all.size());
+        stylePlayer.reset();
+        renderer.reset();
+        timeline.plan = &plan;
+        timeline.duration = track.seconds();
+        const int switches = (int) plan.steps.size() - 1;
+        juce::String info;
+        if (patterns.mode == Patterns::single) info = "Single: the style picked on the left plays all the way through. Pick Picked or Random to switch styles during the video.";
+        else if (scanning) info = "Listening to the track for section changes...";
+        else if (patterns.mode == Patterns::picked && patterns.picks.size() < 2)
+            info = "Pick at least two styles to switch between (" + juce::String ((int) patterns.picks.size()) + " picked).";
+        else
+            info = (patterns.mode == Patterns::random ? juce::String ("Random from all ") + juce::String ((int) all.size())
+                                                      : juce::String ((int) patterns.picks.size()) + " picked" + (patterns.shuffle ? ", shuffled" : ", in order"))
+                 + ": " + juce::String (switches) + (switches == 1 ? " switch" : " switches") + " over " + fmtTime (timeline.duration) + ". The strip under the preview shows when.";
+        patternsInfo->setText (info, juce::dontSendNotification);
+        pickBtn->setButtonText ("Pick styles (" + juce::String ((int) patterns.picks.size()) + ")");
+        timeline.note = patterns.mode == Patterns::single ? "One style all the way through (Patterns tab to switch styles)"
+                      : scanning ? "Listening for section changes..." : juce::String();
+        timeline.repaint();
+        frameDirty = true;
+    }
+
+    void showPicker (bool on)
+    {
+        picker.refresh();
+        picker.setVisible (on);
+        if (on) picker.toFront (false);
+        for (juce::Component* c : std::initializer_list<juce::Component*> { &styles, randomBtn.get(), &styleLock, styleLockLbl.get() }) c->setVisible (! on);
+    }
+
+    void startScan()
+    {
+        scanning = true;
+        events = {};
+        const int gen = ++scanGeneration;
+        auto audio = std::make_shared<juce::AudioBuffer<float>> (track.audio);
+        juce::Component::SafePointer<MainComponent> safe (this);
+        std::atomic<int>* genPtr = &scanGeneration;
+        loader.addJob ([audio, gen, safe, genPtr]
+        {
+            auto ev = std::make_shared<SongEvents> (scanSong (*audio, Track::rate, [genPtr, gen] { return genPtr->load() != gen; }));
+            juce::MessageManager::callAsync ([safe, gen, ev]
+            {
+                if (safe == nullptr || safe->scanGeneration != gen) return;
+                safe->events = *ev; safe->scanning = false; safe->patternsChanged();
+            });
+        });
+        patternsChanged();
+    }
+
+    // ---------------------------------------------------------------- full screen
+    void setFullscreen (bool on)
+    {
+        if (fullscreen == on) return;
+        fullscreen = on;
+        auto* window = dynamic_cast<juce::DocumentWindow*> (getTopLevelComponent());
+        if (window != nullptr && window != (juce::Component*) this)
+            juce::Desktop::getInstance().setKioskModeComponent (on ? window : nullptr, false);
+        full.setVisible (on);
+        if (on) { full.setBounds (getLocalBounds()); full.toFront (false); }
+        grabKeyboardFocus();
+        frameDirty = true;
     }
 
     void setAllEffects (bool on)
@@ -385,7 +796,16 @@ public:
     // ---------------------------------------------------------------- for tests
     void renderTo (juce::Image& img, const Frame& f, Viz& v) { juce::Graphics g (img); renderer.render (g, img.getBounds().toFloat(), f, v, look); }
     Look& getLook() { return look; }
-    void setTab (int t) { (t == 1 ? fxTab : lookTab).setToggleState (true, juce::dontSendNotification); showTab(); }
+    void setTab (int t) { (t == 1 ? fxTab : t == 2 ? patTab : lookTab).setToggleState (true, juce::dontSendNotification); showTab(); }
+    void testPatterns (int mode) { waitForScan(); patterns.mode = mode; patterns.picks = { 0, 12, 40, 53 }; syncPatternControls(); patternsChanged(); }
+    void testPicker (bool on) { showPicker (on); }
+    void testFullscreen (bool on) { fullscreen = on; full.setVisible (on); if (on) { full.setBounds (getLocalBounds()); full.toFront (false); } frameDirty = true; tick(); }
+    void waitForScan()
+    {
+        if (! scanning) return;
+        ++scanGeneration; loader.removeAllJobs (true, 10000);
+        events = scanSong (track.audio, Track::rate); scanning = false; patternsChanged();
+    }
     Track& getTrack() { return track; }
     void showTime (double t) { for (double x = 0; x <= t; x += 1.0 / 30) { clockT = x; tick(); } }
 
@@ -401,10 +821,28 @@ private:
     Slab stylesSlab { "Styles" }, previewSlab { "Preview" }, settingsSlab { "Video" };
     StyleList stylesModel; juce::ListBox styles;
     Preview preview;
-    std::unique_ptr<juce::TextButton> openBtn, playBtn, stopBtn, coverBtn, clearCoverBtn, exportBtn, cancelBtn, folderBtn, randomBtn, fxAllOn, fxAllOff;
-    juce::TextButton lookTab, fxTab;
+    std::unique_ptr<juce::TextButton> openBtn, playBtn, stopBtn, fullBtn, coverBtn, clearCoverBtn, exportBtn, cancelBtn, folderBtn, randomBtn, fxAllOn, fxAllOff;
+    juce::TextButton lookTab, fxTab, patTab;
     juce::Viewport paneView;
-    juce::Component lookPane, fxPane;
+    juce::Component lookPane, fxPane, patPane;
+    // patterns
+    Patterns patterns;
+    SongEvents events;
+    Plan plan;
+    StylePlayer stylePlayer;
+    Timeline timeline;
+    PickerPanel picker;
+    FullView full;
+    bool fullscreen = false, scanning = false, hevc = false, responsive = false;
+    std::atomic<int> scanGeneration { 0 };
+    juce::ThreadPool loader { 1 };
+    juce::OwnedArray<juce::TextButton> modeBtns, whenBtns;
+    std::unique_ptr<juce::Label> modeLbl, whenLbl, patternsInfo, minLbl, maxLbl, fadeLbl, everyLbl;
+    std::unique_ptr<juce::TextButton> pickBtn, rerollBtn;
+    juce::Slider minSlider, maxSlider, fadeSlider;
+    juce::ComboBox everyBox, codecBox;
+    juce::ToggleButton cutBtn, shuffleBtn, responsiveBtn;
+    int lastThumb = -1;
     LockToggle styleLock { "style" }, colourLock { "colour" };
     std::unique_ptr<juce::Label> styleLockLbl, fxIntro, fxReactLbl;
     juce::ComboBox fxReactBox, mirrorBox;
@@ -435,7 +873,9 @@ private:
         source = std::make_unique<juce::MemoryAudioSource> (track.audio, false, false);
         transport.setSource (source.get(), 0, nullptr, Track::rate, 2);
         clockT = 0; analyzer.reset(); all[(size_t) look.style]->reset();
+        stylePlayer.reset(); renderer.reset();
         frameDirty = true;
+        startScan();
     }
 
     void togglePlay()
@@ -453,7 +893,7 @@ private:
     {
         clockT = juce::jlimit (0.0, juce::jmax (0.0, track.seconds()), t);
         transport.setPosition (clockT);
-        analyzer.reset(); all[(size_t) look.style]->reset(); renderer.reset();
+        analyzer.reset(); all[(size_t) look.style]->reset(); renderer.reset(); stylePlayer.reset();
         frameDirty = true;
     }
     void redrawIfPaused() { frameDirty = true; }
@@ -475,7 +915,34 @@ private:
     void timerCallback() override
     {
         if (job && job->finished) finishExport();
-        if (job) { auto& s = videoSizes()[(size_t) sizeIndex]; progress.setValue (job->progress, juce::String ((int) (job->progress * 100)) + "%   " + juce::String (s.h) + "p"); }
+        if (job)
+        {
+            auto& s = videoSizes()[(size_t) sizeIndex];
+            const int pc = (int) (job->progress * 100);
+            progress.setValue (job->progress, juce::String (pc) + "%   " + juce::String (s.h) + "p");
+            const double fpsNow = job->framesPerSecond, left = job->secondsLeft;
+            if (fpsNow > 0)
+            {
+                const int vfps = fps60 ? 60 : 30;
+                juce::String line = juce::String (fpsNow, 0) + " fps (" + juce::String (fpsNow / vfps, 1) + "x real time)";
+                if (left >= 0) line << "   " << fmtTime (left) << " left";
+                if (job->encoderInfo.isNotEmpty()) line << "\n" << job->encoderInfo;
+                if (job->easing) line << "   (easing off)";
+                status->setText (line, juce::dontSendNotification);
+            }
+            if (! playing)
+            {
+                const int v = job->thumbVersion;
+                if (v != lastThumb)
+                {
+                    lastThumb = v;
+                    auto th = job->getThumb();
+                    if (th.isValid()) { preview.frame = th; preview.overlay = "Rendering " + juce::String (pc) + "%"; preview.repaint(); }
+                }
+                else if (preview.overlay.isNotEmpty()) { preview.overlay = "Rendering " + juce::String (pc) + "%"; preview.repaint(); }
+            }
+            else if (preview.overlay.isNotEmpty()) preview.overlay = {};
+        }
         if (playing)
         {
             if (haveDevice()) clockT = transport.getCurrentPosition();
@@ -483,7 +950,8 @@ private:
             if (clockT >= track.seconds()) { pause(); clockT = track.seconds(); }
             tick();
         }
-        else if (frameDirty) tick();
+        else if (frameDirty && ! (job && ! playing && lastThumb >= 0)) tick();
+        timeline.setPlayhead (clockT);
     }
 
     void tick()
@@ -491,16 +959,28 @@ private:
         frameDirty = false;
         auto area = preview.videoArea();
         if (area.isEmpty()) return;
-        const float shrink = juce::jmin (1.0f, 800.0f / (float) juce::jmax (1, area.getWidth()));
+        if (fullscreen) area = full.videoArea();
+        const float cap = fullscreen ? 1600.0f : 800.0f;
+        const float shrink = juce::jmin (1.0f, cap / (float) juce::jmax (1, area.getWidth()));
         const auto size = juce::Rectangle<int> (juce::jmax (16, juce::roundToInt (area.getWidth() * shrink)), juce::jmax (9, juce::roundToInt (area.getHeight() * shrink)));
-        if (! preview.frame.isValid() || preview.frame.getBounds() != size)
-            preview.frame = juce::Image (juce::Image::ARGB, size.getWidth(), size.getHeight(), true, juce::SoftwareImageType());
+        juce::Image& target = fullscreen ? full.frame : preview.frame;
+        if (! target.isValid() || target.getBounds() != size)
+            target = juce::Image (juce::Image::ARGB, size.getWidth(), size.getHeight(), true, juce::SoftwareImageType());
         const double fps = 30;
         if (playing || analyzerT != clockT) analyzer.analyse (track.audio, Track::rate, clockT, fps, frame);
         analyzerT = clockT;
         frame.duration = track.seconds();
-        { juce::Graphics g (preview.frame); renderer.render (g, preview.frame.getBounds().toFloat(), frame, *all[(size_t) look.style], look); }
-        preview.repaint (area);
+        {
+            juce::Graphics g (target);
+            if (patterns.mode != Patterns::single && plan.switches())
+            {
+                auto now = stylePlayer.at (clockT, plan, all);
+                renderer.render (g, target.getBounds().toFloat(), frame, *now.a, look, now.b, now.mix);
+            }
+            else renderer.render (g, target.getBounds().toFloat(), frame, *all[(size_t) look.style], look);
+        }
+        preview.overlay = {};
+        if (fullscreen) full.repaint(); else preview.repaint (area);
         if (! scrubbing && track.seconds() > 0) position.setValue (clockT / track.seconds(), juce::dontSendNotification);
         timeLabel->setText (fmtTime (clockT) + " / " + fmtTime (track.seconds()), juce::dontSendNotification);
     }
@@ -510,12 +990,28 @@ private:
     void startExport()
     {
         if (job || ! track.loaded()) return;
+        if (scanning && patterns.mode != Patterns::single)
+        {
+            status->setText ("Still listening to the track for section changes - try again in a second.", juce::dontSendNotification);
+            return;
+        }
+        if (patterns.mode == Patterns::picked && patterns.picks.size() < 2)
+        {
+            status->setText ("Pick at least two styles on the Patterns tab (or set it to Single).", juce::dontSendNotification);
+            return;
+        }
         pause();
         auto name = juce::File::createLegalFileName (look.title.isNotEmpty() ? look.title : "BC Visualizer");
         auto out = outputFolder().getNonexistentChildFile (name, ".mp4", false);
         auto& s = videoSizes()[(size_t) sizeIndex];
         job = std::make_unique<ExportJob> (track, look, out, s.w, s.h, fps60 ? 60 : 30);
-        job->startThread (juce::Thread::Priority::normal);
+        if (patterns.mode != Patterns::single) job->plan = plan;
+        job->threads = Workers::recommended();
+        job->hevc = hevc;
+        job->keepCool = responsive;
+        job->heat = [] { return 2; };    // no heat sensor on a PC: "Keep the PC responsive" always eases off when it's on
+        lastThumb = -1;
+        job->startThread (responsive ? juce::Thread::Priority::low : juce::Thread::Priority::normal);
         exportBtn->setEnabled (false); cancelBtn->setEnabled (true); openBtn->setEnabled (false);
         status->setText ("Rendering " + out.getFileName() + "... you can keep previewing.", juce::dontSendNotification);
     }
@@ -523,11 +1019,15 @@ private:
     void finishExport()
     {
         job->stopThread (10000);
-        if (job->ok) status->setText ("Saved " + job->output.getFileName() + " in " + juce::String (job->secondsTaken, 0) + " s. Ready for YouTube.", juce::dontSendNotification);
+        if (job->ok) status->setText ("Saved " + job->output.getFileName() + " in " + fmtTime (job->secondsTaken)
+                                      + (job->secondsTaken > 0 ? " (" + juce::String (track.seconds() / job->secondsTaken, 1) + "x real time)" : juce::String()) + ". Ready for YouTube.", juce::dontSendNotification);
         else if (job->cancelled) status->setText ("Export cancelled.", juce::dontSendNotification);
         else status->setText ("Export failed: " + job->error, juce::dontSendNotification);
         progress.setValue (job->ok ? 1.0 : 0.0, job->ok ? "Done" : "");
         job.reset();
+        lastThumb = -1; preview.overlay = {};
+        stylePlayer.reset(); renderer.reset(); analyzer.reset(); analyzerT = -1;
+        frameDirty = true;
         exportBtn->setEnabled (true); cancelBtn->setEnabled (false); openBtn->setEnabled (true);
     }
 
@@ -551,6 +1051,20 @@ private:
         look.effectsOff = p.getIntValue ("effectsOff", 0);
         sizeIndex = juce::jlimit (0, (int) videoSizes().size() - 1, p.getIntValue ("size", 0));
         fps60 = p.getBoolValue ("fps60", false);
+        patterns.mode = juce::jlimit (0, 2, p.getIntValue ("pmode", 0));
+        patterns.picks.clear();
+        for (auto& x : juce::StringArray::fromTokens (p.getValue ("picks", "0,12,40,53"), ",", {}))
+            if (x.trim().isNotEmpty()) { const int i = x.getIntValue(); if (i >= 0 && i < (int) all.size()) patterns.picks.push_back (i); }
+        patterns.shuffle = p.getBoolValue ("shuffle", false);
+        patterns.when = juce::jlimit (0, 1, p.getIntValue ("when", 0));
+        patterns.minSeconds = juce::jlimit (2.0, 60.0, p.getDoubleValue ("minS", 8));
+        patterns.maxSeconds = juce::jlimit (4.0, 120.0, p.getDoubleValue ("maxS", 30));
+        patterns.everySeconds = p.getDoubleValue ("every", 16);
+        patterns.fadeSeconds = juce::jlimit (0.5, 8.0, p.getDoubleValue ("fade", 2.5));
+        patterns.cutOnSlams = p.getBoolValue ("cut", true);
+        patterns.seed = (juce::uint32) p.getIntValue ("seed", 1) | 1u;
+        hevc = p.getBoolValue ("hevc", false);
+        responsive = p.getBoolValue ("responsive", false);
         juce::File cov (p.getValue ("cover"));
         if (cov.existsAsFile()) look.cover = juce::ImageFileFormat::loadFrom (cov);
     }
@@ -562,12 +1076,22 @@ private:
         p.setValue ("vignette", look.vignette); p.setValue ("progress", look.progress); p.setValue ("coverBadge", look.coverBadge); p.setValue ("reactions", look.reactions); p.setValue ("intensity", (double) look.intensity);
         p.setValue ("mirror", look.mirror); p.setValue ("effectsOff", look.effectsOff);
         p.setValue ("size", sizeIndex); p.setValue ("fps60", fps60);
+        juce::StringArray pk; for (int i : patterns.picks) pk.add (juce::String (i));
+        p.setValue ("pmode", patterns.mode); p.setValue ("picks", pk.joinIntoString (","));
+        p.setValue ("shuffle", patterns.shuffle); p.setValue ("when", patterns.when);
+        p.setValue ("minS", patterns.minSeconds); p.setValue ("maxS", patterns.maxSeconds);
+        p.setValue ("every", patterns.everySeconds); p.setValue ("fade", patterns.fadeSeconds);
+        p.setValue ("cut", patterns.cutOnSlams); p.setValue ("seed", (int) patterns.seed);
+        p.setValue ("hevc", hevc); p.setValue ("responsive", responsive);
     }
 
 public:
     bool keyPressed (const juce::KeyPress& k) override
     {
         if (k == juce::KeyPress::spaceKey) { togglePlay(); return true; }
+        if (k == juce::KeyPress::F11Key) { setFullscreen (! fullscreen); return true; }
+        if (k == juce::KeyPress::escapeKey && fullscreen) { setFullscreen (false); return true; }
+        if (k == juce::KeyPress::escapeKey && picker.isVisible()) { showPicker (false); return true; }
         if (k == juce::KeyPress::upKey || k == juce::KeyPress::downKey)
         {
             int n = juce::jlimit (0, (int) all.size() - 1, look.style + (k == juce::KeyPress::upKey ? -1 : 1));
@@ -604,17 +1128,37 @@ static int runLayoutCheck (const juce::File& dir)
         const Size sizes[] = { { "normal", 1480, 900 }, { "smallest", 1100, 690 }, { "tall", 1100, 1500 } };   // window limit 1100 x 720
         juce::StringArray report;
         for (auto& sz : sizes)
-            for (int tab = 0; tab < 2; ++tab)
+            for (int tab = 0; tab < 3; ++tab)
             {
                 mc.setSize (sz.w, sz.h);
                 mc.setTab (tab);
                 auto found = findLayoutProblems (mc);
                 layoutProblems += found.size();
-                const juce::String where = juce::String (sz.name) + " " + juce::String (sz.w) + "x" + juce::String (sz.h) + "  " + (tab == 0 ? "Look" : "Effects");
+                const char* tabNames[] = { "Look", "Effects", "Patterns" };
+                const char* tabFiles[] = { "look", "effects", "patterns" };
+                if (tab == 2) mc.testPatterns (Patterns::random);
+                const juce::String where = juce::String (sz.name) + " " + juce::String (sz.w) + "x" + juce::String (sz.h) + "  " + tabNames[tab];
                 report.add ((found.isEmpty() ? "PASS  " : "FAIL  ") + where + "   (" + juce::String (listControls (mc).size()) + " controls)");
                 for (auto& f : found) report.add ("        " + f);
-                writePng (mc.createComponentSnapshot (mc.getLocalBounds(), true, 1.0f), dir.getChildFile ("app-" + juce::String (sz.name) + "-" + (tab == 0 ? "look" : "effects") + ".png"));
+                writePng (mc.createComponentSnapshot (mc.getLocalBounds(), true, 1.0f), dir.getChildFile ("app-" + juce::String (sz.name) + "-" + tabFiles[tab] + ".png"));
             }
+        // the style picker open, and full screen, at the normal size
+        mc.setSize (1480, 900);
+        mc.setTab (2); mc.testPatterns (Patterns::picked);
+        mc.testPicker (true);
+        {
+            auto found = findLayoutProblems (mc);
+            layoutProblems += found.size();
+            report.add ((found.isEmpty() ? "PASS  " : "FAIL  ") + juce::String ("normal 1480x900  style picker open   (") + juce::String (listControls (mc).size()) + " controls)");
+            for (auto& f : found) report.add ("        " + f);
+            writePng (mc.createComponentSnapshot (mc.getLocalBounds(), true, 1.0f), dir.getChildFile ("app-normal-picker.png"));
+        }
+        mc.testPicker (false);
+        mc.waitForScan();
+        mc.showTime (6.0);
+        mc.testFullscreen (true);
+        writePng (mc.createComponentSnapshot (mc.getLocalBounds(), true, 1.0f), dir.getChildFile ("app-fullscreen.png"));
+        mc.testFullscreen (false);
         report.insert (0, juce::String (layoutProblems) + " problems");
         dir.getChildFile ("layout-check.txt").replaceWithText (report.joinIntoString ("\n") + "\n");
     }
@@ -733,9 +1277,24 @@ static int runExport (const juce::StringArray& args, int at)
     Look look; look.style = style; look.tint = juce::jlimit (0, tintNames().size() - 1, tint);
     look.title = style < 0 ? juce::String() : makeAll()[(size_t) juce::jlimit (0, (int) makeAll().size() - 1, style)]->name();
     ExportJob job (t, look, out, w, h, fps, cycle);
+    const int pmode = opt ("--pattern", 0), threads = opt ("--threads", 1);
+    job.threads = threads <= 0 ? Workers::recommended() : threads;
+    job.hevc = args.contains ("--hevc");
+    juce::String extra;
+    if (pmode > 0)
+    {
+        Patterns pat; pat.mode = juce::jlimit (1, 2, pmode); pat.picks = { 0, 12, 40, 53 };
+        const int every = opt ("--every", 0);
+        if (every > 0) { pat.when = Patterns::timer; pat.everySeconds = every; }
+        pat.fadeSeconds = 1.5;
+        auto ev = scanSong (t.audio, Track::rate);
+        job.plan = makePlan (pat, ev, juce::jmax (0, style), (int) makeAll().size());
+        extra << ", " << (int) job.plan.steps.size() << " pattern steps";
+    }
     bool ok = job.runNow();
     juce::String report = (ok ? "OK " : "FAILED ") + out.getFullPathName() + " " + juce::String (out.getSize()) + " bytes, "
-                        + juce::String (job.secondsTaken, 1) + " s" + (ok ? juce::String() : " : " + job.error);
+                        + juce::String (job.secondsTaken, 1) + " s, " + juce::String (job.secondsTaken > 0 ? t.seconds() * fps / job.secondsTaken : 0.0, 1) + " fps, "
+                        + juce::String (job.threads) + " threads, " + job.encoderInfo + extra + (ok ? juce::String() : " : " + job.error);
     juce::Logger::writeToLog (report);
     out.getSiblingFile (out.getFileNameWithoutExtension() + ".log").replaceWithText (report + "\n");
     return ok ? 0 : 1;

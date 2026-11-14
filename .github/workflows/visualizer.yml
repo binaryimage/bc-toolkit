@@ -96,6 +96,10 @@ jobs:
             @{ name = "BC-Visualizer-moth-ice.mp4"; args = @('--seconds', '20', '--style', '48', '--tint', '7') },
             @{ name = "BC-Visualizer-wormhole-multicolour.mp4"; args = @('--seconds', '20', '--style', '49', '--tint', '6') },
             @{ name = "BC-Visualizer-weird-test.mp4"; args = @('--seconds', '40', '--style', '53', '--tint', '8', '--audio', "`"$PWD\visualizer\test-audio\weird.flac`"") },
+            @{ name = "test-patterns-song.mp4"; args = @('--seconds', '40', '--pattern', '2', '--threads', '0', '--audio', "`"$PWD\visualizer\test-audio\weird.flac`"") },
+            @{ name = "test-patterns-timer.mp4"; args = @('--seconds', '12', '--pattern', '1', '--every', '4', '--threads', '0') },
+            @{ name = "test-allcores-1080p.mp4"; args = @('--seconds', '10', '--style', '0', '--threads', '0') },
+            @{ name = "test-hevc.mp4"; args = @('--seconds', '4', '--style', '6', '--threads', '0', '--hevc') },
             @{ name = "check-640x360.mp4"; args = @('--seconds', '3', '--style', '0', '--width', '640', '--height', '360') }
           )
           foreach ($r in $runs) {
@@ -183,7 +187,7 @@ jobs:
           else
             gh release create "$TAG" "$SETUP" "$ZIP" "$REEL" "$MOTH" "$ICE" "$WORM" "$WEIRD" "$SHEET" "$MULTI" "$COLOURS" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest=false \
               --title "BC Visualizer $VZ_VERSION" \
-              --notes "Audio-reactive music videos for YouTube: 80 styles (30 new fractal and trippy ones), 48 colours (40 new mixed palettes), and Reactions: 32 frequency ranges plus pitch, panning, noise, crunch, drones, silence and section changes, each doing something different on top of every style. MP4 export at 1080p/1440p/4K, 30 or 60 fps. BC-Visualizer-all-80-styles.mp4 shows every style; BC-Visualizer-weird-test.mp4 runs a 40-second test track (drones, clicks, a riser, a drop, a dive) to show the reactions; 00-colours.png shows all 48 colours."
+              --notes "2.2.0: Patterns (switch styles through the video: Picked or Random, following the song's sections or every few seconds, with crossfades and hard cuts on slams, shown on a timeline under the preview), all-core exports with live speed, time left and a thumbnail, HEVC when this PC has an encoder, Keep the PC responsive, and full screen preview (F11 or double-click, Esc to leave). Audio-reactive music videos for YouTube: 80 styles (30 new fractal and trippy ones), 48 colours (40 new mixed palettes), and Reactions: 32 frequency ranges plus pitch, panning, noise, crunch, drones, silence and section changes, each doing something different on top of every style. MP4 export at 1080p/1440p/4K, 30 or 60 fps. BC-Visualizer-all-80-styles.mp4 shows every style; BC-Visualizer-weird-test.mp4 runs a 40-second test track (drones, clicks, a riser, a drop, a dive) to show the reactions; 00-colours.png shows all 48 colours."
           fi
 
       - name: Commit test results back to the branch

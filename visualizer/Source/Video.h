@@ -25,6 +25,8 @@ namespace bcv
         juce::String lastError;
 
         static std::unique_ptr<VideoEncoder> create();
+        /** whether this machine has an HEVC encoder (Windows: a hardware or Store HEVC encoder is installed) */
+        static bool hevcAvailable();
         static constexpr int kAudioRate = 48000;
     };
 }

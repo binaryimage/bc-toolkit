@@ -33,7 +33,24 @@ class MFEncoder : public VideoEncoder
 public:
     ~MFEncoder() override { close(); }
 
+    void setOptions (bool useHevc, int bitsPerSecond, Workers*) override { wantHevc = useHevc; wantBps = bitsPerSecond; }
+
     bool open (const juce::File& file, int w, int h, int f, juce::String& error) override
+    {
+        if (wantHevc)
+        {
+            juce::String hevcError;
+            if (openWith (file, w, h, f, true, hevcError)) return true;
+            // no HEVC encoder that takes these settings: fall back to H.264 so the export still happens
+            if (! openWith (file, w, h, f, false, error)) return false;
+            description << " (HEVC wasn't available)";
+            return true;
+        }
+        return openWith (file, w, h, f, false, error);
+    }
+
+private:
+    bool openWith (const juce::File& file, int w, int h, int f, bool hevc, juce::String& error)
     {
         width = w; height = h; fps = f;
         HRESULT hr = CoInitializeEx (nullptr, COINIT_MULTITHREADED);
@@ -41,6 +58,7 @@ public:
         if (FAILED (hr = MFStartup (MF_VERSION))) return fail (error, "Media Foundation is not available", hr);
         mfStarted = true;
         file.deleteFile();
+        const char* codec = hevc ? "HEVC" : "H.264";
 
         Com<IMFAttributes> attrs;
         MFCreateAttributes (&attrs, 4);
@@ -50,22 +68,24 @@ public:
         if (FAILED (hr = MFCreateSinkWriterFromURL (file.getFullPathName().toWideCharPointer(), nullptr, attrs, &writer)))
             return fail (error, "Couldn't create " + file.getFileName(), hr);
 
-        // video: H.264 High profile, YouTube-ish bitrates
+        // video: H.264 High profile (or HEVC Main at about 60% of the bitrate), YouTube-ish bitrates
         const UINT32 pixels = (UINT32) (w * h);
         UINT32 kbps = pixels >= 3840u * 2160u ? 45000 : pixels >= 2560u * 1440u ? 24000 : 12000;
         if (fps > 30) kbps = kbps * 3 / 2;
+        if (wantBps > 0) kbps = (UINT32) (wantBps / 1000);
+        if (hevc) kbps = kbps * 6 / 10;
         {
             Com<IMFMediaType> out;
             MFCreateMediaType (&out);
             out->SetGUID (MF_MT_MAJOR_TYPE, MFMediaType_Video);
-            out->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_H264);
+            out->SetGUID (MF_MT_SUBTYPE, hevc ? MFVideoFormat_HEVC : MFVideoFormat_H264);
             out->SetUINT32 (MF_MT_AVG_BITRATE, kbps * 1000);
             out->SetUINT32 (MF_MT_INTERLACE_MODE, MFVideoInterlace_Progressive);
-            out->SetUINT32 (MF_MT_MPEG2_PROFILE, eAVEncH264VProfile_High);
+            out->SetUINT32 (MF_MT_MPEG2_PROFILE, hevc ? (UINT32) eAVEncH265VProfile_Main_420_8 : (UINT32) eAVEncH264VProfile_High);
             MFSetAttributeSize (out, MF_MT_FRAME_SIZE, (UINT32) w, (UINT32) h);
             MFSetAttributeRatio (out, MF_MT_FRAME_RATE, (UINT32) fps, 1);
             MFSetAttributeRatio (out, MF_MT_PIXEL_ASPECT_RATIO, 1, 1);
-            if (FAILED (hr = writer->AddStream (out, &videoStream))) return fail (error, "The H.264 encoder refused the video settings", hr);
+            if (FAILED (hr = writer->AddStream (out, &videoStream))) return fail (error, juce::String ("The ") + codec + " encoder refused the video settings", hr);
         }
         {
             Com<IMFMediaType> in;
@@ -77,7 +97,7 @@ public:
             MFSetAttributeSize (in, MF_MT_FRAME_SIZE, (UINT32) w, (UINT32) h);
             MFSetAttributeRatio (in, MF_MT_FRAME_RATE, (UINT32) fps, 1);
             MFSetAttributeRatio (in, MF_MT_PIXEL_ASPECT_RATIO, 1, 1);
-            if (FAILED (hr = writer->SetInputMediaType (videoStream, in, nullptr))) return fail (error, "The H.264 encoder refused the picture format", hr);
+            if (FAILED (hr = writer->SetInputMediaType (videoStream, in, nullptr))) return fail (error, juce::String ("The ") + codec + " encoder refused the picture format", hr);
         }
         // audio: AAC 256 kbps, 48 kHz stereo
         {
@@ -105,8 +125,11 @@ public:
         }
         if (FAILED (hr = writer->BeginWriting())) return fail (error, "Couldn't start writing the video", hr);
         writing = true;
+        description = juce::String (codec) + " " + juce::String ((int) (kbps / 1000)) + " Mbps";
         return true;
     }
+
+public:
 
     bool writeFrame (const juce::Image& img) override
     {
@@ -185,12 +208,38 @@ private:
     int width = 0, height = 0, fps = 30;
     LONGLONG framesWritten = 0, audioWritten = 0;
     bool writing = false, mfStarted = false, comInit = false;
+    bool wantHevc = false; int wantBps = 0;
 
     static juce::String hex (HRESULT hr) { return "0x" + juce::String::toHexString ((int) hr).paddedLeft ('0', 8); }
     bool fail (juce::String& error, const juce::String& what, HRESULT hr) { error = what + " (" + hex (hr) + ")"; lastError = error; close(); return false; }
 };
 
 std::unique_ptr<VideoEncoder> VideoEncoder::create() { return std::make_unique<MFEncoder>(); }
+
+bool VideoEncoder::hevcAvailable()
+{
+    static const bool have = []
+    {
+        const HRESULT co = CoInitializeEx (nullptr, COINIT_MULTITHREADED);
+        bool found = false;
+        if (SUCCEEDED (MFStartup (MF_VERSION)))
+        {
+            MFT_REGISTER_TYPE_INFO outInfo { MFMediaType_Video, MFVideoFormat_HEVC };
+            IMFActivate** acts = nullptr; UINT32 n = 0;
+            if (SUCCEEDED (MFTEnumEx (MFT_CATEGORY_VIDEO_ENCODER, MFT_ENUM_FLAG_HARDWARE | MFT_ENUM_FLAG_SYNCMFT | MFT_ENUM_FLAG_ASYNCMFT | MFT_ENUM_FLAG_SORTANDFILTER,
+                                      nullptr, &outInfo, &acts, &n)))
+            {
+                found = n > 0;
+                for (UINT32 i = 0; i < n; ++i) acts[i]->Release();
+                CoTaskMemFree (acts);
+            }
+            MFShutdown();
+        }
+        if (SUCCEEDED (co)) CoUninitialize();
+        return found;
+    }();
+    return have;
+}
 
 #elif JUCE_ANDROID
 }
@@ -261,5 +310,6 @@ private:
 };
 
 std::unique_ptr<VideoEncoder> VideoEncoder::create() { return std::make_unique<FfmpegEncoder>(); }
+bool VideoEncoder::hevcAvailable() { return false; }
 #endif
 }

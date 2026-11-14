@@ -13,10 +13,35 @@ Quick start
 4. Optional: Cover art... adds your artwork next to the title and, with Background set
    to "Cover art (dimmed)", behind the visuals too. You can also drop an image on the window.
    Turn off "Cover next to title" to keep it as the background without the small copy by your name.
-5. Choose the size (1080p, 1440p or 4K) and frame rate, then Export MP4.
+5. Choose the size (1080p, 1440p or 4K), frame rate and codec, then Export MP4.
 
 Videos are saved to Music\BC Visualizer. You can keep previewing while one renders, and
 Cancel stops it. Upload the MP4 to YouTube as it is; no conversion needed.
+
+Patterns (switching styles during the video)
+--------------------------------------------
+The Patterns tab on the right:
+- Single: one style all the way through (the one picked on the left).
+- Picked: switches between the styles you pick (Pick styles...), in order or shuffled.
+- Random: switches between random styles. Re-roll gives a different order.
+- Follow the song switches when the music changes section (never sooner than Shortest,
+  never later than Longest) and hard-cuts when it slams back in. Every few secs switches
+  on a timer instead. Fade sets how long the crossfades are.
+The strip under the preview shows which style plays when; click it to jump there.
+What you preview is exactly what gets exported.
+
+Exporting
+---------
+- Exports use every core. The status line shows the render speed, how long is left, and
+  the preview shows the frame being rendered while you're not playing.
+- Codec: H.264 plays anywhere. HEVC makes smaller files; it's only offered when this PC has
+  an HEVC encoder (a recent graphics card, or Microsoft's HEVC Video Extensions).
+- Keep the PC responsive renders on half the cores with short breaks, so Ableton and the
+  rest stay smooth. Slower export.
+
+Full screen
+-----------
+F11 or double-click the preview. Esc, F11 or double-click again to come back.
 
 Tips
 ----
