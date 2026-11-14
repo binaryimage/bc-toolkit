@@ -1,0 +1,1 @@
+checks: success   vst3 load: success   installer: success

@@ -1,0 +1,11 @@
+installed: 9 of 9 in C:\Program Files\Common Files\VST3\binaryimage
+PASS  Janus by binaryimage: instrument, 2192 parameters, 64 presets, peak 0.301, window 960x540
+PASS  Maggot by binaryimage: instrument, 2173 parameters, 100 presets, peak 0.191, window 960x540
+PASS  Legion by binaryimage: instrument, 2121 parameters, 128 presets, peak 0.580, window 960x540
+PASS  Grendel by binaryimage: effect, 21 parameters, 50 presets, peak 0.372, window 960x540
+PASS  Ouroboros by binaryimage: effect, 19 parameters, 50 presets, peak 0.485, window 960x540
+PASS  Fenrir by binaryimage: effect, 22 parameters, 50 presets, peak 0.680, window 960x540
+PASS  Moloch by binaryimage: effect, 20 parameters, 50 presets, peak 0.330, window 960x540
+PASS  Mare by binaryimage: effect, 18 parameters, 50 presets, peak 0.493, window 960x540
+PASS  Banshee by binaryimage: effect, 19 parameters, 50 presets, peak 0.697, window 960x540
+uninstalled: True

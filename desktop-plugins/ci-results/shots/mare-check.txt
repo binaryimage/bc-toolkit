@@ -1,0 +1,9 @@
+Mare  (effect): 16 parameters, 50 presets
+PASS
+      presets: 50 of 50 make sound
+      slowest preset: Spiral Staircase, 89.3x real time on one core
+      block sizes 32 / 96 / 2048 and 96 kHz: ok
+      state round trip: all 16 parameters and the preset come back
+      tab 1 MARE: 10 controls drawn
+      tab 2 TAIL: 6 controls drawn
+      window: 2 tabs, 16 of 16 parameters have a control

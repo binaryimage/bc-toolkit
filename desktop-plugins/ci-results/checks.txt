@@ -1,0 +1,97 @@
+Banshee  (effect): 17 parameters, 50 presets
+PASS
+      presets: 50 of 50 make sound
+      slowest preset: Fast Shiver, 40.4x real time on one core
+      block sizes 32 / 96 / 2048 and 96 kHz: ok
+      state round trip: all 17 parameters and the preset come back
+      tab 1 BANSHEE: 11 controls drawn
+      tab 2 SPIRIT: 6 controls drawn
+      window: 2 tabs, 17 of 17 parameters have a control
+Fenrir  (effect): 20 parameters, 50 presets
+PASS
+      presets: 50 of 50 make sound
+      slowest preset: Hellhound, 72.2x real time on one core
+      block sizes 32 / 96 / 2048 and 96 kHz: ok
+      state round trip: all 20 parameters and the preset come back
+      tab 1 FENRIR: 12 controls drawn
+      tab 2 CHOP/EQ: 8 controls drawn
+      window: 2 tabs, 20 of 20 parameters have a control
+Grendel  (effect): 19 parameters, 50 presets
+PASS
+      presets: 50 of 50 make sound
+      slowest preset: Morgue Tape, 117.3x real time on one core
+      block sizes 32 / 96 / 2048 and 96 kHz: ok
+      state round trip: all 19 parameters and the preset come back
+      tab 1 GRENDEL: 10 controls drawn
+      tab 2 TAPE: 9 controls drawn
+      window: 2 tabs, 19 of 19 parameters have a control
+Janus  (instrument): 110 parameters, 64 presets
+PASS
+      presets: 64 of 64 make sound
+      slowest preset: PD Fallout Haze, 50.0x real time on one core
+      block sizes 32 / 96 / 2048 and 96 kHz: ok
+      state round trip: all 110 parameters and the preset come back
+      tab 1 MAIN: 14 controls drawn
+      tab 2 S1 OSC: 14 controls drawn
+      tab 3 S1 FILT: 11 controls drawn
+      tab 4 S1 AMP: 13 controls drawn
+      tab 5 S2 OSC: 14 controls drawn
+      tab 6 S2 FILT: 11 controls drawn
+      tab 7 S2 AMP: 13 controls drawn
+      tab 8 LFO: 6 controls drawn
+      tab 9 FX: 14 controls drawn
+      window: 9 tabs, 110 of 110 parameters have a control
+Legion  (instrument): 39 parameters, 128 presets
+PASS
+      presets: 128 of 128 make sound
+      slowest preset: Glass Cathedral, 22.7x real time on one core
+      block sizes 32 / 96 / 2048 and 96 kHz: ok
+      state round trip: all 39 parameters and the preset come back
+      tab 1 CHOIR: 12 controls drawn
+      tab 2 MOTION: 9 controls drawn
+      tab 3 SYNTH: 6 controls drawn
+      tab 4 ENV: 4 controls drawn
+      tab 5 FX: 8 controls drawn
+      window: 5 tabs, 39 of 39 parameters have a control
+Maggot  (instrument): 91 parameters, 100 presets
+PASS
+      presets: 100 of 100 make sound
+      slowest preset: PD Ash Choir, 37.0x real time on one core
+      block sizes 32 / 96 / 2048 and 96 kHz: ok
+      state round trip: all 91 parameters and the preset come back
+      tab 1 MAGGOT: 12 controls drawn
+      tab 2 OSC: 13 controls drawn
+      tab 3 RES/FLT: 12 controls drawn
+      tab 4 ENV: 12 controls drawn
+      tab 5 LFO: 10 controls drawn
+      tab 6 ARP: 14 controls drawn
+      tab 7 MANGLE: 12 controls drawn
+      tab 8 SPACE: 6 controls drawn
+      window: 8 tabs, 91 of 91 parameters have a control
+Mare  (effect): 16 parameters, 50 presets
+PASS
+      presets: 50 of 50 make sound
+      slowest preset: Spiral Staircase, 89.3x real time on one core
+      block sizes 32 / 96 / 2048 and 96 kHz: ok
+      state round trip: all 16 parameters and the preset come back
+      tab 1 MARE: 10 controls drawn
+      tab 2 TAIL: 6 controls drawn
+      window: 2 tabs, 16 of 16 parameters have a control
+Moloch  (effect): 18 parameters, 50 presets
+PASS
+      presets: 50 of 50 make sound
+      slowest preset: Shepard Hell, 105.4x real time on one core
+      block sizes 32 / 96 / 2048 and 96 kHz: ok
+      state round trip: all 18 parameters and the preset come back
+      tab 1 MOLOCH: 10 controls drawn
+      tab 2 SPIRAL: 8 controls drawn
+      window: 2 tabs, 18 of 18 parameters have a control
+Ouroboros  (effect): 17 parameters, 50 presets
+PASS
+      presets: 50 of 50 make sound
+      slowest preset: Dark Reversal, 65.8x real time on one core
+      block sizes 32 / 96 / 2048 and 96 kHz: ok
+      state round trip: all 17 parameters and the preset come back
+      tab 1 REVERSE: 10 controls drawn
+      tab 2 SHAPE: 7 controls drawn
+      window: 2 tabs, 17 of 17 parameters have a control

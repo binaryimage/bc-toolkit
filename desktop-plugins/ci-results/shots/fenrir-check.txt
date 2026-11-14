@@ -1,0 +1,9 @@
+Fenrir  (effect): 20 parameters, 50 presets
+PASS
+      presets: 50 of 50 make sound
+      slowest preset: Hellhound, 72.2x real time on one core
+      block sizes 32 / 96 / 2048 and 96 kHz: ok
+      state round trip: all 20 parameters and the preset come back
+      tab 1 FENRIR: 12 controls drawn
+      tab 2 CHOP/EQ: 8 controls drawn
+      window: 2 tabs, 20 of 20 parameters have a control

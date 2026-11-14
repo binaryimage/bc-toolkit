@@ -1,0 +1,9 @@
+Moloch  (effect): 18 parameters, 50 presets
+PASS
+      presets: 50 of 50 make sound
+      slowest preset: Shepard Hell, 105.4x real time on one core
+      block sizes 32 / 96 / 2048 and 96 kHz: ok
+      state round trip: all 18 parameters and the preset come back
+      tab 1 MOLOCH: 10 controls drawn
+      tab 2 SPIRAL: 8 controls drawn
+      window: 2 tabs, 18 of 18 parameters have a control

@@ -1,0 +1,16 @@
+Janus  (instrument): 110 parameters, 64 presets
+PASS
+      presets: 64 of 64 make sound
+      slowest preset: PD Fallout Haze, 50.0x real time on one core
+      block sizes 32 / 96 / 2048 and 96 kHz: ok
+      state round trip: all 110 parameters and the preset come back
+      tab 1 MAIN: 14 controls drawn
+      tab 2 S1 OSC: 14 controls drawn
+      tab 3 S1 FILT: 11 controls drawn
+      tab 4 S1 AMP: 13 controls drawn
+      tab 5 S2 OSC: 14 controls drawn
+      tab 6 S2 FILT: 11 controls drawn
+      tab 7 S2 AMP: 13 controls drawn
+      tab 8 LFO: 6 controls drawn
+      tab 9 FX: 14 controls drawn
+      window: 9 tabs, 110 of 110 parameters have a control

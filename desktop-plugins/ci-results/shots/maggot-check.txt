@@ -1,0 +1,15 @@
+Maggot  (instrument): 91 parameters, 100 presets
+PASS
+      presets: 100 of 100 make sound
+      slowest preset: PD Ash Choir, 37.0x real time on one core
+      block sizes 32 / 96 / 2048 and 96 kHz: ok
+      state round trip: all 91 parameters and the preset come back
+      tab 1 MAGGOT: 12 controls drawn
+      tab 2 OSC: 13 controls drawn
+      tab 3 RES/FLT: 12 controls drawn
+      tab 4 ENV: 12 controls drawn
+      tab 5 LFO: 10 controls drawn
+      tab 6 ARP: 14 controls drawn
+      tab 7 MANGLE: 12 controls drawn
+      tab 8 SPACE: 6 controls drawn
+      window: 8 tabs, 91 of 91 parameters have a control

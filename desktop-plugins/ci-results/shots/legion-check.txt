@@ -1,0 +1,12 @@
+Legion  (instrument): 39 parameters, 128 presets
+PASS
+      presets: 128 of 128 make sound
+      slowest preset: Glass Cathedral, 22.7x real time on one core
+      block sizes 32 / 96 / 2048 and 96 kHz: ok
+      state round trip: all 39 parameters and the preset come back
+      tab 1 CHOIR: 12 controls drawn
+      tab 2 MOTION: 9 controls drawn
+      tab 3 SYNTH: 6 controls drawn
+      tab 4 ENV: 4 controls drawn
+      tab 5 FX: 8 controls drawn
+      window: 5 tabs, 39 of 39 parameters have a control
