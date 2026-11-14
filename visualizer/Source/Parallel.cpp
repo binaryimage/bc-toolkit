@@ -4,6 +4,8 @@
 
 namespace bcv
 {
+std::atomic<int>& pixelThreads() { static std::atomic<int> n { 0 }; return n; }
+
 Workers::Workers (int threads)
 {
     threads = std::max (1, threads);

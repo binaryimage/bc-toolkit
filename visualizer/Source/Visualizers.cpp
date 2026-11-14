@@ -1723,6 +1723,9 @@ std::vector<std::unique_ptr<Viz>> makeAll()
     v.push_back (std::make_unique<Moth>());
     v.push_back (std::make_unique<Wormhole>());
     addTrippyStyles (v);
+   #if BCV_EXTRAS
+    addFractalStyles (v);
+   #endif
     return v;
 }
 }

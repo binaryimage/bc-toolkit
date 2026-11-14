@@ -94,7 +94,9 @@ void ExportJob::run()
             if (usePlan)
             {
                 auto now = stylePlayer.at (t, plan, all);
-                rr.render (g, img.getBounds().toFloat(), fr, *now.a, look, now.b, now.mix);
+                Look lk = look;
+                lk.rollA = now.palA; lk.rollB = now.palB; lk.rollMix = now.palMix;
+                rr.render (g, img.getBounds().toFloat(), fr, *now.a, lk, now.b, now.mix);
             }
             else rr.render (g, img.getBounds().toFloat(), fr, *all[(size_t) current], look);
         }

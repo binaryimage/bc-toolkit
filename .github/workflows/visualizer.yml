@@ -67,12 +67,12 @@ jobs:
           $dir = "$PWD\gallery"
           $p = Start-Process -FilePath "$PWD\stage\BC Visualizer.exe" -ArgumentList '--gallery', "`"$dir`"" -PassThru
           if (-not $p.WaitForExit(3600000)) { $p.Kill(); throw "gallery run did not finish" }
-          $n = (Get-ChildItem $dir -Filter *.png | Where-Object { $_.Name -match '^\d\d-' }).Count
+          $n = (Get-ChildItem $dir -Filter *.png | Where-Object { $_.Name -match '^\d+-' }).Count
           "gallery: $n images, exit $($p.ExitCode)" | Tee-Object visualizer/ci-results/gallery.txt
-          Copy-Item "$dir\00-all-styles.png", "$dir\00-all-styles-multicolour.png", "$dir\00-colours.png", "$dir\app.png", "$dir\styles.txt", "$dir\layout-check.txt" visualizer/ci-results/
+          Copy-Item "$dir\00-all-styles.png", "$dir\00-all-styles-multicolour.png", "$dir\00-colours.png", "$dir\00-random-colours.png", "$dir\app.png", "$dir\styles.txt", "$dir\layout-check.txt" visualizer/ci-results/
           New-Item -ItemType Directory -Force -Path visualizer/ci-results/app | Out-Null
           Copy-Item "$dir\app-*.png" visualizer/ci-results/app/
-          if ($n -lt 83) { throw "expected 80 styles + 3 contact sheets, got $n" }
+          if ($n -lt 105) { throw "expected 101 styles + 4 contact sheets, got $n" }
           # the button check: every control on both tabs at every window size is there and usable
           $layout = Get-Content "$dir\layout-check.txt"
           $layout | Out-File -Append visualizer/ci-results/gallery.txt
@@ -91,7 +91,9 @@ jobs:
             @{ name = "test-1080p30.mp4"; args = @('--seconds', '10', '--style', '0') },
             @{ name = "test-1440p60.mp4"; args = @('--seconds', '4', '--style', '6', '--width', '2560', '--height', '1440', '--fps', '60') },
             @{ name = "test-2160p30.mp4"; args = @('--seconds', '3', '--style', '10', '--width', '3840', '--height', '2160') },
-            @{ name = "BC-Visualizer-all-80-styles.mp4"; args = @('--seconds', '240', '--style', '-1', '--cycle', '3') },
+            @{ name = "BC-Visualizer-all-101-styles.mp4"; args = @('--seconds', '303', '--style', '-1', '--cycle', '3', '--threads', '0') },
+            @{ name = "BC-Visualizer-fractals-random-colours.mp4"; args = @('--seconds', '40', '--pattern', '1', '--fractals', '--every', '4', '--random-colours', '--flow', '2', '--threads', '0', '--audio', "`"$PWD\visualizer\test-audio\weird.flac`"") },
+            @{ name = "test-mandelbulb-2160p.mp4"; args = @('--seconds', '3', '--style', '88', '--width', '3840', '--height', '2160', '--threads', '0', '--tint', '48') },
             @{ name = "BC-Visualizer-moth-multicolour.mp4"; args = @('--seconds', '20', '--style', '48', '--tint', '6') },
             @{ name = "BC-Visualizer-moth-ice.mp4"; args = @('--seconds', '20', '--style', '48', '--tint', '7') },
             @{ name = "BC-Visualizer-wormhole-multicolour.mp4"; args = @('--seconds', '20', '--style', '49', '--tint', '6') },
@@ -174,7 +176,9 @@ jobs:
           TAG="visualizer-v$VZ_VERSION"
           SETUP=$(ls dist/BC-Visualizer-Setup*.exe)
           ZIP="dist/BC-Visualizer-$VZ_VERSION-portable.zip"
-          REEL="dist/BC-Visualizer-all-80-styles.mp4"
+          REEL="dist/BC-Visualizer-all-101-styles.mp4"
+          FRACT="dist/BC-Visualizer-fractals-random-colours.mp4"
+          RCOL="visualizer/ci-results/00-random-colours.png"
           MOTH="dist/BC-Visualizer-moth-multicolour.mp4"
           ICE="dist/BC-Visualizer-moth-ice.mp4"
           WORM="dist/BC-Visualizer-wormhole-multicolour.mp4"
@@ -183,11 +187,11 @@ jobs:
           SHEET="visualizer/ci-results/00-all-styles.png"
           MULTI="visualizer/ci-results/00-all-styles-multicolour.png"
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
-            gh release upload "$TAG" "$SETUP" "$ZIP" "$REEL" "$MOTH" "$ICE" "$WORM" "$WEIRD" "$SHEET" "$MULTI" "$COLOURS" --clobber --repo "$GITHUB_REPOSITORY"
+            gh release upload "$TAG" "$SETUP" "$ZIP" "$REEL" "$FRACT" "$MOTH" "$ICE" "$WORM" "$WEIRD" "$SHEET" "$MULTI" "$COLOURS" "$RCOL" --clobber --repo "$GITHUB_REPOSITORY"
           else
-            gh release create "$TAG" "$SETUP" "$ZIP" "$REEL" "$MOTH" "$ICE" "$WORM" "$WEIRD" "$SHEET" "$MULTI" "$COLOURS" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest=false \
+            gh release create "$TAG" "$SETUP" "$ZIP" "$REEL" "$FRACT" "$MOTH" "$ICE" "$WORM" "$WEIRD" "$SHEET" "$MULTI" "$COLOURS" "$RCOL" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest=false \
               --title "BC Visualizer $VZ_VERSION" \
-              --notes "2.2.0: Patterns (switch styles through the video: Picked or Random, following the song's sections or every few seconds, with crossfades and hard cuts on slams, shown on a timeline under the preview), all-core exports with live speed, time left and a thumbnail, HEVC when this PC has an encoder, Keep the PC responsive, and full screen preview (F11 or double-click, Esc to leave). Audio-reactive music videos for YouTube: 80 styles (30 new fractal and trippy ones), 48 colours (40 new mixed palettes), and Reactions: 32 frequency ranges plus pitch, panning, noise, crunch, drones, silence and section changes, each doing something different on top of every style. MP4 export at 1080p/1440p/4K, 30 or 60 fps. BC-Visualizer-all-80-styles.mp4 shows every style; BC-Visualizer-weird-test.mp4 runs a 40-second test track (drones, clicks, a riser, a drop, a dive) to show the reactions; 00-colours.png shows all 48 colours."
+              --notes "2.3.0: 21 new fractal styles (Newton Basins, Nova, Phoenix Feathers, Tricorn, Multibrot Morph, Magnet, Lyapunov Zircon, Pickover Stalks, 3D Mandelbulb, Mandelbox, Menger Tunnels, Apollonian Foam and Sierpinski Tetra, Barnsley Fern, Hopalong, Thomas Drift, Buddhabrot, Hilbert Curve, Levy Lightning, Apollonian Gasket, T-Square), a Fractals button in the style picker, 12 new long palettes (6-8 colours), New colours on every switch (Patterns: every switch rolls a brand new palette that fades in with the style) and Colour flow (Gentle, Flowing, Racing). BC-Visualizer-fractals-random-colours.mp4 shows fractals switching every 4 seconds with random colours; 00-random-colours.png shows 18 random rolls. 2.2.0: Patterns, all-core exports with live speed and time left, HEVC when this PC has an encoder, Keep the PC responsive, full screen preview (F11). 101 styles, 60 colours, Reactions on 32 frequency ranges plus pitch, panning, noise, crunch, drones, silence and section changes. MP4 export at 1080p/1440p/4K, 30 or 60 fps."
           fi
 
       - name: Commit test results back to the branch

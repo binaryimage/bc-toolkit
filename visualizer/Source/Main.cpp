@@ -102,6 +102,17 @@ public:
             auto seg = juce::Rectangle<float> (xAt (a), in.getY(), xAt (b) - xAt (a), in.getHeight());
             g.setColour (col::white.withAlpha (i % 2 ? 0.10f : 0.20f));
             g.fillRect (seg);
+            if (st[i].palette != 0)
+            {
+                // the step's random palette as a strip along the bottom of its segment
+                auto strip = seg.withTop (seg.getBottom() - 6);
+                const int n = juce::jmax (1, (int) strip.getWidth() / 3);
+                for (int j = 0; j < n; ++j)
+                {
+                    g.setColour (rolledColour (st[i].palette, (float) j / (float) n));
+                    g.fillRect (strip.getX() + strip.getWidth() * (float) j / (float) n, strip.getY(), strip.getWidth() / (float) n + 0.5f, strip.getHeight());
+                }
+            }
             if (st[i].fade > 0)
             {
                 auto fr = juce::Rectangle<float> (xAt (st[i].fadeStart), in.getY(), xAt (a) - xAt (st[i].fadeStart), in.getHeight());
@@ -196,8 +207,15 @@ public:
         list.setColour (juce::ListBox::backgroundColourId, juce::Colours::transparentBlack);
         allBtn = makeButton ("All", [this] { picks->clear(); for (int i = 0; i < model.getNumRows(); ++i) picks->push_back (i); changed(); });
         noneBtn = makeButton ("None", [this] { picks->clear(); changed(); });
+        fractalsBtn = makeButton ("Fractals", [this]
+        {
+            picks->clear();
+            for (int i = 0; i < model.getNumRows(); ++i) if (isFractalStyle ((*model.all)[(size_t) i]->name())) picks->push_back (i);
+            changed();
+        });
+        fractalsBtn->setTooltip ("Picks every fractal style (and only those).");
         doneBtn = makeButton ("Done", [this] { if (onDone) onDone(); });
-        for (juce::Component* c : std::initializer_list<juce::Component*> { title.get(), hint.get(), count.get(), &list, allBtn.get(), noneBtn.get(), doneBtn.get() }) addAndMakeVisible (c);
+        for (juce::Component* c : std::initializer_list<juce::Component*> { title.get(), hint.get(), count.get(), &list, allBtn.get(), noneBtn.get(), fractalsBtn.get(), doneBtn.get() }) addAndMakeVisible (c);
     }
     ~PickerPanel() override { list.setModel (nullptr); }
     void attach (std::vector<std::unique_ptr<Viz>>& all, std::vector<int>& p)
@@ -213,11 +231,12 @@ public:
         auto r = getLocalBounds().reduced (10, 8);
         auto top = r.removeFromTop (22); count->setBounds (top.removeFromRight (90)); title->setBounds (top);
         hint->setBounds (r.removeFromTop (36)); r.removeFromTop (4);
+        doneBtn->setBounds (r.removeFromBottom (32)); r.removeFromBottom (6);
         auto b = r.removeFromBottom (32); r.removeFromBottom (8);
         const int bw = (b.getWidth() - 12) / 3;
         allBtn->setBounds (b.removeFromLeft (bw)); b.removeFromLeft (6);
         noneBtn->setBounds (b.removeFromLeft (bw)); b.removeFromLeft (6);
-        doneBtn->setBounds (b);
+        fractalsBtn->setBounds (b);
         list.setBounds (r);
     }
     std::function<void()> onDone, onChange;
@@ -226,7 +245,7 @@ private:
     std::vector<int>* picks = nullptr;
     juce::ListBox list;
     std::unique_ptr<juce::Label> title, hint, count;
-    std::unique_ptr<juce::TextButton> allBtn, noneBtn, doneBtn;
+    std::unique_ptr<juce::TextButton> allBtn, noneBtn, fractalsBtn, doneBtn;
     void changed() { refresh(); if (onChange) onChange(); }
 };
 
@@ -307,6 +326,9 @@ public:
             parent.addAndMakeVisible (c);
         };
         combo (tintBox, tintNames(), look.tint, [this] (int i) { look.tint = i; }, lookPane);
+        combo (flowBox, flowNames(), look.flow, [this] (int i) { look.flow = i; }, lookPane);
+        flowBox.setTooltip ("How fast the colours run through the picture. Gentle is the old slow drift; Racing pours them through, faster when it's loud.");
+        flowLbl = makeLabel ("Colour flow", 12, col::text3, 1); lookPane.addAndMakeVisible (*flowLbl);
         combo (bgBox, backgroundNames(), look.background, [this] (int i) { look.background = i; }, lookPane);
         combo (textBox, textNames(), look.text, [this] (int i) { look.text = i; }, lookPane);
         juce::StringArray sizes; for (auto& s : videoSizes()) sizes.add (juce::String (s.label).upToFirstOccurrenceOf (" (", false, false));
@@ -507,6 +529,7 @@ public:
                 labels[li++]->setBounds (lab);
                 tintBox.setBounds (s.removeFromTop (30)); s.removeFromTop (8);
             }
+            flowLbl->setBounds (s.removeFromTop (18)); flowBox.setBounds (s.removeFromTop (30)); s.removeFromTop (8);
             row (bgBox); row (textBox);
             {
                 auto lab = s.removeFromTop (18); labels[li++]->setBounds (lab.removeFromLeft (lab.getWidth() * 55 / 100)); reactLbl->setBounds (lab.withTrimmedLeft (8));
@@ -556,6 +579,7 @@ public:
             }
             fadeLbl->setBounds (s.removeFromTop (18)); fadeSlider.setBounds (s.removeFromTop (26)); s.removeFromTop (6);
             cutBtn.setBounds (s.removeFromTop (26));
+            colourRollBtn.setBounds (s.removeFromTop (26));
             patPane.setSize (w, s.getY() + 4);
         }
     }
@@ -623,6 +647,11 @@ public:
         patPane.addAndMakeVisible (everyBox);
         cutBtn.setButtonText ("Hard cut when it slams back in");
         cutBtn.onClick = [this] { patterns.cutOnSlams = cutBtn.getToggleState(); patternsEdited(); };
+        colourRollBtn.setButtonText ("New colours on every switch");
+        colourRollBtn.setTooltip ("Every switch rolls a brand new palette (3 to 8 colours) that fades in with the style. "
+                                  "Overrides the Colour on the Look tab. Re-roll changes the colours too.");
+        colourRollBtn.onClick = [this] { patterns.randomColours = colourRollBtn.getToggleState(); patternsEdited(); };
+        patPane.addAndMakeVisible (colourRollBtn);
         shuffleBtn.setButtonText ("Shuffle the picked styles");
         shuffleBtn.onClick = [this] { patterns.shuffle = shuffleBtn.getToggleState(); patternsEdited(); };
         patPane.addAndMakeVisible (cutBtn); patPane.addAndMakeVisible (shuffleBtn);
@@ -658,9 +687,11 @@ public:
         cutBtn.setToggleState (patterns.cutOnSlams, juce::dontSendNotification);
         cutBtn.setEnabled (sw && ! timerMode);
         shuffleBtn.setToggleState (patterns.shuffle, juce::dontSendNotification);
+        colourRollBtn.setToggleState (patterns.randomColours, juce::dontSendNotification);
+        colourRollBtn.setEnabled (sw);
         shuffleBtn.setEnabled (patterns.mode == Patterns::picked);
         pickBtn->setButtonText ("Pick styles (" + juce::String ((int) patterns.picks.size()) + ")");
-        rerollBtn->setEnabled (patterns.mode == Patterns::random || (patterns.mode == Patterns::picked && patterns.shuffle));
+        rerollBtn->setEnabled (patterns.mode == Patterns::random || (patterns.mode == Patterns::picked && (patterns.shuffle || patterns.randomColours)));
         readPatternSliders();
         layoutPanes();
     }
@@ -683,7 +714,8 @@ public:
         else
             info = (patterns.mode == Patterns::random ? juce::String ("Random from all ") + juce::String ((int) all.size())
                                                       : juce::String ((int) patterns.picks.size()) + " picked" + (patterns.shuffle ? ", shuffled" : ", in order"))
-                 + ": " + juce::String (switches) + (switches == 1 ? " switch" : " switches") + " over " + fmtTime (timeline.duration) + ". The strip under the preview shows when.";
+                 + ": " + juce::String (switches) + (switches == 1 ? " switch" : " switches") + " over " + fmtTime (timeline.duration) + ". The strip under the preview shows when"
+                 + (patterns.randomColours ? juce::String (", and each part's colours.") : juce::String ("."));
         patternsInfo->setText (info, juce::dontSendNotification);
         pickBtn->setButtonText ("Pick styles (" + juce::String ((int) patterns.picks.size()) + ")");
         timeline.note = patterns.mode == Patterns::single ? "One style all the way through (Patterns tab to switch styles)"
@@ -800,7 +832,7 @@ public:
     void renderTo (juce::Image& img, const Frame& f, Viz& v) { juce::Graphics g (img); renderer.render (g, img.getBounds().toFloat(), f, v, look); }
     Look& getLook() { return look; }
     void setTab (int t) { (t == 1 ? fxTab : t == 2 ? patTab : lookTab).setToggleState (true, juce::dontSendNotification); showTab(); }
-    void testPatterns (int mode) { waitForScan(); patterns.mode = mode; patterns.picks = { 0, 12, 40, 53 }; syncPatternControls(); patternsChanged(); }
+    void testPatterns (int mode, bool colours = true) { waitForScan(); patterns.mode = mode; patterns.picks = { 0, 12, 40, 53 }; patterns.randomColours = colours; patterns.when = Patterns::timer; patterns.everySeconds = 8; syncPatternControls(); patternsChanged(); }
     void testPicker (bool on) { showPicker (on); }
     void testFullscreen (bool on) { fullscreen = on; full.setVisible (on); if (on) { full.setBounds (getLocalBounds()); full.toFront (false); } frameDirty = true; tick(); }
     void waitForScan()
@@ -844,7 +876,7 @@ private:
     std::unique_ptr<juce::TextButton> pickBtn, rerollBtn;
     juce::Slider minSlider, maxSlider, fadeSlider;
     juce::ComboBox everyBox, codecBox;
-    juce::ToggleButton cutBtn, shuffleBtn, responsiveBtn;
+    juce::ToggleButton cutBtn, shuffleBtn, responsiveBtn, colourRollBtn;
     int lastThumb = -1;
     LockToggle styleLock { "style" }, colourLock { "colour" };
     std::unique_ptr<juce::Label> styleLockLbl, fxIntro, fxReactLbl;
@@ -854,7 +886,8 @@ private:
     std::vector<std::unique_ptr<juce::Label>> labels;
     juce::Slider position, intensity;
     juce::TextEditor titleEd, artistEd;
-    juce::ComboBox tintBox, bgBox, textBox, sizeBox, fpsBox, reactBox;
+    juce::ComboBox tintBox, flowBox, bgBox, textBox, sizeBox, fpsBox, reactBox;
+    std::unique_ptr<juce::Label> flowLbl;
     std::unique_ptr<juce::Label> reactLbl;
     juce::ToggleButton fadesBtn, vignetteBtn, progressBtn, badgeBtn;
     ProgressPill progress;
@@ -978,7 +1011,9 @@ private:
             if (patterns.mode != Patterns::single && ! plan.steps.empty())
             {
                 auto now = stylePlayer.at (clockT, plan, all);
-                renderer.render (g, target.getBounds().toFloat(), frame, *now.a, look, now.b, now.mix);
+                Look lk = look;
+                lk.rollA = now.palA; lk.rollB = now.palB; lk.rollMix = now.palMix;
+                renderer.render (g, target.getBounds().toFloat(), frame, *now.a, lk, now.b, now.mix);
             }
             else renderer.render (g, target.getBounds().toFloat(), frame, *all[(size_t) look.style], look);
         }
@@ -1067,6 +1102,8 @@ private:
         patterns.cutOnSlams = p.getBoolValue ("cut", true);
         patterns.seed = (juce::uint32) p.getIntValue ("seed", 1) | 1u;
         hevc = p.getBoolValue ("hevc", false);
+        patterns.randomColours = p.getBoolValue ("rcol", false);
+        look.flow = juce::jlimit (0, 2, p.getIntValue ("flow", 0));
         responsive = p.getBoolValue ("responsive", false);
         juce::File cov (p.getValue ("cover"));
         if (cov.existsAsFile()) look.cover = juce::ImageFileFormat::loadFrom (cov);
@@ -1086,6 +1123,7 @@ private:
         p.setValue ("every", patterns.everySeconds); p.setValue ("fade", patterns.fadeSeconds);
         p.setValue ("cut", patterns.cutOnSlams); p.setValue ("seed", (int) patterns.seed);
         p.setValue ("hevc", hevc); p.setValue ("responsive", responsive);
+        p.setValue ("rcol", patterns.randomColours); p.setValue ("flow", look.flow);
     }
 
 public:
@@ -1260,6 +1298,34 @@ static int runGallery (const juce::File& dir)
         writePng (sw, dir.getChildFile ("00-colours.png"));
     }
 
+    // random palettes (Patterns: New colours on every switch), 18 rolls on one fractal
+    {
+        const int ccols = 6, crows = 3;
+        juce::Image sw (juce::Image::RGB, ccols * tw, crows * th, true, juce::SoftwareImageType());
+        juce::Graphics gc (sw);
+        gc.fillAll (juce::Colours::black);
+        int pick = 0;
+        auto fresh = makeAll();
+        for (size_t i = 0; i < fresh.size(); ++i) if (fresh[i]->name() == "Kaliset" || fresh[i]->name() == "Newton Basins") pick = (int) i;
+        for (int c = 0; c < ccols * crows; ++c)
+        {
+            auto styles = makeAll();
+            Analyzer an; Renderer rr; Frame fr; Look look;
+            look.title = "Roll " + juce::String (c + 1); look.artist = {}; look.fades = false; look.vignette = false;
+            look.rollA = (juce::uint32) (c * 2654435761u + 12345u) | 1u;
+            juce::Image img (juce::Image::ARGB, 640, 360, true, juce::SoftwareImageType());
+            for (int f = 0; f <= 45; ++f)
+            {
+                an.analyse (t.audio, Track::rate, f / 30.0, 30, fr);
+                fr.duration = t.seconds(); fr.index = f;
+                juce::Graphics g (img);
+                rr.render (g, img.getBounds().toFloat(), fr, *styles[(size_t) pick], look);
+            }
+            gc.drawImage (img, juce::Rectangle<float> ((float) (c % ccols * tw), (float) (c / ccols * th), (float) tw, (float) th));
+        }
+        writePng (sw, dir.getChildFile ("00-random-colours.png"));
+    }
+
     return runLayoutCheck (dir);
 }
 
@@ -1278,6 +1344,7 @@ static int runExport (const juce::StringArray& args, int at)
     if (ai >= 0 && ai + 1 < args.size()) { if (! loadTrack (juce::File (args[ai + 1].unquoted()), t, err)) { juce::Logger::writeToLog (err); return 2; } }
     else setDemoTrack (t, secs);
     Look look; look.style = style; look.tint = juce::jlimit (0, tintNames().size() - 1, tint);
+    look.flow = juce::jlimit (0, 2, opt ("--flow", 0));
     look.title = style < 0 ? juce::String() : makeAll()[(size_t) juce::jlimit (0, (int) makeAll().size() - 1, style)]->name();
     ExportJob job (t, look, out, w, h, fps, cycle);
     const int pmode = opt ("--pattern", 0), threads = opt ("--threads", 1);
@@ -1287,12 +1354,20 @@ static int runExport (const juce::StringArray& args, int at)
     if (pmode > 0)
     {
         Patterns pat; pat.mode = juce::jlimit (1, 2, pmode); pat.picks = { 0, 12, 40, 53 };
+        if (args.contains ("--fractals"))
+        {
+            pat.picks.clear();
+            auto all = makeAll();
+            for (int i = 0; i < (int) all.size(); ++i) if (isFractalStyle (all[(size_t) i]->name())) pat.picks.push_back (i);
+            pat.shuffle = true;
+        }
+        pat.randomColours = args.contains ("--random-colours");
         const int every = opt ("--every", 0);
         if (every > 0) { pat.when = Patterns::timer; pat.everySeconds = every; }
         pat.fadeSeconds = 1.5;
         auto ev = scanSong (t.audio, Track::rate);
         job.plan = makePlan (pat, ev, juce::jmax (0, style), (int) makeAll().size());
-        extra << ", " << (int) job.plan.steps.size() << " pattern steps";
+        extra << ", " << (int) job.plan.steps.size() << " pattern steps" << (pat.randomColours ? " with random colours" : "");
     }
     bool ok = job.runNow();
     juce::String report = (ok ? "OK " : "FAILED ") + out.getFullPathName() + " " + juce::String (out.getSize()) + " bytes, "

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(BCVisualizer VERSION 2.2.0)
+project(BCVisualizer VERSION 2.3.0)
 
 if(MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
@@ -43,6 +43,7 @@ target_sources(BCVisualizer PRIVATE
     Source/Analysis.cpp
     Source/Visualizers.cpp
     Source/Trippy.cpp
+    Source/Fractals.cpp
     Source/Renderer.cpp
     Source/Session.cpp
     Source/Video.cpp
@@ -60,7 +61,8 @@ set(VIZ_DEFS
     JUCE_USE_CURL=0
     JUCE_USE_MP3AUDIOFORMAT=1
     JUCE_DISPLAY_SPLASH_SCREEN=0
-    JUCE_REPORT_APP_USAGE=0)
+    JUCE_REPORT_APP_USAGE=0
+    BCV_EXTRAS=1)
 if(TOOLKIT_HEADLESS_LINUX)
     list(APPEND VIZ_DEFS JUCE_ALSA=0 JUCE_JACK=0 JUCE_USE_XRANDR=0 JUCE_USE_XINERAMA=0 JUCE_USE_XCURSOR=0)
 endif()

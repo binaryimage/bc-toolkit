@@ -27,6 +27,10 @@ namespace bcv
         int reactions = 2;          // 0 off, 1 subtle, 2 wild: the frequency-driven layer on top of every style
         int mirror = mirrorAuto;    // see Mirror; a fixed choice applies even with reactions off
         int effectsOff = 0;         // bit per Effect that's switched off (0 = all on, as before)
+        int flow = 0;               // how fast the colours run through the picture: 0 gentle (as before), 1 flowing, 2 racing
+        // random palettes (Patterns: new colours on every switch). 0 = use tint. rollB fades in by rollMix.
+        juce::uint32 rollA = 0, rollB = 0;
+        float rollMix = 0;
         bool effectOn (Effect e) const { return (effectsOff & (1 << (int) e)) == 0; }
         void setEffect (Effect e, bool on) { effectsOff = on ? (effectsOff & ~(1 << (int) e)) : (effectsOff | (1 << (int) e)); }
     };
@@ -41,7 +45,14 @@ namespace bcv
     juce::StringArray mirrorNames();         // one per Mirror
     juce::StringArray backgroundNames();
     juce::StringArray textNames();
+    juce::StringArray flowNames();
     Palette paletteFor (const Look&);
+
+    /** A palette made up from a seed: 3 to 8 colours, always one dark and one hot, so it never turns to mud. */
+    struct RolledPalette { std::vector<juce::uint32> stops; int field = 1; float spatial = 0.5f, bright = 0.6f; };
+    RolledPalette rollPalette (juce::uint32 seed);
+    /** a colour from a rolled palette (x 0..1 round its loop), for showing it in the UI */
+    juce::Colour rolledColour (juce::uint32 seed, float x);
 
     /** Draws one finished video frame: background, visualizer, reactions, colour, titles, fades.
         Keeps state between frames (reactions), so frames should come in order; reset() after a seek. */
@@ -74,7 +85,7 @@ namespace bcv
         void postFx (const Frame& f, float react, const Look& look);
         void colourise (const Frame& f, const Look& look, float react);
         // reaction state
-        float sway = 0, slide = 0, zoomS = 1, offset = 0, sectionShift = 0;
+        float sway = 0, slide = 0, zoomS = 1, offset = 0, sectionShift = 0, flowPhase = 0;
         int lastSection = 0, mirrorMode = 0;
         juce::Random rnd { 77 };
     };

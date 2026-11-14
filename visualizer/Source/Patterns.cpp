@@ -86,6 +86,7 @@ Plan makePlan (const Patterns& p, const SongEvents& song, int singleStyle, int n
     {
         const int only = p.mode == Patterns::picked && order.picks.size() == 1 ? order.picks[0] : singleStyle;
         plan.steps.push_back ({ 0, 0, only });
+        if (p.randomColours) plan.steps[0].palette = (p.seed * 2654435761u + 0x9e3779b9u) | 1u;
         return plan;
     }
 
@@ -130,6 +131,13 @@ Plan makePlan (const Patterns& p, const SongEvents& song, int singleStyle, int n
         plan.steps.push_back (s);
         last = at;
     }
+    if (p.randomColours)
+        for (size_t i = 0; i < plan.steps.size(); ++i)
+        {
+            juce::uint32 h = p.seed * 2654435761u + (juce::uint32) i * 0x9e3779b9u + 0x7f4a7c15u;
+            h ^= h >> 15; h *= 0x2c1b3c6du; h ^= h >> 12;
+            plan.steps[i].palette = h | 1u;
+        }
     return plan;
 }
 
@@ -141,12 +149,14 @@ StylePlayer::Now StylePlayer::at (double t, const Plan& plan, std::vector<std::u
     const int k = plan.stepAt (t);
     const auto& step = plan.steps[(size_t) k];
     int a = juce::jlimit (0, n - 1, step.style), b = -1;
+    now.palA = step.palette;
     if (k > 0 && step.fade > 0 && t < step.fadeStart + step.fade)
     {
         b = a;
         a = juce::jlimit (0, n - 1, plan.steps[(size_t) k - 1].style);
         const float u = (float) juce::jlimit (0.0, 1.0, (t - step.fadeStart) / step.fade);
         now.mix = u * u * (3 - 2 * u);
+        now.palA = plan.steps[(size_t) k - 1].palette; now.palB = step.palette; now.palMix = now.mix;
     }
     for (int s : { a, b })
         if (s >= 0 && s != onA && s != onB) all[(size_t) s]->reset();   // it's just come on: start it fresh

@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 #include <atomic>
 #include <condition_variable>
 #include <functional>
@@ -43,6 +44,15 @@ namespace bcv
         void loop (int index);
         void runChunks();
     };
+
+    /** How many threads a style may split its own pixel work over. The Renderer sets it every frame from its
+        workers (so Keep cool / Keep the PC responsive count); 0 = all but one core. */
+    std::atomic<int>& pixelThreads();
+    inline int pixelThreadCount()
+    {
+        const int n = pixelThreads().load();
+        return n > 0 ? n : (std::max) (1, (int) std::thread::hardware_concurrency() - 1);
+    }
 
     /** Splits rows across the workers, or runs them all here when there are none. */
     inline void forRows (Workers* w, int rows, const std::function<void (int, int)>& fn)

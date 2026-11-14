@@ -1,7 +1,7 @@
 BC Visualizer
 =============
 
-Turns a track into a music video for YouTube: 80 audio-reactive styles, your title and
+Turns a track into a music video for YouTube: 101 audio-reactive styles, your title and
 artist name, optional cover art, exported as an MP4 (H.264 video, AAC audio).
 
 Quick start
@@ -29,6 +29,22 @@ The Patterns tab on the right:
   on a timer instead. Fade sets how long the crossfades are.
 The strip under the preview shows which style plays when; click it to jump there.
 What you preview is exactly what gets exported.
+
+Fractals and random colours
+---------------------------
+- 34 of the styles are fractals (21 new in 2.3: Newton Basins, Nova, Phoenix Feathers,
+  Tricorn, Multibrot Morph, Magnet, Lyapunov Zircon, Pickover Stalks, the 3D ones Mandelbulb,
+  Mandelbox, Menger Tunnels, Apollonian Foam and Sierpinski Tetra, Barnsley Fern, Hopalong,
+  Thomas Drift, Buddhabrot, Hilbert Curve, Levy Lightning, Apollonian Gasket and T-Square).
+- In Pick styles, the Fractals button picks all of them in one click. With Shuffle on you get
+  random fractals only.
+- New colours on every switch (Patterns tab) rolls a brand new palette of 3 to 8 colours at
+  every switch, fading in with the style. It overrides the Colour on the Look tab. Re-roll
+  changes the colours too; the strip under the preview shows each part's colours.
+- The colour list has 12 new long palettes (6-8 colours) made for fractals, from Hellscape
+  to Witch Spectrum.
+- Colour flow (Look tab): Gentle is the slow drift, Flowing and Racing pour the colours
+  through the picture, faster when the music is loud.
 
 Exporting
 ---------

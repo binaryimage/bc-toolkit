@@ -33,4 +33,8 @@ namespace bcv
     std::vector<std::unique_ptr<Viz>> makeAll();
     /** styles 51-80 (Trippy.cpp) */
     void addTrippyStyles (std::vector<std::unique_ptr<Viz>>& v);
+    /** styles 81 on: more fractals (Fractals.cpp; BC Visualizer only, built with BCV_EXTRAS) */
+    void addFractalStyles (std::vector<std::unique_ptr<Viz>>& v);
+    /** whether a style (by name) is one of the fractals, for the picker's Fractals button */
+    bool isFractalStyle (const juce::String& name);
 }

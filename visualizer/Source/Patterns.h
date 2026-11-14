@@ -18,6 +18,7 @@ namespace bcv
         double fadeSeconds = 2.5;        // crossfade length
         bool cutOnSlams = true;          // hard cut instead of a fade when it slams back in after a quieter bit
         juce::uint32 seed = 1;           // random and shuffle orders; the same seed gives the same video
+        bool randomColours = false;      // every switch also rolls a brand new palette (fading with the style)
 
         static juce::StringArray modeNames()  { return { "Single", "Picked", "Random" }; }
         static juce::StringArray whenNames()  { return { "Follow the song", "Every few seconds" }; }
@@ -39,7 +40,7 @@ namespace bcv
     /** Which style plays when. Each step starts a fade at fadeStart; fade 0 = hard cut. */
     struct Plan
     {
-        struct Step { double fadeStart = 0, fade = 0; int style = 0; };
+        struct Step { double fadeStart = 0, fade = 0; int style = 0; juce::uint32 palette = 0; };   // palette: a rollPalette seed, 0 = the chosen colour
         std::vector<Step> steps;
         bool switches() const { return steps.size() > 1; }
         /** the step playing at t (the newer one while a fade is under way) */
@@ -52,7 +53,8 @@ namespace bcv
     class StylePlayer
     {
     public:
-        struct Now { Viz* a = nullptr; Viz* b = nullptr; float mix = 0; int styleA = 0, styleB = -1; };
+        struct Now { Viz* a = nullptr; Viz* b = nullptr; float mix = 0; int styleA = 0, styleB = -1;
+                     juce::uint32 palA = 0, palB = 0; float palMix = 0; };   // the palettes fade on the same curve, even between two of the same style
         /** frames must come in order; call reset() after a seek */
         Now at (double t, const Plan& plan, std::vector<std::unique_ptr<Viz>>& all);
         void reset() { onA = onB = -1; }

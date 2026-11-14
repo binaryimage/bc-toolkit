@@ -53,8 +53,37 @@ namespace
             { "Ritual",          { 0xff5c0010, 0xffd4a017, 0xff1f0029, 0xffff3d3d }, 4, 0.7f, 0.5f },
             { "Mercury",         { 0xff3d4247, 0xffc0c8d0, 0xfff7fbff, 0xff8fa8c4 }, 1, 0.4f, 0.8f },
             { "Neon Grave",      { 0xffff1fa8, 0xff7a1fff, 0xffa8ff1f, 0xff1fd4ff }, 0, 1.0f, 0.3f },
+           #if BCV_EXTRAS
+            // long palettes (6-8 colours): made for fractals, where every depth gets its own colour
+            { "Hellscape",        { 0xff0a0000, 0xff3d0000, 0xff8f0a00, 0xffd43a00, 0xffff8c1a, 0xffffd24d, 0xfffff6c7, 0xff5c0a2b }, 1, 0.3f, 0.9f },
+            { "Psilocybin",       { 0xff1a0b2e, 0xff5b2a86, 0xffb83dba, 0xffff6f91, 0xffffc75f, 0xfff9f871, 0xff4fd1c5 }, 0, 0.6f, 0.7f },
+            { "Opal",             { 0xff0d1b2a, 0xff3a86ff, 0xff8ecae6, 0xfff1faee, 0xffffafcc, 0xffcdb4db, 0xff80ffdb }, 3, 0.5f, 0.7f },
+            { "Black Light",      { 0xff0b0014, 0xff3c00a8, 0xff7a00ff, 0xffff00e5, 0xff00f0ff, 0xffb6ff00 }, 4, 0.5f, 0.8f },
+            { "Carrion",          { 0xff140f05, 0xff4a3b12, 0xff7d6b2a, 0xffa3a85a, 0xff6b1f1f, 0xffd9c9a3 }, 2, 0.4f, 0.8f },
+            { "Abyss",            { 0xff00040d, 0xff001f3d, 0xff004e7a, 0xff00a3b8, 0xff7affe6, 0xffe0fff9, 0xff2a0f5c }, 1, 0.3f, 0.9f },
+            { "Cathedral Glass",  { 0xff1a0033, 0xff0047ab, 0xff00a86b, 0xffffd700, 0xffe0115f, 0xff6a0dad, 0xffff7f00, 0xff00ced1 }, 4, 0.7f, 0.6f },
+            { "Toxic Sunset",     { 0xff1b0d33, 0xff7a1e5c, 0xffe8344e, 0xffff8a3d, 0xfffff04d, 0xff8aff4d, 0xff1fd1a8 }, 2, 0.5f, 0.8f },
+            { "Infernal Rainbow", { 0xff200000, 0xffff1f1f, 0xffff9500, 0xfffff200, 0xff1fff5a, 0xff1fb4ff, 0xff8a1fff, 0xffff1fcf }, 0, 0.6f, 0.8f },
+            { "Ghost Orchid",     { 0xff120d1a, 0xff4b3a66, 0xff9b7fb8, 0xffe6d9f2, 0xffffffff, 0xffb8e0d2 }, 3, 0.4f, 0.8f },
+            { "Deep Fry",         { 0xff2b0f00, 0xffff6a00, 0xffffe600, 0xffff00a8, 0xff00ffea, 0xffff2600 }, 1, 0.7f, 0.6f },
+            { "Witch Spectrum",   { 0xff001a0d, 0xff00ff6a, 0xff00a3ff, 0xff6a00ff, 0xffff00d4, 0xffffe100, 0xff00330f }, 0, 0.6f, 0.8f },
+           #endif
         };
         return m;
+    }
+
+    /** colour stops round a loop, blended smoothly, into a lookup table */
+    void lutFromStops (const std::vector<juce::uint32>& st, bool paper, juce::uint8* lr, juce::uint8* lg, juce::uint8* lb, int n)
+    {
+        for (int i = 0; i < n; ++i)
+        {
+            const float pos = (float) i / (float) n * (float) st.size();
+            const int a = (int) pos % (int) st.size(), b = (a + 1) % (int) st.size();
+            const float u = pos - std::floor (pos), su = u * u * (3 - 2 * u);
+            auto c = juce::Colour (st[(size_t) a]).interpolatedWith (juce::Colour (st[(size_t) b]), su);
+            if (paper) c = c.withMultipliedBrightness (0.7f).withMultipliedSaturation (1.2f);
+            lr[i] = c.getRed(); lg[i] = c.getGreen(); lb[i] = c.getBlue();
+        }
     }
 
     void buildLut (int tint, bool paper, juce::uint8* lr, juce::uint8* lg, juce::uint8* lb, int n)
@@ -109,6 +138,38 @@ juce::StringArray effectHints()
 juce::StringArray mirrorNames() { return { "Mirror: follows the song", "Mirror: off", "Mirror: left-right", "Mirror: top-bottom", "Mirror: four-way", "Mirror: flipped" }; }
 juce::StringArray backgroundNames() { return { "Black", "Cover art (dimmed)", "Paper" }; }
 juce::StringArray textNames() { return { "Bottom left", "Centred", "Hidden" }; }
+juce::StringArray flowNames() { return { "Gentle", "Flowing", "Racing" }; }
+
+RolledPalette rollPalette (juce::uint32 seed)
+{
+    juce::Random r ((juce::int64) seed * 2862933555777941757LL + 3037000493LL);
+    for (int i = 0; i < 3; ++i) r.nextInt();
+    RolledPalette p;
+    const int n = 3 + r.nextInt (6);                                     // 3 to 8 colours
+    float hue = r.nextFloat();
+    const float step = 0.04f + r.nextFloat() * 0.32f;                   // small steps = colours that go together, big = wild
+    const int dark = r.nextInt (n), hot = (dark + 1 + r.nextInt (n - 1)) % n;
+    for (int i = 0; i < n; ++i)
+    {
+        float sat = 0.55f + 0.45f * r.nextFloat(), val = 0.6f + 0.4f * r.nextFloat();
+        if (i == dark) { val = 0.16f + 0.16f * r.nextFloat(); sat = 0.7f + 0.3f * r.nextFloat(); }
+        if (i == hot)  { val = 1.0f; sat = 0.1f + 0.45f * r.nextFloat(); }
+        p.stops.push_back (juce::Colour::fromHSV (hue - std::floor (hue), sat, val, 1.0f).getARGB());
+        hue += (r.nextBool() ? 1.0f : -1.0f) * step * (0.5f + r.nextFloat());
+    }
+    p.field = r.nextInt (5);
+    p.spatial = 0.2f + r.nextFloat() * 0.9f;
+    p.bright = 0.35f + r.nextFloat() * 0.6f;
+    return p;
+}
+
+juce::Colour rolledColour (juce::uint32 seed, float x)
+{
+    const auto p = rollPalette (seed);
+    const int n = (int) p.stops.size();
+    const int i = juce::jlimit (0, n - 1, (int) ((x - std::floor (x)) * (float) n));
+    return juce::Colour (p.stops[(size_t) i]);
+}
 
 Palette paletteFor (const Look& l)
 {
@@ -170,7 +231,8 @@ void Renderer::render (juce::Graphics& g, juce::Rectangle<float> r, const Frame&
 
     const float react = look.reactions <= 0 ? 0.0f : look.reactions == 1 ? 0.5f : 1.0f;
     const bool fixedMirror = look.mirror >= mirrorLeftRight;
-    if (look.tint >= kMultiColour || react > 0 || fixedMirror || mixing)
+    pixelThreads() = workers != nullptr ? workers->getActive() : 0;   // styles that split their own pixel work use this many
+    if (look.tint >= kMultiColour || look.rollA != 0 || react > 0 || fixedMirror || mixing)
     {
         auto size = r.toNearestInt().withZeroOrigin();
         if (! layer.isValid() || layer.getBounds() != size)
@@ -288,7 +350,7 @@ void Renderer::render (juce::Graphics& g, juce::Rectangle<float> r, const Frame&
 void Renderer::reset()
 {
     std::fill (prevLum.begin(), prevLum.end(), (juce::uint8) 0);
-    sway = slide = offset = sectionShift = 0; zoomS = 1; lastSection = 0; mirrorMode = 0;
+    sway = slide = offset = sectionShift = flowPhase = 0; zoomS = 1; lastSection = 0; mirrorMode = 0;
 }
 
 static float zoneAvg (const Frame& f, int a, int z, bool hits)
@@ -471,30 +533,48 @@ void Renderer::colourise (const Frame& f, const Look& look, float react)
     const int w = layer.getWidth(), h = layer.getHeight();
     const bool paper = look.background == 2;
     constexpr int kLut = 1024;
-    juce::uint8 lr[kLut], lg[kLut], lb[kLut];
-    int kind = 0; float spatial = 1, bright = 0;
-    const bool single = look.tint < kMultiColour;
-    if (single)
+    // one palette, or (random colours, mid-fade) two that blend
+    struct Lut { juce::uint8 r[kLut], g[kLut], b[kLut]; int kind = 0; float spatial = 1, bright = 0; };
+    Lut A, B;
+    const bool rolled = look.rollA != 0;
+    const bool twoLuts = rolled && look.rollB != 0 && look.rollB != look.rollA && look.rollMix > 0.002f;
+    auto fromRoll = [paper] (Lut& L, juce::uint32 seed)
+    {
+        const auto rp = rollPalette (seed);
+        lutFromStops (rp.stops, paper, L.r, L.g, L.b, kLut);
+        L.kind = rp.field; L.spatial = rp.spatial; L.bright = rp.bright;
+    };
+    if (rolled)
+    {
+        fromRoll (A, look.rollA);
+        if (twoLuts) fromRoll (B, look.rollB);
+    }
+    else if (look.tint < kMultiColour)
     {
         auto c = paletteFor (look).fg;
-        for (int i = 0; i < kLut; ++i) { lr[i] = c.getRed(); lg[i] = c.getGreen(); lb[i] = c.getBlue(); }
-        spatial = 0;
+        for (int i = 0; i < kLut; ++i) { A.r[i] = c.getRed(); A.g[i] = c.getGreen(); A.b[i] = c.getBlue(); }
+        A.spatial = 0;
     }
     else
     {
-        buildLut (look.tint, paper, lr, lg, lb, kLut);
+        buildLut (look.tint, paper, A.r, A.g, A.b, kLut);
         if (look.tint >= kFirstMix)
         {
             const auto& m = mixes()[(size_t) juce::jlimit (0, (int) mixes().size() - 1, look.tint - kFirstMix)];
-            kind = m.field; spatial = m.spatial; bright = m.bright;
+            A.kind = m.field; A.spatial = m.spatial; A.bright = m.bright;
         }
     }
-    // the palette turns slowly, kicks on beats, slides with brightness, and jumps a third when the section changes
+    // the palette turns slowly, kicks on beats, slides with brightness, and jumps a third when the section changes;
+    // Colour flow adds a steady run through it on top (faster when it's loud)
     const float target = (float) f.section * 0.33f;
     sectionShift += (target - sectionShift) * juce::jmin (1.0f, (float) f.dt * 6);
-    offset = (float) std::fmod (f.t * (0.04 + 0.05 * f.energy) + f.beat * 0.07 + f.brightness * 0.3f * (react > 0 ? 1 : 0) + sectionShift * (react > 0 ? 1 : 0), 1000.0);
+    static const float flowRates[] = { 0.0f, 0.22f, 0.7f };
+    flowPhase = (float) std::fmod (flowPhase + (float) f.dt * flowRates[juce::jlimit (0, 2, look.flow)] * (0.6f + 0.8f * f.energy), 1000.0);
+    offset = (float) std::fmod (f.t * (0.04 + 0.05 * f.energy) + f.beat * 0.07 + f.brightness * 0.3f * (react > 0 ? 1 : 0) + sectionShift * (react > 0 ? 1 : 0) + flowPhase, 1000.0);
     if (! look.effectOn (fxColourMotion)) offset = 0;   // the palette holds still
-    const std::vector<float>* fv = spatial > 0 ? &field (kind) : nullptr;
+    const std::vector<float>* fv = A.spatial > 0 ? &field (A.kind) : nullptr;
+    const std::vector<float>* fv2 = twoLuts && B.spatial > 0 ? &field (B.kind) : nullptr;
+    const int mixB = twoLuts ? juce::jlimit (0, 256, (int) std::lround (look.rollMix * 256.0f)) : 0, mixA = 256 - mixB;
 
     juce::Image::BitmapData bd (layer, juce::Image::BitmapData::readWrite);
     if (! lumReady) extractLum (0.0f);
@@ -507,13 +587,23 @@ void Renderer::colourise (const Frame& f, const Look& look, float react)
     {
         const juce::uint8* L = lum.data() + (size_t) y * (size_t) w;
         const float* F = fv != nullptr ? fv->data() + (size_t) y * (size_t) w : nullptr;
+        const float* F2 = fv2 != nullptr ? fv2->data() + (size_t) y * (size_t) w : nullptr;
         for (int x = 0; x < w; ++x)
         {
             const juce::uint32 v = L[x];
-            float idx = offset + (F != nullptr ? F[x] * spatial : 0.0f) + bright * v / 255.0f;
+            float idx = offset + (F != nullptr ? F[x] * A.spatial : 0.0f) + A.bright * (float) v / 255.0f;
             const int i = (int) ((idx - std::floor (idx)) * kLut) & (kLut - 1);
+            juce::uint32 pr = A.r[i], pg = A.g[i], pb = A.b[i];
+            if (mixB > 0)
+            {
+                float idx2 = offset + (F2 != nullptr ? F2[x] * B.spatial : 0.0f) + B.bright * (float) v / 255.0f;
+                const int j = (int) ((idx2 - std::floor (idx2)) * kLut) & (kLut - 1);
+                pr = (pr * (juce::uint32) mixA + B.r[j] * (juce::uint32) mixB) >> 8;
+                pg = (pg * (juce::uint32) mixA + B.g[j] * (juce::uint32) mixB) >> 8;
+                pb = (pb * (juce::uint32) mixA + B.b[j] * (juce::uint32) mixB) >> 8;
+            }
             const juce::uint32 m = v * 257u;   // x * v / 255 without the divisions
-            cr[(size_t) x] = (juce::uint8) ((lr[i] * m + 32768u) >> 16); cg[(size_t) x] = (juce::uint8) ((lg[i] * m + 32768u) >> 16); cb[(size_t) x] = (juce::uint8) ((lb[i] * m + 32768u) >> 16);
+            cr[(size_t) x] = (juce::uint8) ((pr * m + 32768u) >> 16); cg[(size_t) x] = (juce::uint8) ((pg * m + 32768u) >> 16); cb[(size_t) x] = (juce::uint8) ((pb * m + 32768u) >> 16);
             ca[(size_t) x] = (juce::uint8) v;
         }
         auto* line = bd.getLinePointer (y);
