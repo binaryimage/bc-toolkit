@@ -538,7 +538,7 @@ void Renderer::colourise (const Frame& f, const Look& look, float react)
     Lut A, B;
     const bool rolled = look.rollA != 0;
     const bool twoLuts = rolled && look.rollB != 0 && look.rollB != look.rollA && look.rollMix > 0.002f;
-    auto fromRoll = [paper] (Lut& L, juce::uint32 seed)
+    auto fromRoll = [&] (Lut& L, juce::uint32 seed)
     {
         const auto rp = rollPalette (seed);
         lutFromStops (rp.stops, paper, L.r, L.g, L.b, kLut);
