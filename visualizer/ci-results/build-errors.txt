@@ -1,0 +1,3 @@
+D:\a\bc-toolkit\bc-toolkit\visualizer\Source\Renderer.cpp(544,55): error C3493: 'kLut' cannot be implicitly captured because no default capture mode has been specified [D:\a\bc-toolkit\bc-toolkit\build\BCVisualizer.vcxproj]
+D:\a\bc-toolkit\bc-toolkit\visualizer\Source\Renderer.cpp(549,9): error C2064: term does not evaluate to a function taking 2 arguments [D:\a\bc-toolkit\bc-toolkit\build\BCVisualizer.vcxproj]
+D:\a\bc-toolkit\bc-toolkit\visualizer\Source\Renderer.cpp(550,22): error C2064: term does not evaluate to a function taking 2 arguments [D:\a\bc-toolkit\bc-toolkit\build\BCVisualizer.vcxproj]
