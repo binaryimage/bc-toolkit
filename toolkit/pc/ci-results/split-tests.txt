@@ -12,7 +12,7 @@ PASS  a rate change is refused while another app is attached
 PASS  a rate change in the host tells every app to reset
 PASS  an app on its own can switch the rate   (96000.000000)
 PASS  the app that asked isn't sent a reset for its own change
-PASS  audio keeps flowing after the switch   (86)
+PASS  audio keeps flowing after the switch   (87)
 PASS  apps hear about it when the host quits
 PASS  one late block is counted (2 buffers)   (1)
 PASS  a late block doesn't make a step in the sound (2 buffers)   (worst step 0.013088, sine's own 0.013090)
@@ -39,8 +39,8 @@ PASS  [64-bit] channel names come from the real interface   (Test sine 1)
 PASS  [64-bit] both create 8+8 buffers
 PASS  [64-bit] a different buffer size is refused
 PASS  [64-bit] both start
-PASS  [64-bit] both get callbacks (time-info host and plain host)   (281 / 281)
-PASS  [64-bit] app A hears input 1   (0.500000)
+PASS  [64-bit] both get callbacks (time-info host and plain host)   (282 / 282)
+PASS  [64-bit] app A hears input 1   (0.499998)
 PASS  [64-bit] app B hears app A's output through the mix   (0.250000)
 PASS  [64-bit] reported output latency includes Split's two extra buffers   (768)
 PASS  [64-bit] can't change the rate under another app
@@ -59,7 +59,7 @@ PASS  [32-bit] both create 8+8 buffers
 PASS  [32-bit] a different buffer size is refused
 PASS  [32-bit] both start
 PASS  [32-bit] both get callbacks (time-info host and plain host)   (281 / 282)
-PASS  [32-bit] app A hears input 1   (0.500000)
+PASS  [32-bit] app A hears input 1   (0.499996)
 PASS  [32-bit] app B hears app A's output through the mix   (0.250000)
 PASS  [32-bit] reported output latency includes Split's two extra buffers   (768)
 PASS  [32-bit] can't change the rate under another app
@@ -69,8 +69,8 @@ PASS  [32-bit] sample position advances
 == JUCE's ASIO host opening Split
 PASS  JUCE's ASIO host lists BC Split   (BC Split)
 PASS  JUCE opens Split at 48k / 256
-PASS  callbacks arrive through JUCE   (281)
-PASS  JUCE hears the host's input 1   (0.499998)
+PASS  callbacks arrive through JUCE   (282)
+PASS  JUCE hears the host's input 1   (0.5)
 PASS  what JUCE plays comes back through Split's mixer   (0.3)
 PASS  JUCE sees the extra buffers in the output latency   (768)
 
