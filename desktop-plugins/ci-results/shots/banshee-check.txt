@@ -1,7 +1,7 @@
 Banshee  (effect): 17 parameters, 50 presets
 PASS
       presets: 50 of 50 make sound
-      slowest preset: Fast Shiver, 40.4x real time on one core
+      slowest preset: Funeral Procession, 63.3x real time on one core
       block sizes 32 / 96 / 2048 and 96 kHz: ok
       state round trip: all 17 parameters and the preset come back
       tab 1 BANSHEE: 11 controls drawn

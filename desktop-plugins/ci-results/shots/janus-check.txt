@@ -1,7 +1,7 @@
 Janus  (instrument): 110 parameters, 64 presets
 PASS
       presets: 64 of 64 make sound
-      slowest preset: PD Fallout Haze, 50.0x real time on one core
+      slowest preset: PD Radiation Bloom, 66.9x real time on one core
       block sizes 32 / 96 / 2048 and 96 kHz: ok
       state round trip: all 110 parameters and the preset come back
       tab 1 MAIN: 14 controls drawn

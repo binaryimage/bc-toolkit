@@ -1,7 +1,7 @@
 Ouroboros  (effect): 17 parameters, 50 presets
 PASS
       presets: 50 of 50 make sound
-      slowest preset: Dark Reversal, 65.8x real time on one core
+      slowest preset: Coiled Pad, 86.6x real time on one core
       block sizes 32 / 96 / 2048 and 96 kHz: ok
       state round trip: all 17 parameters and the preset come back
       tab 1 REVERSE: 10 controls drawn

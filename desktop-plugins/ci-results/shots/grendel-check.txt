@@ -1,7 +1,7 @@
 Grendel  (effect): 19 parameters, 50 presets
 PASS
       presets: 50 of 50 make sound
-      slowest preset: Morgue Tape, 117.3x real time on one core
+      slowest preset: Possessed Drums, 160.0x real time on one core
       block sizes 32 / 96 / 2048 and 96 kHz: ok
       state round trip: all 19 parameters and the preset come back
       tab 1 GRENDEL: 10 controls drawn

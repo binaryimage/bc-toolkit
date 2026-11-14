@@ -1,7 +1,7 @@
 Maggot  (instrument): 91 parameters, 100 presets
 PASS
       presets: 100 of 100 make sound
-      slowest preset: PD Ash Choir, 37.0x real time on one core
+      slowest preset: PD Larval Halo, 50.8x real time on one core
       block sizes 32 / 96 / 2048 and 96 kHz: ok
       state round trip: all 91 parameters and the preset come back
       tab 1 MAGGOT: 12 controls drawn

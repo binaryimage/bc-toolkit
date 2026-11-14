@@ -1,7 +1,7 @@
 Banshee  (effect): 17 parameters, 50 presets
 PASS
       presets: 50 of 50 make sound
-      slowest preset: Fast Shiver, 40.4x real time on one core
+      slowest preset: Funeral Procession, 63.3x real time on one core
       block sizes 32 / 96 / 2048 and 96 kHz: ok
       state round trip: all 17 parameters and the preset come back
       tab 1 BANSHEE: 11 controls drawn
@@ -10,7 +10,7 @@ PASS
 Fenrir  (effect): 20 parameters, 50 presets
 PASS
       presets: 50 of 50 make sound
-      slowest preset: Hellhound, 72.2x real time on one core
+      slowest preset: Devourer, 101.8x real time on one core
       block sizes 32 / 96 / 2048 and 96 kHz: ok
       state round trip: all 20 parameters and the preset come back
       tab 1 FENRIR: 12 controls drawn
@@ -19,7 +19,7 @@ PASS
 Grendel  (effect): 19 parameters, 50 presets
 PASS
       presets: 50 of 50 make sound
-      slowest preset: Morgue Tape, 117.3x real time on one core
+      slowest preset: Possessed Drums, 160.0x real time on one core
       block sizes 32 / 96 / 2048 and 96 kHz: ok
       state round trip: all 19 parameters and the preset come back
       tab 1 GRENDEL: 10 controls drawn
@@ -28,7 +28,7 @@ PASS
 Janus  (instrument): 110 parameters, 64 presets
 PASS
       presets: 64 of 64 make sound
-      slowest preset: PD Fallout Haze, 50.0x real time on one core
+      slowest preset: PD Radiation Bloom, 66.9x real time on one core
       block sizes 32 / 96 / 2048 and 96 kHz: ok
       state round trip: all 110 parameters and the preset come back
       tab 1 MAIN: 14 controls drawn
@@ -44,7 +44,7 @@ PASS
 Legion  (instrument): 39 parameters, 128 presets
 PASS
       presets: 128 of 128 make sound
-      slowest preset: Glass Cathedral, 22.7x real time on one core
+      slowest preset: Apocalypse Choir, 30.4x real time on one core
       block sizes 32 / 96 / 2048 and 96 kHz: ok
       state round trip: all 39 parameters and the preset come back
       tab 1 CHOIR: 12 controls drawn
@@ -56,7 +56,7 @@ PASS
 Maggot  (instrument): 91 parameters, 100 presets
 PASS
       presets: 100 of 100 make sound
-      slowest preset: PD Ash Choir, 37.0x real time on one core
+      slowest preset: PD Larval Halo, 50.8x real time on one core
       block sizes 32 / 96 / 2048 and 96 kHz: ok
       state round trip: all 91 parameters and the preset come back
       tab 1 MAGGOT: 12 controls drawn
@@ -71,7 +71,7 @@ PASS
 Mare  (effect): 16 parameters, 50 presets
 PASS
       presets: 50 of 50 make sound
-      slowest preset: Spiral Staircase, 89.3x real time on one core
+      slowest preset: Dub Siren Sink, 112.3x real time on one core
       block sizes 32 / 96 / 2048 and 96 kHz: ok
       state round trip: all 16 parameters and the preset come back
       tab 1 MARE: 10 controls drawn
@@ -80,7 +80,7 @@ PASS
 Moloch  (effect): 18 parameters, 50 presets
 PASS
       presets: 50 of 50 make sound
-      slowest preset: Shepard Hell, 105.4x real time on one core
+      slowest preset: Octave Sandwich, 126.7x real time on one core
       block sizes 32 / 96 / 2048 and 96 kHz: ok
       state round trip: all 18 parameters and the preset come back
       tab 1 MOLOCH: 10 controls drawn
@@ -89,7 +89,7 @@ PASS
 Ouroboros  (effect): 17 parameters, 50 presets
 PASS
       presets: 50 of 50 make sound
-      slowest preset: Dark Reversal, 65.8x real time on one core
+      slowest preset: Coiled Pad, 86.6x real time on one core
       block sizes 32 / 96 / 2048 and 96 kHz: ok
       state round trip: all 17 parameters and the preset come back
       tab 1 REVERSE: 10 controls drawn

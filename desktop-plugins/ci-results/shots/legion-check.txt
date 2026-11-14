@@ -1,7 +1,7 @@
 Legion  (instrument): 39 parameters, 128 presets
 PASS
       presets: 128 of 128 make sound
-      slowest preset: Glass Cathedral, 22.7x real time on one core
+      slowest preset: Apocalypse Choir, 30.4x real time on one core
       block sizes 32 / 96 / 2048 and 96 kHz: ok
       state round trip: all 39 parameters and the preset come back
       tab 1 CHOIR: 12 controls drawn
