@@ -1,1 +1,0 @@
-D:\a\bc-toolkit\bc-toolkit\visualizer\Source\Main.cpp(312,82): error C2228: left of '.upToFirstOccurrenceOf' must have class/struct/union [D:\a\bc-toolkit\bc-toolkit\build\BCVisualizer.vcxproj]
