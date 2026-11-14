@@ -1,14 +1,16 @@
 
-test-1080p30.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-1080p30.mp4 14299411 bytes, 30.6 s, 9.8 fps, 1 threads, H.264 12 Mbps
-test-1440p60.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-1440p60.mp4 16818315 bytes, 38.4 s, 6.2 fps, 1 threads, H.264 36 Mbps
-test-2160p30.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-2160p30.mp4 17096830 bytes, 32.2 s, 2.8 fps, 1 threads, H.264 45 Mbps
-BC-Visualizer-all-80-styles.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-all-80-styles.mp4 366958648 bytes, 673.5 s, 10.7 fps, 1 threads, H.264 12 Mbps
-BC-Visualizer-moth-multicolour.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-moth-multicolour.mp4 29359928 bytes, 66.2 s, 9.1 fps, 1 threads, H.264 12 Mbps
-BC-Visualizer-moth-ice.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-moth-ice.mp4 29081557 bytes, 66.7 s, 9.0 fps, 1 threads, H.264 12 Mbps
-BC-Visualizer-wormhole-multicolour.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-wormhole-multicolour.mp4 29578342 bytes, 60.0 s, 10.0 fps, 1 threads, H.264 12 Mbps
-BC-Visualizer-weird-test.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-weird-test.mp4 60166620 bytes, 131.8 s, 9.1 fps, 1 threads, H.264 12 Mbps
-test-patterns-song.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-patterns-song.mp4 59506328 bytes, 77.2 s, 15.5 fps, 3 threads, H.264 12 Mbps, 3 pattern steps
-test-patterns-timer.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-patterns-timer.mp4 18018057 bytes, 24.4 s, 14.8 fps, 3 threads, H.264 12 Mbps, 3 pattern steps
-test-allcores-1080p.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-allcores-1080p.mp4 14299411 bytes, 22.9 s, 13.1 fps, 3 threads, H.264 12 Mbps
-test-hevc.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-hevc.mp4 5894141 bytes, 8.1 s, 14.8 fps, 3 threads, H.264 12 Mbps (HEVC wasn't available)
-check-640x360.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\check-640x360.mp4 3061380 bytes, 1.5 s, 59.2 fps, 1 threads, H.264 12 Mbps
+test-1080p30.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-1080p30.mp4 14299411 bytes, 20.6 s, 14.6 fps, 1 threads, H.264 12 Mbps
+test-1440p60.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-1440p60.mp4 16818315 bytes, 25.5 s, 9.4 fps, 1 threads, H.264 36 Mbps
+test-2160p30.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-2160p30.mp4 17096830 bytes, 21.7 s, 4.2 fps, 1 threads, H.264 45 Mbps
+BC-Visualizer-all-101-styles.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-all-101-styles.mp4 462756365 bytes, 452.6 s, 20.1 fps, 3 threads, H.264 12 Mbps
+BC-Visualizer-fractals-random-colours.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-fractals-random-colours.mp4 58588509 bytes, 67.3 s, 17.8 fps, 3 threads, H.264 12 Mbps, 10 pattern steps with random colours
+test-mandelbulb-2160p.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-mandelbulb-2160p.mp4 18208348 bytes, 19.2 s, 4.7 fps, 3 threads, H.264 45 Mbps
+BC-Visualizer-moth-multicolour.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-moth-multicolour.mp4 29359928 bytes, 44.7 s, 13.4 fps, 1 threads, H.264 12 Mbps
+BC-Visualizer-moth-ice.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-moth-ice.mp4 29081557 bytes, 44.9 s, 13.4 fps, 1 threads, H.264 12 Mbps
+BC-Visualizer-wormhole-multicolour.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-wormhole-multicolour.mp4 29578342 bytes, 39.6 s, 15.2 fps, 1 threads, H.264 12 Mbps
+BC-Visualizer-weird-test.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\BC-Visualizer-weird-test.mp4 60166620 bytes, 89.2 s, 13.5 fps, 1 threads, H.264 12 Mbps
+test-patterns-song.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-patterns-song.mp4 52961923 bytes, 73.4 s, 16.3 fps, 3 threads, H.264 12 Mbps, 3 pattern steps
+test-patterns-timer.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-patterns-timer.mp4 18018057 bytes, 16.9 s, 21.4 fps, 3 threads, H.264 12 Mbps, 3 pattern steps
+test-allcores-1080p.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-allcores-1080p.mp4 14299411 bytes, 15.6 s, 19.3 fps, 3 threads, H.264 12 Mbps
+test-hevc.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\test-hevc.mp4 5894141 bytes, 5.4 s, 22.1 fps, 3 threads, H.264 12 Mbps (HEVC wasn't available)
+check-640x360.mp4: exit 0  OK D:\a\bc-toolkit\bc-toolkit\dist\check-640x360.mp4 3061380 bytes, 1.0 s, 89.6 fps, 1 threads, H.264 12 Mbps

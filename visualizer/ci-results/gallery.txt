@@ -1,12 +1,12 @@
-gallery: 83 images, exit 0
+gallery: 105 images, exit 0
 0 problems
-PASS  normal 1480x900  Look   (31 controls)
+PASS  normal 1480x900  Look   (32 controls)
 PASS  normal 1480x900  Effects   (31 controls)
 PASS  normal 1480x900  Patterns   (29 controls)
-PASS  smallest 1100x690  Look   (31 controls)
+PASS  smallest 1100x690  Look   (32 controls)
 PASS  smallest 1100x690  Effects   (31 controls)
 PASS  smallest 1100x690  Patterns   (29 controls)
-PASS  tall 1100x1500  Look   (31 controls)
+PASS  tall 1100x1500  Look   (32 controls)
 PASS  tall 1100x1500  Effects   (31 controls)
 PASS  tall 1100x1500  Patterns   (29 controls)
-PASS  normal 1480x900  style picker open   (30 controls)
+PASS  normal 1480x900  style picker open   (31 controls)

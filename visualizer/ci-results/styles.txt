@@ -78,3 +78,24 @@
 78. Tesseract - A four-dimensional cube turning through itself. Bass, mids and highs each spin a different pair of axes.
 79. Third Eye - An eye with an iris of 128 spectrum fibres. It glances with the panning and pitch, dilates in silence, blinks on big changes; six small eyes orbit it.
 80. Mycelium - A fungal network spreading through the dark. Every range that jumps sprouts new threads from its own height; the highs make them branch.
+81. Newton Basins - Newton's method finding three roots: three basins with braided borders. The mids turn the roots, bass hits make it overshoot and boil.
+82. Nova - The Nova fractal: Newton's method knocked off course at every pixel. The low mids bend it, the sub breathes it, the highs sharpen the spirals.
+83. Phoenix Feathers - A Phoenix Julia set, where every step remembers the last one: two feathered wings. The sub folds them, the mids ruffle the feathers.
+84. Tricorn - The Tricorn (Mandelbar): a three-pointed cousin of the Mandelbrot set, diving into its needle and back. The low mids bend it, loudness sets the speed.
+85. Multibrot Morph - The Mandelbrot formula with a power that slides from 3 to 7, so the set keeps growing and losing arms. The mids push the power, bass hits punch the zoom.
+86. Magnet - A fractal from the physics of magnets: bubbles of bubbles round a black heart. The sub swells it, presence hits shove the view.
+87. Lyapunov Zircon - A Lyapunov fractal: order glows, chaos goes dark. The window drifts over the map, the sub zooms it, each new section changes the pattern.
+88. Pickover Stalks - A Julia set drawn only where its orbits brush the axes: glowing stalks and spirals. The low mids steer it, the highs thicken the stalks.
+89. Mandelbulb - The Mandelbulb, the 3D Mandelbrot set, turning in the light. Loudness turns it, the sub pulls the camera in, the low mids swing the light round.
+90. Mandelbox - The Mandelbox: a cube folded into itself until it turns to carved stone, flown round and into. The bass changes the fold, loudness flies it.
+91. Menger Tunnels - Flying down the endless tunnels of a Menger sponge. Loudness sets the speed, drops throw it forward, the low mids roll the view.
+92. Apollonian Foam - Inside an endless sphere packing: bubbles in bubbles, flown through. Loudness flies it, the sub inflates the bubbles.
+93. Sierpinski Tetra - A 3D Sierpinski tetrahedron made of ever smaller ones, turning and twisting. The mids twist its folds, the bass swells it.
+94. Barnsley Fern - Barnsley's fern from four simple maps, swaying and curling. The low mids lean it, the mids curl the fronds, the highs light it up.
+95. Hopalong - Martin's Hopalong attractor: rings and petals of dots from one tiny formula. Each third of the ranges bends one of its three numbers.
+96. Thomas Drift - Thousands of specks drifting through Thomas's attractor, a looping knot seen turning in 3D. Loudness speeds the drift, the sub loosens the knot.
+97. Buddhabrot - The ghost of the Mandelbrot set: the paths of the points that escape it, piled up into a glowing figure. The low mids warp it, the mids add detail.
+98. Hilbert Curve - A Hilbert curve, one line that fills a square, with the spectrum running along it. The bass bends the corners, the beat sends a light down the line.
+99. Levy Lightning - The Levy C curve with its folding angle let loose, so it flickers between a tapestry and forked lightning. The low mids set the angle, presence hits crack it.
+100. Apollonian Gasket - Circles packed into the gaps between circles, forever. Each depth of circles answers its own part of the spectrum; the whole thing turns with the drones.
+101. T-Square - The T-square fractal: a square with a half-size square on every corner, and so on down. Each level pulses and turns with its own band.
