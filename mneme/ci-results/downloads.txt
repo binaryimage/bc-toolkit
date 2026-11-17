@@ -1,1 +1,2 @@
-ls: /sdcard/Download/Mneme: No such file or directory
+total 8
+-rwxrwx--- 1 u0_a177 media_rw 377 2026-11-17 15:25 Demo Song - Lyrics.txt
