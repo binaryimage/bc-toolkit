@@ -1,0 +1,3 @@
+text="Pixel Launcher isn't responding"
+text="Close app"
+text="Wait"
