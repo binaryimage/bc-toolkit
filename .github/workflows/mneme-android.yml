@@ -1,0 +1,108 @@
+name: Build + test Mneme lyrics (Android)
+
+on:
+  push:
+    paths: ["mneme/android/**", "mneme/ci/**", ".github/workflows/mneme-android.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write    # releases + committing test results back to the branch
+
+jobs:
+  mneme:
+    name: APK + emulator screenshots
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Read version
+        working-directory: mneme/android
+        run: echo "MNEME_VERSION=$(sed -n "s/.*versionName '\(.*\)'.*/\1/p" app/build.gradle)" >> "$GITHUB_ENV"
+
+      - name: Build the APK
+        id: build
+        working-directory: mneme/android
+        run: |
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          set -o pipefail
+          gradle assembleRelease --no-daemon --stacktrace 2>&1 | tee build.log
+          mkdir -p dist
+          cp app/build/outputs/apk/release/app-release.apk "dist/Mneme-$MNEME_VERSION.apk"
+          ls -la dist
+
+      - name: Save the build log if the build failed
+        if: failure() && steps.build.outcome == 'failure'
+        run: |
+          mkdir -p mneme/ci-results
+          grep -E "error:|warning: \[|FAILED|What went wrong" -A3 mneme/android/build.log | head -n 300 > mneme/ci-results/build-errors.log || true
+          tail -n 300 mneme/android/build.log > mneme/ci-results/build-failure.log
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f mneme/ci-results/build-failure.log mneme/ci-results/build-errors.log
+          git commit -m "Mneme build failed: log"
+          git pull --rebase origin "$GITHUB_REF_NAME" || true
+          git push origin "HEAD:$GITHUB_REF_NAME"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Mneme-Android
+          path: mneme/android/dist
+
+      - name: Publish a release (first time this version is pushed)
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="mneme-v$MNEME_VERSION"
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release upload "$TAG" "mneme/android/dist/Mneme-$MNEME_VERSION.apk" --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$TAG" "mneme/android/dist/Mneme-$MNEME_VERSION.apk" --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" --latest=false --title "Mneme $MNEME_VERSION (lyrics + ideas)" \
+              --notes "Lyrics notebook: songs with section tags, MIC speech-to-text, HUM melody clips, Ideas inbox, syllable counts, repeated-word check, offline rhymes, sing mode."
+          fi
+
+      - name: Enable KVM for the emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Screenshots of every screen (Android 14 emulator)
+        id: emu
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-boot-timeout: 900
+          emulator-options: -no-window -gpu swiftshader_indirect -no-boot-anim -camera-back none -camera-front none
+          script: bash mneme/ci/emulator-test.sh "mneme/android/dist/Mneme-${{ env.MNEME_VERSION }}.apk" mneme/ci-results
+
+      - name: Commit test results back to the branch
+        if: always() && steps.build.outcome == 'success'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p mneme/ci-results
+          echo "emulator step: ${{ steps.emu.outcome }}" > mneme/ci-results/status.txt
+          git add -f mneme/ci-results
+          if ! git diff --cached --quiet; then
+            git commit -m "Mneme $MNEME_VERSION: emulator screenshots"
+            git pull --rebase origin "$GITHUB_REF_NAME" || true
+            git push origin "HEAD:$GITHUB_REF_NAME"
+          fi

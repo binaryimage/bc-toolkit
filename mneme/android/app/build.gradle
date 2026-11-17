@@ -1,0 +1,42 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.binaryimage.mneme'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.binaryimage.mneme'
+        minSdk 31
+        targetSdk 34
+        // bump both for every build you want to install over the old one
+        versionCode 1
+        versionName '1.0.0'
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('../mneme.keystore')
+            storePassword 'mnemelyrics'
+            keyAlias 'mneme'
+            keyPassword 'mnemelyrics'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    androidResources {
+        noCompress 'tsv'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
