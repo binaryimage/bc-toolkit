@@ -290,18 +290,6 @@ public final class MainActivity extends Activity implements CaptureBar.Host {
             Ci.seed(this);
             refresh();
         }
-        String imp = i.getStringExtra("ci_import");    // path of a .txt pushed by the test script
-        if (imp != null) {
-            try {
-                java.io.File f = new java.io.File(imp);
-                byte[] b = java.nio.file.Files.readAllBytes(f.toPath());
-                Store.Song s = Store.importText(this, f.getName(), new String(b, StandardCharsets.UTF_8));
-                refresh();
-                open(s.id, "WRITE");
-            } catch (Exception e) {
-                Toast.makeText(this, "ci import failed: " + e, Toast.LENGTH_LONG).show();
-            }
-        }
         if (i.getBooleanExtra("ci_new", false)) list.post(this::newSong);
         if (i.getBooleanExtra("ci_menu", false)) list.post(() -> {
             List<Store.Song> s = Store.songs(this);

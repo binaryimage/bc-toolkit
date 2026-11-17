@@ -41,6 +41,8 @@ final class Dict {
         boolean known;
         final List<String> perfect = new ArrayList<>();
         final List<String> near = new ArrayList<>();
+        /** Perfect rhymes that are rare words or names. */
+        final List<String> rare = new ArrayList<>();
     }
 
     private static final HashMap<String, Entry> WORDS = new HashMap<>(200_000);
@@ -132,12 +134,11 @@ final class Dict {
 
         List<Entry> p = new ArrayList<>(BY_RHYME.getOrDefault(e.rhyme, Collections.emptyList()));
         p.sort((a, b) -> Integer.compare(a.order(), b.order()));
-        int unranked = 0;
         for (Entry x : p) {
-            if (out.perfect.size() >= 80) break;
             if (x.word.contains("'") || !seen.add(x.word)) continue;
-            if (x.rank == 0 && ++unranked > 25) continue;
-            out.perfect.add(x.word);
+            if (x.rank > 0) {
+                if (out.perfect.size() < 60) out.perfect.add(x.word);
+            } else if (out.rare.size() < 18) out.rare.add(x.word);
         }
 
         List<Entry> n = new ArrayList<>(BY_VOWELS.getOrDefault(e.vowels, Collections.emptyList()));
@@ -148,7 +149,7 @@ final class Dict {
         });
         for (Entry x : n) {
             if (out.near.size() >= 80) break;
-            if (x.word.contains("'") || !seen.add(x.word)) continue;
+            if (x.rank > 15000 || x.word.contains("'") || !seen.add(x.word)) continue;
             out.near.add(x.word);
         }
         return out;

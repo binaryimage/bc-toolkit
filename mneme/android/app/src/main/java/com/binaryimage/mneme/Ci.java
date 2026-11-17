@@ -22,7 +22,7 @@ final class Ci {
         }
         if (q.clips.isEmpty()) {
             q.clips.add(clip(c, q.id, "Verse 1 idea 1", "Verse 1", 2400, 330));
-            q.clips.add(clip(c, q.id, "Chorus melody", "Chorus", 3600, 392));
+            q.clips.add(clip(c, q.id, "Chorus melody", "Chorus", 9000, 392));
             q.clips.add(clip(c, q.id, "Bridge idea 3", "Bridge", 1800, 294));
             Store.save(c, q);
         }

@@ -443,8 +443,10 @@ public final class SongActivity extends Activity implements CaptureBar.Host {
         int p = Ui.dp(this, 12);
         ctl.setPadding(p, Ui.dp(this, 10), p, Ui.dp(this, 6));
         scrollBtn = Ui.solid(this, "▶  SCROLL");
+        scrollBtn.setSingleLine(true);
+        scrollBtn.setPadding(Ui.dp(this, 6), scrollBtn.getPaddingTop(), Ui.dp(this, 6), scrollBtn.getPaddingBottom());
         scrollBtn.setOnClickListener(v -> setScrolling(!scrolling));
-        ctl.addView(scrollBtn, Ui.lp(0, -2, 1.3f));
+        ctl.addView(scrollBtn, Ui.lp(0, -2, 1.6f));
         TextView slower = Ui.button(this, "−");
         slower.setOnClickListener(v -> setSpeed(speedIdx - 1));
         ctl.addView(slower, Ui.margins(Ui.lp(0, -2, 0.6f), this, 8, 0, 0, 0));
@@ -844,11 +846,14 @@ public final class SongActivity extends Activity implements CaptureBar.Host {
         if (i.getBooleanExtra("ci_clipmenu", false) && !song.clips.isEmpty())
             h.postDelayed(() -> clipMenu(song.clips.get(song.clips.size() - 1)), 500);
         if (i.getBooleanExtra("ci_scroll", false)) h.postDelayed(() -> setScrolling(true), 800);
-        if (i.getBooleanExtra("ci_play", false) && !song.clips.isEmpty())
-            h.postDelayed(() -> togglePlay(song.clips.get(song.clips.size() - 1)), 500);
-        String say = i.getStringExtra("ci_say");     // pretend the mic heard these (| separated)
+        if (i.getBooleanExtra("ci_play", false) && !song.clips.isEmpty()) h.postDelayed(() -> {
+            Store.Clip longest = song.clips.get(0);
+            for (Store.Clip k : song.clips) if (k.durMs > longest.durMs) longest = k;
+            togglePlay(longest);
+        }, 300);
+        String say = i.getStringExtra("ci_say");     // pretend the mic heard these ("/" between phrases, "_" for spaces)
         if (say != null) h.postDelayed(() -> {
-            for (String s : say.split("\\|")) {
+            for (String s : say.replace('_', ' ').split("/")) {
                 String tag = Dictation.spokenTag(s);
                 if (tag != null) onDictatedTag(tag);
                 else onDictatedLine(Dictation.tidy(s));

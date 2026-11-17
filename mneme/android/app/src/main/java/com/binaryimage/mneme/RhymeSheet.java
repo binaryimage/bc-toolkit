@@ -91,6 +91,7 @@ final class RhymeSheet {
         }
         section(sb, "PERFECT", r.perfect, pick, d);
         section(sb, "NEAR  (same vowel sound)", r.near, pick, d);
+        if (!r.rare.isEmpty()) section(sb, "RARE WORDS + NAMES", r.rare, pick, d);
         if (pick != null) {
             int s1 = sb.length();
             sb.append("\nTap a word to put it in your lyrics.");

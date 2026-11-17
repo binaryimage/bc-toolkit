@@ -53,21 +53,12 @@ shot 03-song-long-press-menu; back
 sh_ am start -S -n "$MAIN" > /dev/null; sleep 3
 tap_on "Quick line…" && { sh_ input text "Rust%son%sthe%sswing%sset"; sleep 1; back; tap_on "ADD"; sleep 2; shot 04-home-after-quick-line; }
 
-# ---- import a .txt the way Mneme exports it
-EXT=/sdcard/Android/data/$PKG/files
-sh_ mkdir -p $EXT
-printf 'Night Shift\n\n[Verse]\nForklift lights across the floor\nand the radio says rain\n\n[Chorus]\nPunch the clock and walk away\n' > /tmp/night.txt
-adb push /tmp/night.txt "$EXT/Night Shift - Lyrics.txt" > /dev/null
-sh_ am start -S -n "$MAIN" --es ci_import "$EXT/Night Shift - Lyrics.txt" > /dev/null; sleep 5
-shot 05-imported-txt
-sh_ am start -S -n "$MAIN" > /dev/null; sleep 3; shot 06-home-after-import
-
 # ---- song tabs
 song demo --es tab WRITE --ei ci_cursor 0
 shot 10-write; texts 10-write
 song demo --es tab WRITE --ei ci_cursor 40 --es ci_rhyme time
 sleep 4; shot 11-write-rhyme-sheet
-song demo --es tab WRITE --ei ci_cursor 99999 --es ci_say "new verse|the radio is talking to the walls|and i let it|chorus|nobody calls"
+song demo --es tab WRITE --ei ci_cursor 99999 --es ci_say "new_verse/the_radio_is_talking_to_the_walls/and_i_let_it/chorus/nobody_calls"
 sleep 4; shot 13-write-after-dictation
 song demo --es tab CHECK
 sleep 3; shot 14-check; texts 14-check
@@ -89,6 +80,12 @@ song demo --es tab WRITE --ez ci_share true
 sleep 2; shot 23-share-menu
 tap_on "Save .txt to Downloads"; sleep 2; shot 24-saved-txt
 sh_ ls -la /sdcard/Download/Mneme > "$OUT/downloads.txt" 2>&1
+# ---- import that .txt back through the real file picker
+sh_ am start -S -n "$MAIN" > /dev/null; sleep 3
+tap_on "IMPORT .TXT"; sleep 5; shot 24b-file-picker; texts 24b-file-picker
+tap_on "prefix:Demo Song - Lyrics" || { tap_on "Downloads" && sleep 3 && tap_on "Mneme" && sleep 3 && tap_on "prefix:Demo Song - Lyrics"; }
+sleep 5; shot 24c-imported-song
+sh_ am start -S -n "$MAIN" > /dev/null; sleep 3; shot 24d-home-after-import
 song ideas --es tab WRITE
 shot 25-ideas-write
 song ideas --es tab CLIPS
