@@ -7,7 +7,7 @@ MAIN="$PKG/.MainActivity"
 SONG="$PKG/.SongActivity"
 log() { echo "[$(date +%T)] $*"; }
 sh_() { adb shell "$@" | tr -d '\r'; }
-shot() { sleep 1; adb exec-out screencap -p > "$OUT/$1.png"; log "screenshot $1"; }
+shot() { sleep 1; clear_dialogs; adb exec-out screencap -p > "$OUT/$1.png"; log "screenshot $1"; }
 dump() { sh_ uiautomator dump /sdcard/ui.xml > /dev/null 2>&1; adb pull /sdcard/ui.xml /tmp/ui.xml > /dev/null 2>&1; }
 center_of() {   # match text or content-desc; "prefix:" for a prefix match
   dump
@@ -27,7 +27,8 @@ for n in root.iter('node'):
             sys.exit(0)
 PY
 }
-tap_on() { local c; c=$(center_of "$1"); if [ -n "$c" ]; then sh_ input tap $c; log "tapped $1"; return 0; else log "NOT FOUND: $1"; return 1; fi; }
+clear_dialogs() { local w; w=$(center_of "Wait"); [ -n "$w" ] && { sh_ input tap $w; log "dismissed system ANR dialog"; sleep 2; }; }
+tap_on() { clear_dialogs; local c; c=$(center_of "$1"); if [ -n "$c" ]; then sh_ input tap $c; log "tapped $1"; return 0; else log "NOT FOUND: $1"; return 1; fi; }
 texts() { dump; grep -o -E '(text|content-desc)="[^"]+"' /tmp/ui.xml > "$OUT/$1.txt"; }
 song() { sh_ am start -S -n "$SONG" --es song "$@" > /dev/null; sleep 4; }
 back() { sh_ input keyevent KEYCODE_BACK; sleep 1; }
